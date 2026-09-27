@@ -41,12 +41,12 @@ class BM25Index:
             * frequency
             * (self.K1 + 1.0)
             / (frequency + self.K1 * normaliser)
-            for term in set(query_terms)
+            for term in sorted(set(query_terms))  # fixed order: float sums must not depend on hash seeds
             if (frequency := frequencies.get(term, 0))
         )
 
     def confidence(self, query_terms: list[str], i: int) -> float:
-        unique = set(query_terms)
+        unique = sorted(set(query_terms))
         if not unique:
             return 0.0
         denominator = sum(self.idf(term) for term in unique)

@@ -35,6 +35,12 @@ checkpoint with `submit`: it runs the tests, commits the work as `[awaiting revi
 status to `review`:
     python tools/task_runner.py submit T01 --by "Copilot (<model>)" [--notes "what was done"]
 
+Coordination between the coder and the reviewer, without anyone relaying messages. `wait` blocks,
+polling the status board, until the other side has acted, then prints one line to act on:
+    python tools/task_runner.py wait T10 --for review     # reviewer: until T10 is submitted
+    python tools/task_runner.py wait T10 --for decision   # coder: until T10 is approved or rejected
+Exit codes: 0 = act on the printed line, 2 = task blocked, 3 = timed out (run it again).
+
 Permissions (claude): file edits are allowed; shell commands only from an allowlist (git without
 push/commit/reset, python, pip, pytest, npm, node, basic file inspection). Anything else is
 refused automatically. --yolo allows every command; use it only in a disposable checkout.
@@ -51,6 +57,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 import urllib.request
 from pathlib import Path
 
@@ -539,6 +546,52 @@ def cmd_submit(args) -> int:
     return 0
 
 
+def next_spec_task(rows: list[dict]) -> dict | None:
+    """First eligible task (board order) that has a code spec in specs/."""
+    return next((r for r in eligible(rows) if (REPO / "specs" / f"{r['id']}.md").exists()), None)
+
+
+def cmd_wait(args) -> int:
+    """Block until the other side of the checkpoint has acted, then print what to do next."""
+    def status() -> str:
+        row = next((r for r in parse_board(read_tasks_md()) if r["id"] == args.task_id), None)
+        if row is None:
+            sys.exit(f"{args.task_id} is not on the status board")
+        return row["status"]
+
+    start = status()
+    if args.for_ == "decision" and not start.startswith("review"):
+        sys.exit(f"{args.task_id} is not waiting for review (status: {start}). Submit it first.")
+    deadline = time.monotonic() + args.timeout if args.timeout else None
+    print(f"waiting for {args.for_} on {args.task_id} (status: {start}; every {args.interval}s)", flush=True)
+    while True:
+        s = status()
+        if s.startswith("blocked"):
+            print(f"BLOCKED {args.task_id}: {s}", flush=True)
+            return 2
+        if args.for_ == "review" and s.startswith("done"):
+            print(f"DONE {args.task_id}: already approved ({s})", flush=True)
+            return 0
+        if args.for_ == "review" and s.startswith("review"):
+            print(f"SUBMITTED {args.task_id}: review it now (python tools/task_runner.py review {args.task_id})",
+                  flush=True)
+            return 0
+        if args.for_ == "decision" and s.startswith("done"):
+            nxt = next_spec_task(parse_board(read_tasks_md()))
+            follow = (f"NEXT {nxt['id']}: implement specs/{nxt['id']}.md" if nxt
+                      else "NEXT none: no eligible task has a spec yet; stop and tell the owner")
+            print(f"APPROVED {args.task_id}. {follow}", flush=True)
+            return 0
+        if args.for_ == "decision" and s.startswith("todo"):
+            print(f"REJECTED {args.task_id}: fix every point in .task-runs/{args.task_id}/feedback.md, "
+                  f"then submit again", flush=True)
+            return 0
+        if deadline and time.monotonic() >= deadline:
+            print(f"TIMEOUT {args.task_id}: still {s}; run the same wait command again", flush=True)
+            return 3
+        time.sleep(args.interval)
+
+
 # --------------------------------------------------------------------------- #
 # Review checkpoint
 # --------------------------------------------------------------------------- #
@@ -667,6 +720,11 @@ def main() -> int:
     sb.add_argument("--notes", help="short report of what was done; shown in the review packet")
     sb.add_argument("--verify", help="custom verification shell command (default: pytest in services/tutor)")
     sb.add_argument("--allow-failing", action="store_true", help="submit even if the tests fail")
+    wt = sub.add_parser("wait", help="block until the task is submitted (--for review) or decided (--for decision)")
+    wt.add_argument("task_id")
+    wt.add_argument("--for", dest="for_", choices=["review", "decision"], required=True)
+    wt.add_argument("--timeout", type=int, default=1800, help="seconds before giving up (default 1800, 0 = none)")
+    wt.add_argument("--interval", type=int, default=20, help="seconds between checks (default 20)")
     rv = sub.add_parser("review", help="build the review packet for a task waiting at the checkpoint")
     rv.add_argument("task_id")
     apv = sub.add_parser("approve", help="close the checkpoint: mark the task done")
@@ -680,7 +738,8 @@ def main() -> int:
     rj.add_argument("--revert", action="store_true", help="also git-revert the task commit")
     args = ap.parse_args()
     return {"status": cmd_status, "smoke": cmd_smoke, "run": cmd_run, "submit": cmd_submit,
-            "review": cmd_review, "approve": cmd_approve, "reject": cmd_reject}[args.cmd](args)
+            "wait": cmd_wait, "review": cmd_review, "approve": cmd_approve,
+            "reject": cmd_reject}[args.cmd](args)
 
 
 if __name__ == "__main__":

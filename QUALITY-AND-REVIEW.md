@@ -39,7 +39,8 @@ its own work. So every task stops at a checkpoint:
    `task_runner.py review <ID>` builds a packet with the diff, the test output, the agent's report
    and a checklist (scope, acceptance checks, invariants, domain correctness, test quality, no
    secrets or licensed text).
-4. The reviewers close the checkpoint:
+4. The reviewers close the checkpoint. Claude approves tasks that only change code; the owner
+   approves tasks that change domain content, such as concept maps, rubrics or calculators:
    - `approve <ID>` marks the task done and unlocks the tasks that depend on it;
    - `reject <ID> --reason "..."` sends it back. The reason is added to the agent's next prompt;
      `--revert` also undoes the commit.

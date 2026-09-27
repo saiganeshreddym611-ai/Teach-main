@@ -7,48 +7,65 @@ answer keys.
 
 ## Order
 
-Do the tasks in this order. Each one must be approved before the next starts.
+Do the tasks in this order. Each one must be approved before the next starts. "Owner approves"
+marks tasks that change domain content: Claude reviews them, but only the owner approves them
+(owner decision D5). Claude approves the others.
 
-| Order | Spec | Task | Depends on |
-|---|---|---|---|
-| 1 | [T01](T01.md) | Baseline green and housekeeping | T00 (done) |
-| 2 | [T02](T02.md) | Shared contracts module | T01 |
-| 3 | [T10](T10.md) | Content pack layout and loader | T02 |
-| 4 | [T82](T82.md) | Voice verification mock endpoint | T01 |
-| 5 | [T11](T11.md) | Review gate | T10 |
-| 6 | [T20](T20.md) | Ingestion pipeline | T10 |
-| 7 | [T21](T21.md) | Source-ref resolver and passage API | T20 |
-| 8 | [T22](T22.md) | Retriever (node-linked + BM25) | T21 |
+| Order | Spec | Task | Depends on | Owner approves |
+|---|---|---|---|---|
+| 1 | [T01](T01.md) | Baseline green and housekeeping | T00 (done) | done |
+| 2 | [T02](T02.md) | Shared contracts module | T01 | done |
+| 3 | [T10](T10.md) | Content pack layout and loader | T02 | yes (concept map moves; draft chapters) |
+| 4 | [T82](T82.md) | Voice verification mock endpoint | T01 | no |
+| 5 | [T11](T11.md) | Review gate | T10 | no |
+| 6 | [T20](T20.md) | Ingestion pipeline | T10 | no (synthetic fixtures only) |
+| 7 | [T21](T21.md) | Source-ref resolver and passage API | T20 | no |
+| 8 | [T22](T22.md) | Retriever (node-linked + BM25) | T21 | no |
 
 Specs for later tasks (T23, T30, T50 and on) are written after these are reviewed, so they build
-on the code as it actually landed.
+on the code as it actually landed. When no eligible task has a spec, the loop stops and waits.
 
-## Loop for one task
+## The loop
 
-1. Check what is next:
+Copilot and Claude coordinate through the status board and `tools/task_runner.py`. Nobody relays
+messages.
 
-   ```bash
-   python tools/task_runner.py status
-   ```
+```text
+Copilot                                   Claude (Claude Code session)
+-------                                   ----------------------------
+implement specs/<ID>.md
+submit <ID>  ---- status: review ---->    wait <ID> --for review wakes up
+wait <ID> --for decision (blocks)         review: approve / small fix + approve / reject
+             <--- status: done or todo -  (owner approves content tasks)
+APPROVED -> NEXT <ID2>: start it
+REJECTED -> fix feedback.md, submit again
+```
 
-2. In VS Code, open Copilot Chat in **Agent** mode. Choose the strongest model you have. Paste the
-   "Prompt for Copilot" block from the spec. Copilot reads `.github/copilot-instructions.md`
-   automatically.
-3. Let Copilot finish. It must end with the test command it ran and the result. If tests fail,
-   ask it to fix them.
-4. Submit the work to the checkpoint. This runs the tests, commits the work as
-   `[awaiting review]` and sets the task to `review`:
+1. **Start once.** In VS Code, open Copilot Chat in **Agent** mode with the strongest model you
+   have. Paste the spec's "Prompt for Copilot" block, and add: "When done, follow 'When you
+   finish' in the Copilot instructions and keep going until wait says NEXT none." Copilot reads
+   `.github/copilot-instructions.md` automatically.
+2. **Tell Claude.** In Claude Code, say "watch T10". Claude starts a background
+   `wait T10 --for review` and schedules a one-time check at the estimated finish time, in case
+   the watch is missed.
+3. **Copilot finishes.** It runs `submit` (tests plus an `[awaiting review]` commit), then
+   `wait <ID> --for decision`, which blocks.
+4. **Claude reviews** as soon as the submit lands. Then Claude either:
+   - approves, if the task does not change domain content;
+   - fixes small problems, commits the fixes, and approves;
+   - asks you to approve, if the task changes domain content; or
+   - rejects with reasons (`reject <ID> --reason ...`), which are written to
+     `.task-runs/<ID>/feedback.md`.
+5. **Copilot continues.** Its `wait` prints `APPROVED ... NEXT <ID2>` or `REJECTED ...` and it acts
+   on that. After each approval, Claude starts watching the next task.
 
-   ```bash
-   python tools/task_runner.py submit T01 --by "Copilot (<model name>)" --notes "<paste Copilot's final report>"
-   ```
-
-5. In Claude Code, say **"review T01"**. Claude builds the review packet, checks the code against
-   the spec and the rules, and then either:
-   - fixes small problems directly and approves with you, or
-   - rejects with reasons: `python tools/task_runner.py reject T01 --reason "..."`. The reasons
-     are saved to `.task-runs/T01/feedback.md`. Go back to step 2 and add: "Also fix the review
-     feedback in `.task-runs/T01/feedback.md`."
+**Limits.**
+- Claude's watch and check live only in the open Claude Code session, and fire only while it is
+  idle.
+- Copilot's `wait` gives up after 30 minutes (`TIMEOUT`, exit 3). Copilot runs it again. If
+  Copilot's chat ends instead, paste: "run `python tools/task_runner.py wait <ID> --for decision`
+  and continue".
+- You can still do any step by hand: `submit`, or tell Claude "review <ID>".
 
 ## Before you start
 

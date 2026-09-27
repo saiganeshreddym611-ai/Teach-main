@@ -40,8 +40,9 @@ grader, tutor voice, ledger, kiosk). Nothing in this plan has been implemented y
 - New environment variables are added to `services/tutor/.env.example` and the README table.
 - No review status was set by hand. Only the review pipeline (T23) or a recorded human sign-off
   sets it (see rule 7 below).
-- The task passed the review checkpoint: Claude and the owner reviewed it and ran
-  `task_runner.py approve` (owner decision D5). An agent never approves its own work.
+- The task passed the review checkpoint: Claude reviewed it and ran `task_runner.py approve`; for
+  tasks that change domain content, the owner approved it (owner decision D5). A coding agent never
+  approves its own work.
 - Commit message starts with the task ID, for example `T21: resolve node source_refs to passages`.
 - Never push to a remote or open a PR unless a human asked for it.
 
@@ -94,7 +95,9 @@ python tools/task_runner.py submit T01 --by "Copilot (<model>)" --notes "<Copilo
 ```
 
 `submit` runs the tests, commits the work as `[awaiting review]` and sets the status to `review`.
-Then `review`, `approve` and `reject` work as above. See `specs/README.md` for the loop.
+Then `review`, `approve` and `reject` work as above. Copilot runs `submit` itself, then
+`wait <ID> --for decision`; Claude watches with `wait <ID> --for review`. The status board is
+the only channel between them. See `specs/README.md` ("The loop").
 
 ---
 

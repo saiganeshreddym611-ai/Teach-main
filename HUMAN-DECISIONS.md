@@ -36,8 +36,12 @@ topics the student must strengthen. Exams become one possible goal among others 
 **D4. Git identity is configured locally for this repository.** Decided earlier.
 
 **D5. Code review checkpoint (2026-09-27).** Decided. Every task the coding agent completes stops
-at a checkpoint. Claude, in a Claude Code session with the owner, reviews the change before it
-counts as done. No new task starts while one waits for review. Built into `tools/task_runner.py`.
+at a checkpoint. Claude, in a Claude Code session, reviews the change before it counts as done.
+No new task starts while one waits for review. Built into `tools/task_runner.py`.
+Refined the same day: Claude approves tasks that only change code. Tasks that change domain content
+(concept maps, explanations, rubrics, calculators, answer keys, task templates, practice mapping,
+eval expectations) are approved by the owner. GitHub Copilot may submit its own work to the
+checkpoint and wait for the decision, but never approves (`specs/README.md`, "The loop").
 
 **D6. Ollama models never review (2026-09-27).** Decided. Concepts must be right, so review of
 code and content is done by Claude and by us, never by the Ollama models that write code and
@@ -385,7 +389,7 @@ Status: Confirm / Change ______________________  Date: __________
 | D4 Git identity | Configured locally | Owner | earlier | — |
 | T00 baseline commit | Approve `638b803`; T00 done | Owner | 2026-09-27 | `TASKS.md` status board |
 | 2 AI review settings | Two reviewer models of different families (withdrawn by D6); 10% sample (min 10); any audit error returns the release; 95% planted-error catch rate | Owner | 2026-09-27 | — |
-| D5 Code review checkpoint | Every runner task stops at review; Claude and the owner approve or reject | Owner | 2026-09-27 | `tools/task_runner.py`; `QUALITY-AND-REVIEW.md` section 2 |
+| D5 Code review checkpoint | Every coding-agent task stops at review; Claude approves code-only tasks, the owner approves domain-content tasks; Copilot may submit but never approve | Owner | 2026-09-27 | `tools/task_runner.py`; `QUALITY-AND-REVIEW.md` section 2 |
 | D6 Reviewer | Claude and humans review code and content; Ollama models never review; professional sign-off per release | Owner | 2026-09-27 | `TASKS.md` T11, T23 |
 | D7 Student flags | 10 unique flags open a community check; confirmed items go to professional review | Owner | 2026-09-27 | `TASKS.md` T85, T86, T66; thresholds in section 12 |
 | 5.1 Attempt (Q1) | CA Final May 2027; reuse May/Nov 2026 practice items after AI review | Owner | 2026-09-27 | `TASKS.md` T10 manifest |

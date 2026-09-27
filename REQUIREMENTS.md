@@ -237,7 +237,7 @@ Ollama models may draft content but never review it.
   sources before use: claim-level evidence judged by Claude, verbatim quote checks in code, and
   sign-off by a qualified professional for every release (D1, D6). Ollama models never review.
 - **Review checkpoint for code.** Code written by coding agents counts as done only after Claude
-  and the owner review it at the runner's checkpoint (D5).
+  reviews it at the runner's checkpoint; the owner also approves changes to domain content (D5).
 - **Community correction.** Students can flag errors; confirmed flags reach professional review
   (FR-14, D7).
 - **Traceability.** Every verdict is auditable to its retrieved source passage and the student's

@@ -10,8 +10,9 @@ ledger. A Next.js kiosk (`apps/web`) talks to it over SSE.
   The spec is the source of truth for file names, signatures, behaviour and tests.
 - Read these first: the spec, `TASKS.md` sections 2 (rules) and 3 (shared contracts), and every
   file the spec lists under "Read first".
-- Do exactly what the spec says. Do not start the next task, refactor unrelated code or rename
-  anything the spec does not ask you to.
+- Do exactly what the spec says. Do not refactor unrelated code or rename anything the spec does
+  not ask you to. Start the next task only when `task_runner.py wait` tells you to (see "When you
+  finish").
 - If the spec and the code disagree, or the spec is unclear, stop and say so in your final report.
   Do not guess.
 - If `.task-runs/<ID>/feedback.md` exists, it holds review feedback from an earlier attempt. Fix
@@ -62,9 +63,11 @@ cd apps/web && npm run lint && npm run build  # only if you touched apps/web
 ## What you must not do
 
 - Do not run `git commit`, `git push`, `git reset`, `git checkout -- <file>` or `git clean`.
-  The owner submits your work to review with `python tools/task_runner.py submit <ID>`.
-- Never submit, approve or reject a task, and never mark one done, even if asked. Approval is the
-  reviewer's job (`task_runner.py approve`, run by Claude with the owner).
+  The only way your work is committed is `task_runner.py submit` (see "When you finish").
+- Never approve or reject a task, and never mark one done, even if asked. Approval is the
+  reviewer's job (`task_runner.py approve`, run by Claude; the owner also approves tasks that
+  change domain content).
+- Never start a task that has no spec in `specs/`.
 - Never rewrite files with PowerShell `Set-Content`, `Out-File` or `>`. They change the encoding
   and corrupt characters such as `—` and `→`. All text files are UTF-8 without a BOM.
 - Do not edit `TASKS.md` (not even the status board), `REQUIREMENTS.md`, `HUMAN-DECISIONS.md`, `QUALITY-AND-REVIEW.md`,
@@ -75,9 +78,29 @@ cd apps/web && npm run lint && npm run build  # only if you touched apps/web
 
 ## When you finish
 
-End with a short report:
+1. Write a short report:
+   - Every test in the spec's test table, by name, and whether it exists and passes.
+   - Files created and changed.
+   - The exact test command you ran and its last line of output.
+   - Anything in the spec you could not do, and why.
+2. Submit it to the review checkpoint. This runs the tests and commits your work as
+   `[awaiting review]`. If the tests fail, it refuses: fix them and submit again.
 
-- Every test in the spec's test table, by name, and whether it exists and passes.
-- Files created and changed.
-- The exact test command you ran and its last line of output.
-- Anything in the spec you could not do, and why.
+   ```bash
+   python tools/task_runner.py submit <ID> --by "Copilot (<your model>)" --notes "<the report, one paragraph>"
+   ```
+
+3. Wait for the review. Claude reviews automatically. This command polls and blocks for up to 30
+   minutes:
+
+   ```bash
+   python tools/task_runner.py wait <ID> --for decision
+   ```
+
+4. Act on the line it prints:
+   - `APPROVED <ID>. NEXT <ID2>: implement specs/<ID2>.md`: start that task from its spec.
+   - `APPROVED <ID>. NEXT none ...`: stop and tell the owner that all specified tasks are done.
+   - `REJECTED <ID>: fix every point in .task-runs/<ID>/feedback.md ...`: fix them, then go back to
+     step 1.
+   - `TIMEOUT ...` (exit code 3): run the same `wait` command again.
+   - `BLOCKED ...` (exit code 2): stop and tell the owner.

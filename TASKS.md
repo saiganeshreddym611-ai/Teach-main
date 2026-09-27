@@ -289,7 +289,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T22 | Retriever (node-linked + BM25) | A | T21 | done (3813709, reviewed by Claude) |
 | T23 | Grounded Claude review pipeline | A | T22, T11 | done (cfb4df7, reviewed by Claude + owner) |
 | T24 | Grounded review of tasks and answer keys (T23b) | A | T23, T50, T51 | todo |
-| T25 | Second topic pack: Ind AS 37 from the FR trees | A | T23 | review (Claude, 2026-09-27, log .task-runs/T25/20260927-193652) |
+| T25 | Second topic pack: Ind AS 37 from the FR trees | A | T23 | done (bfa787a, reviewed by Claude + owner) |
 | T26 | Hybrid retrieval: vector search that keeps passage IDs | A | T22 | todo |
 | T30 | Grader v2: claims and citations | B | T22 | done (9c236a2, reviewed by Claude + owner) |
 | T31 | Ledger v2: student-scoped, cited, exportable | B | T30 | todo |
@@ -300,6 +300,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T41 | Tutor grounding and spoken citations | C | T40, T21 | todo |
 | T42 | Syllabus boundary and confidence guard | C | T41, T22 | todo |
 | T43 | Tutor bench update | C | T42 | todo |
+| T44 | Study modes: learning (depth) and revision (headings) | C | T30 | todo |
 | T50 | Skill and task schema, validator, draft templates | D | T10, T21 | todo |
 | T51 | Deterministic calculators and variant generator | D | T50 | todo |
 | T52 | Task grader | D | T51, T30, T32 | todo |
@@ -608,6 +609,14 @@ marked *(new)* do not exist yet.
   an explain turn cites a provided label; no unprovided paragraph numbers; at most 120 words; ends
   with one question.
 - **Acceptance:** the bench runs on the configured tutor model(s) and the README table is updated.
+
+#### T44 — Study modes: learning (one topic in depth) and revision (heading by heading)
+- **Coder:** Claude (D8: tutor flow). **Approves:** owner, from a demo. Owner request 2026-09-27.
+- **Summary:** after the diagnostic, code counts the main headings (level-1 nodes) with no
+  evidence. None missing (`REVISION_MAX_MISSING_HEADS`, default 0): **revision**, breadth-first as
+  before. Otherwise **learning**: depth-first, so a heading and all its subtopics are taught before
+  the next heading, and a parked heading's subtopics wait with it. The tutor says which mode it chose
+  in one sentence; `SessionView.study_mode` and a header label show it.
 
 ### M5 — Skills
 

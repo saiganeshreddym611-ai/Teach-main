@@ -312,7 +312,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T71 | Exam-style practice from RTP/MTP/past papers | F | T70, T52, T20 | todo |
 | T80 | Student data deletion and retention | F | T31, T32, T42 | todo |
 | T81 | Optional SQLite store | F | T80 | todo |
-| T82 | Voice verification mock endpoint | F | T01 | review (Copilot CLI (auto), 2026-09-27, log .task-runs/T82/20260927-151735) |
+| T82 | Voice verification mock endpoint | F | T01 | done (18c4895, reviewed by Claude) |
 | T83 | Content swap proof | A | T22, T50 | todo |
 | T84 | Optional seeded job profile | F | T31 | todo |
 | T85 | Student flags and community check | F | T31, T41, T80 | todo |

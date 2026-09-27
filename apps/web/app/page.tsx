@@ -6,6 +6,7 @@ import TalkButton from "@/components/TalkButton";
 import Transcript, { type LocalTurn } from "@/components/Transcript";
 import Waveform, { type VoiceState } from "@/components/Waveform";
 import { API_BASE, createSession, getContent, getSession, streamTurn, type MasteryEntry, type Phase } from "@/lib/api";
+import type { LedgerEvent } from "@/lib/contracts";
 import { probeServerTTS, ServerSpeaker, WebSpeechListener, WebSpeechSpeaker, type Speaker, micErrorMessage } from "@/lib/speech";
 
 const PHASE_LABEL: Record<Phase, string> = {
@@ -24,6 +25,8 @@ export default function Kiosk() {
   const [targetNode, setTargetNode] = useState<string | null>(null);
   const [turns, setTurns] = useState<LocalTurn[]>([]);
   const [mastery, setMastery] = useState<MasteryEntry[]>([]);
+  const [ledger, setLedger] = useState<LedgerEvent[]>([]);
+  const [omissions, setOmissions] = useState<string[]>([]);
   const [summary, setSummary] = useState("");
   const [voice, setVoice] = useState<VoiceState>("idle");
   const [interim, setInterim] = useState("");
@@ -81,6 +84,7 @@ export default function Kiosk() {
   const refreshMastery = useCallback(async (sid: string) => {
     const view = await getSession(sid);
     setMastery(view.mastery);
+    setLedger(view.ledger ?? []);
     setPhase(view.phase);
     setTargetNode(view.target_node);
     setStudyMode(view.study_mode ?? null);
@@ -93,6 +97,7 @@ export default function Kiosk() {
     try {
       const s = await createSession();
       setSessionId(s.session_id);
+      setOmissions([]);
       setPhase(s.phase);
       setTurns([{ id: "opening", role: "tutor", text: s.opening_prompt, phase: s.phase }]);
       await refreshMastery(s.session_id);
@@ -151,6 +156,7 @@ export default function Kiosk() {
       await streamTurn(sessionId, transcript, {
         onGrade: (g) => {
           if (g.summary) setSummary(g.summary);
+          setOmissions((g.omissions ?? []).map((o) => o.node_id));
         },
         onText: (delta) => {
           if (!started) {
@@ -169,6 +175,7 @@ export default function Kiosk() {
           speaker?.flush();
           if (!speaker?.supported) setVoice("idle");
           else maybeIdle();
+          setOmissions([]);
           await refreshMastery(sessionId);
         },
         onError: async (m) => {
@@ -293,7 +300,7 @@ export default function Kiosk() {
 
       {/* ledger (right rail on desktop, below on phone) */}
       <section className="min-h-0 md:row-span-2 py-2 md:py-4 order-last md:order-none border-t border-zinc-800/80 md:border-0">
-        <MasteryGrid mastery={mastery} targetNode={targetNode} summary={summary} />
+        <MasteryGrid mastery={mastery} ledger={ledger} omissions={omissions} targetNode={targetNode} summary={summary} />
       </section>
 
       {/* voice controls */}

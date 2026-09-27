@@ -1,12 +1,12 @@
 // Thin client for the tutor service. The /turn endpoint is SSE over POST, so we
 // parse the stream by hand instead of using EventSource (which is GET-only).
 
-import type { ContentInfo, DoneEvent, GradeEvent, MasteryEntry, NodeStatus, Passage, Phase, SessionView, SkillDef, Turn, Verdict } from "./contracts";
+import type { ContentInfo, DoneEvent, GradeEvent, MasteryEntry, NodeStatus, Passage, PassageResponse, Phase, SessionView, SkillDef, Turn, Verdict } from "./contracts";
 import { dispatch } from "./sse";
 
 export const API_BASE = process.env.NEXT_PUBLIC_TUTOR_API ?? "http://localhost:8000";
 
-export type { ContentInfo, DoneEvent, GradeEvent, MasteryEntry, NodeStatus, Passage, Phase, SessionView, SkillDef, Turn, Verdict };
+export type { ContentInfo, DoneEvent, GradeEvent, MasteryEntry, NodeStatus, Passage, PassageResponse, Phase, SessionView, SkillDef, Turn, Verdict };
 
 export async function createSession(studentId = "demo_student", topicId?: string) {
   const r = await fetch(`${API_BASE}/session`, {
@@ -69,10 +69,10 @@ export async function streamTurn(sessionId: string, transcript: string, h: TurnH
   if (buf.trim()) dispatch(buf, h);
 }
 
-export async function getPassage(id: string): Promise<unknown> {
+export async function getPassage(id: string): Promise<PassageResponse> {
   const r = await fetch(`${API_BASE}/passages/${encodeURIComponent(id)}`);
   if (!r.ok) throw new Error(`getPassage ${r.status}: ${await r.text()}`);
-  return r.json();
+  return (await r.json()) as PassageResponse;
 }
 
 export async function getStudentLedger(studentId: string): Promise<unknown> {

@@ -38,3 +38,9 @@ def test_mastery_view_covers_every_node(session, curriculum):
     assert by_id["ind_as_115.step_4"].confidence == 0.8
     assert by_id["ind_as_115.step_5"].status == NodeStatus.NOT_MENTIONED
     assert by_id["ind_as_115.step_5"].confidence is None
+
+
+def test_mastery_view_sets_chapter_on_entries(session, curriculum):
+    view = mastery_view(session, curriculum)
+    assert view[0].chapter == "Ind AS 115 — Revenue from Contracts with Customers"
+    assert all(m.chapter for m in view if m.level == 1)

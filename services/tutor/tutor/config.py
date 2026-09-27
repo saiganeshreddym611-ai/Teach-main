@@ -13,6 +13,8 @@ load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 @dataclass
 class Settings:
     content_pack: str = os.getenv("CONTENT_PACK", "ind_as_115")
+    # Placeholder until H5 signs off a calibrated value (scripts/calibrate_retrieval.py).
+    retrieval_min_confidence: float = float(os.getenv("RETRIEVAL_MIN_CONFIDENCE", "0.5"))
     require_reviewed_content: bool = os.getenv("REQUIRE_REVIEWED_CONTENT", "0") in {"1", "true", "yes"}
     model: str = os.getenv("TUTOR_MODEL", "claude-opus-5")
     mock_llm: bool = os.getenv("MOCK_LLM", "0") in {"1", "true", "yes"}

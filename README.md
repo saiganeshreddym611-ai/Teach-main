@@ -43,6 +43,7 @@ Optional — local text-to-speech (recommended; the browser voice is the fallbac
 | `MOCK_LLM=1` | Deterministic keyword grader + template tutor. No models, no cost — for UI work and demos. |
 | `CONTENT_PACK` | Active versioned content pack under `content/packs/`; defaults to `ind_as_115`. |
 | `REQUIRE_REVIEWED_CONTENT` | `1` refuses to teach unless every content item is reviewed and the release is signed off; defaults to `0`. |
+| `RETRIEVAL_MIN_CONFIDENCE` | Placeholder for the future out-of-syllabus gate; defaults to `0.5` until H5 signs off a calibrated value. |
 | `TTS_ENGINE` | `browser` (Web Speech API in the kiosk), `piper` or `kokoro` (server-side, `POST /tts`). |
 | `PIPER_VOICE`, `KOKORO_VOICE`, `TTS_SPEED` | Default voice and rate. The kiosk header has a voice picker for any voice in `models/`. |
 

@@ -1,0 +1,15 @@
+{"id":"in01","pack":"fixture_115","query":"widget agreement register","in_syllabus":true,"expected":["IndAS115.para.9"]}
+{"id":"in02","pack":"fixture_115","query":"widget unit price","in_syllabus":true,"expected":["IndAS115.para.10"]}
+{"id":"in03","pack":"fixture_115","query":"wup","in_syllabus":true,"expected":["IndAS115.para.10"]}
+{"id":"in04","pack":"fixture_115","query":"blue token widget","in_syllabus":true,"expected":["IndAS115.para.11"]}
+{"id":"in05","pack":"fixture_115","query":"brass widget note","in_syllabus":true,"expected":["IndAS115.para.22"]}
+{"id":"in06","pack":"fixture_115","query":"paper widget note","in_syllabus":true,"expected":["IndAS115.para.22"]}
+{"id":"in07","pack":"fixture_115","query":"purple widget label","in_syllabus":true,"expected":["IndAS115.para.27A"]}
+{"id":"in08","pack":"fixture_115","query":"wooden widget token","in_syllabus":true,"expected":["IndAS115.para.B28"]}
+{"id":"in09","pack":"fixture_115","query":"green stripe wooden token","in_syllabus":true,"expected":["IndAS115.para.B29"]}
+{"id":"in10","pack":"fixture_115","query":"imaginary stripe effect","in_syllabus":true,"expected":["IndAS115.para.B30"]}
+{"id":"out01","pack":"fixture_115","query":"lease classification","in_syllabus":false,"expected":[]}
+{"id":"out02","pack":"fixture_115","query":"GST rates services","in_syllabus":false,"expected":[]}
+{"id":"out03","pack":"fixture_115","query":"US GAAP LIFO inventory","in_syllabus":false,"expected":[]}
+{"id":"out04","pack":"fixture_115","query":"deferred tax revaluation","in_syllabus":false,"expected":[]}
+{"id":"out05","pack":"fixture_115","query":"foreign exchange hedge","in_syllabus":false,"expected":[]}

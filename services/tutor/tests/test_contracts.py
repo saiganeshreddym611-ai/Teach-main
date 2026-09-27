@@ -14,6 +14,7 @@ from tutor.contracts import (
     GraderOutput,
     JudgementCheck,
     LedgerEvent,
+    NodeVerdictV2,
     NumericCheck,
     Omission,
     PackManifest,
@@ -128,7 +129,12 @@ RUBRIC = {
         }),
         (VerifyRequest, {"student_id": "student_1", "audio_b64": "YQ=="}),
         (VerifyResponse, {"match": True, "score": 1.0, "method": "stub"}),
-        (Omission, {"node_id": "n1"}),
+        (ParamSpec, {"type": "money", "min": "100000.00", "max": "900000.00", "step": "1000.00"}),
+        (NodeVerdictV2, {
+            "node_id": "n1", "status": "PARTIAL", "confidence": 0.8,
+            "rubric_items_met": [0], "passage_ids": ["p1"],
+        }),
+        (Omission, {"node_id": "n1", "citations": [{"passage_id": "p1", "label": "para 76", "doc_id": "d1"}]}),
         (GraderOutput, {"verdicts": [], "summary": "Summary"}),
         (LedgerEvent, {
             "student_id": "s1", "node_id": "n1", "status": NodeStatus.VERIFIED,
@@ -137,7 +143,8 @@ RUBRIC = {
     ],
 )
 def test_example_validates(model: type[Any], payload: dict[str, Any]):
-    assert model.model_validate(payload)
+    obj = model.model_validate(payload)
+    assert model.model_validate(obj.model_dump(mode="json")) == obj
 
 
 def test_bad_doc_type_rejected():
@@ -160,6 +167,8 @@ def test_confidence_bounds():
     with pytest.raises(ValidationError):
         ScoredPassage.model_validate({"passage": PASSAGE, "score": 1.0, "confidence": 1.1})
     with pytest.raises(ValidationError):
+        NodeVerdictV2.model_validate({"node_id": "n1", "status": "GAP", "confidence": 1.5})
+    with pytest.raises(ValidationError):
         VerifyResponse.model_validate({"match": True, "score": -0.1, "method": "stub"})
 
 
@@ -174,6 +183,7 @@ def test_old_ledger_event_still_valid():
     )
     assert event.source is None
     assert event.kind == "concept"
+    assert event.passage_ids == []
     assert LedgerSource.__args__
 
 

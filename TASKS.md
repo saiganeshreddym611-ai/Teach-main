@@ -289,6 +289,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T22 | Retriever (node-linked + BM25) | A | T21 | done (3813709, reviewed by Claude) |
 | T23 | Grounded Claude review pipeline | A | T22, T11 | done (cfb4df7, reviewed by Claude + owner) |
 | T24 | Grounded review of tasks and answer keys (T23b) | A | T23, T50, T51 | todo |
+| T25 | Second topic pack: Ind AS 37 from the FR trees | A | T23 | todo |
 | T30 | Grader v2: claims and citations | B | T22 | done (9c236a2, reviewed by Claude + owner) |
 | T31 | Ledger v2: student-scoped, cited, exportable | B | T30 | todo |
 | T32 | Grader audit log and determinism | B | T30 | todo |
@@ -423,6 +424,15 @@ marked *(new)* do not exist yet.
 - **Coder:** Claude (D8). **Spec:** [specs/T23.md](specs/T23.md), T23b scope.
 - **Summary:** Extend the T23 pipeline to task templates and answer keys, checked against official
   worked illustrations. Starts after T50 and T51 land.
+
+#### T25 — Second topic pack: Ind AS 37 Provisions, drafted from the FR trees
+- **Coder:** Claude (D8, domain content). **Approves:** owner, from a demo (D5). See Q13.
+- **Summary:** Convert the four AI-generated walkthroughs in the owner's `FR/Ind_AS_37/` folder
+  (Tree_1 to Tree_4: recognition, measurement, onerous contracts and restructuring, reimbursements
+  and contingent assets) into a `content/packs/ind_as_37/` concept map. Copy the drafts into
+  `content/drafts/ind_as_37/`. Nodes cite Ind AS 37 paragraphs in `source_refs` and start as
+  `draft`; the T23 review runs once the MCA Ind AS 37 text is ingested. Proves the "any topic"
+  goal alongside T83. The other 12 FR topics follow the same path later.
 
 ### M3 — Cited, claim-level grading
 
@@ -1064,3 +1074,4 @@ Agents append rows here. Humans answer them. Do not delete answered rows; mark t
 | Q10 | owner | T85 | Confirm the community-check thresholds after the first 10 flags (confirmations, majority, closing rules). | recommended in `HUMAN-DECISIONS.md` section 12; awaiting owner |
 | Q11 | planning | T30 | Does the cached passages block fit? Every linked passage goes in the grader's system prompt; above about 30k tokens, teach-back calls send only the focus node's passages. | open: the fixture pack is about 1.1k tokens; measure the real pack after H1 with `tutor.grading_links.estimate_tokens` |
 | Q12 | owner | T34 | Should the grader get headings first and details only for the covered sections, to cut tokens? | answered 2026-09-27: not at the current size. The full Ind AS 115 map is about 12.3k tokens and cached (about 1.2k token-equivalents per call); staging would send about 6k uncached tokens for three sections, add a second call and risk missed topics. Recorded as T34, triggered by T32 usage data |
+| Q13 | owner | T25 | Can the FR tree scripts (`Teach/FR`, 71 files, 13 topics) be used? | answered 2026-09-27: they are AI-generated, so they may be committed as drafts, never as sources or citations. Every statement passes the T23 review before reaching students (a first read of `Ind_AS_37/Tree_3` already misses the para 68A amendment). First use: the Ind AS 37 pack (T25) |

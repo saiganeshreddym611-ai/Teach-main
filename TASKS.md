@@ -292,6 +292,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T31 | Ledger v2: student-scoped, cited, exportable | B | T30 | todo |
 | T32 | Grader audit log and determinism | B | T30 | todo |
 | T33 | Grader eval expansion | B | T30, T32 | todo |
+| T34 | Context budget: section-scoped grading (triggered) | B | T32, T100 | todo |
 | T40 | Socratic probe-first flow | C | T31 | todo |
 | T41 | Tutor grounding and spoken citations | C | T40, T21 | todo |
 | T42 | Syllabus boundary and confidence guard | C | T41, T22 | todo |
@@ -462,6 +463,9 @@ marked *(new)* do not exist yet.
     disables it.
   - `run_evals.py` gains `--no-memo` (the default for evals, so raw model determinism is measured)
     and compares statuses **and** passage IDs across `--repeat` runs, printing per-case diffs.
+  - `scripts/grader_usage.py` totals input, cache-read, cache-write and output tokens per phase
+    (diagnostic, teach-back) from the captures. It is the trigger data for T34 and shows whether
+    grader `effort` or output length is the cheaper lever.
 - **Acceptance:** a test with a call-counting scripted grader shows the second identical call hits
   the memo; captures contain `student_id`; the eval runner reports inconsistent citations.
 
@@ -484,6 +488,23 @@ marked *(new)* do not exist yet.
   - You may iterate the grader prompt (bumping `PROMPT_VERSION` and re-running every case), but
     never weaken the strictness rules.
 - **Human gate:** H4 spot-checks the AI-reviewed cases.
+
+#### T34 — Context budget: section-scoped grading (triggered, not scheduled)
+- **Coder:** Claude (D8). **Requirements:** NFR cost and latency. See Q12.
+- **Trigger:** build only when T32's usage report shows a pack's map plus passages above about 30k
+  tokens, or cache reads no longer covering most grader input. Today the Ind AS 115 map is about
+  12.3k tokens and cached, so a single call is cheaper.
+- **Design:**
+  - Cut points are the level-1 subtrees: six sections today (steps 1 to 5 and cross-cutting),
+    about 1.4k to 3.4k tokens each.
+  - Stage 1 sends headings only (node ID and title, about 770 tokens) and returns the covered
+    node IDs.
+  - Stage 2 sends the whole sections for those nodes, each section its own cached block, in
+    canonical order.
+  - A teach-back skips stage 1, because the focus node is known.
+  - The diagnostic falls back to the full map when stage 1 returns nothing.
+- **Acceptance:** the grader evals do not regress; the T32 usage report shows lower cost per call
+  on the triggering pack; latency stays within the T91 budget.
 
 ### M4 — Socratic, grounded tutor
 
@@ -1036,3 +1057,4 @@ Agents append rows here. Humans answer them. Do not delete answered rows; mark t
 | Q9 | planning | T100 | Which course comes second: Advanced Auditing or a graduation-level bridge course? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` section 10): Advanced Auditing is the second course |
 | Q10 | owner | T85 | Confirm the community-check thresholds after the first 10 flags (confirmations, majority, closing rules). | recommended in `HUMAN-DECISIONS.md` section 12; awaiting owner |
 | Q11 | planning | T30 | Does the cached passages block fit? Every linked passage goes in the grader's system prompt; above about 30k tokens, teach-back calls send only the focus node's passages. | open: the fixture pack is about 1.1k tokens; measure the real pack after H1 with `tutor.grading_links.estimate_tokens` |
+| Q12 | owner | T34 | Should the grader get headings first and details only for the covered sections, to cut tokens? | answered 2026-09-27: not at the current size. The full Ind AS 115 map is about 12.3k tokens and cached (about 1.2k token-equivalents per call); staging would send about 6k uncached tokens for three sections, add a second call and risk missed topics. Recorded as T34, triggered by T32 usage data |

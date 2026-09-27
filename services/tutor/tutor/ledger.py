@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from .contracts.api import StudentLedger
+from .contracts.api import StudentLedger, LedgerNodeExport
 from .curriculum import Curriculum
 from .contracts.grading import NodeVerdictV2
 from .models import LedgerEvent, MasteryEntry, NodeStatus, Phase, Session
@@ -140,7 +140,7 @@ def export_ledger(
     for ev in events:
         latest_by_node[ev.node_id] = ev
 
-    nodes: list[StudentLedger.model_fields["nodes"].annotation.__args__[0]] = []  # type: ignore
+    nodes: list[LedgerNodeExport] = []
     for n in curriculum.tree.nodes:
         ev = latest_by_node.get(n.id)
         status = "NOT_ASSESSED"
@@ -158,10 +158,10 @@ def export_ledger(
                     if pid in corpus.by_id:
                         citations.append(cite_passage(corpus.by_id[pid], corpus).label)
         nodes.append(
-            StudentLedger.model_fields["nodes"].annotation.__args__[0](  # type: ignore
+            LedgerNodeExport(
                 concept_id=n.id,
                 title=n.title,
-                status=status,  # type: ignore
+                status=status,
                 confidence_score=confidence_score,
                 last_verified=last_verified,
                 evidence_turn_id=evidence_turn_id,

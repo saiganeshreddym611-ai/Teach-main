@@ -183,7 +183,7 @@ async def get_student_ledger(student_id: str) -> StudentLedger:
     pack = load_pack()
     curriculum = pack.curriculum
     corpus = load_corpus(pack)
-    events = student_events(Session(student_id=student_id, topic_id=curriculum.tree.topic_id), ledger_store)
+    events = ledger_store.events_for(student_id)
     return export_ledger(student_id, curriculum, events, corpus)
 
 

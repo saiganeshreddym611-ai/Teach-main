@@ -24,6 +24,12 @@ from tutor.tutor_voice import MockTutor
 from tests.conftest import ScriptedGrader, ScriptedTutor, result, verdict
 
 
+@pytest.fixture(autouse=True)
+def use_mocks(monkeypatch):
+    monkeypatch.setattr(main, "get_grader", lambda: MockGrader())
+    monkeypatch.setattr(main, "get_tutor", lambda: MockTutor())
+
+
 # --------------------------------------------------------------------------- #
 # Cross-session projection
 # --------------------------------------------------------------------------- #
@@ -59,18 +65,32 @@ def test_students_are_isolated(session, curriculum):
 # --------------------------------------------------------------------------- #
 # Returning student not re-taught
 # --------------------------------------------------------------------------- #
-def test_returning_student_not_retaught(session, curriculum):
-    # Verify in the store the node select_next_node would pick first
-    session_a = Session(student_id="s1", topic_id="ind_as_115")
-    append_verdicts(session_a, [verdict("ind_as_115.step_1", "VERIFIED")], "t1", Phase.DIAGNOSTIC)
-
-    # Run a diagnostic in a new session (ScriptedGrader, no verdicts)
+@pytest.mark.asyncio
+async def test_returning_student_not_retaught(curriculum):
     from tutor.node_selector import select_next_node
 
+    # First assert that select_next_node on an empty status picks node X
+    empty_status = {}
+    first_node = select_next_node(curriculum, empty_status, [], depth_first=True)
+    assert first_node is not None
+
+    # Record X as VERIFIED for s1 in session A
+    session_a = Session(student_id="s1", topic_id="ind_as_115")
+    append_verdicts(session_a, [verdict(first_node, "VERIFIED")], "t1", Phase.DIAGNOSTIC)
+
+    # Then run a real run_turn diagnostic in a new session B
+    # (ScriptedGrader returning a GraderOutput with no verdicts, ScriptedTutor)
     session_b = Session(student_id="s1", topic_id="ind_as_115")
-    # The target should be a different node (step 1 is already verified)
-    target = select_next_node(curriculum, project_status(session_b), session_b.parked_nodes, depth_first=True)
-    assert target != "ind_as_115.step_1"
+    grader = ScriptedGrader([result()])  # No verdicts
+    tutor = ScriptedTutor(["Let's begin."])
+
+    events = []
+    async for ev in run_turn(session_b, "I know nothing", curriculum, grader, tutor):
+        events.append(ev)
+
+    # Assert B.target_node is not X
+    done_event = next(e for e in events if e.kind == "done")
+    assert done_event.payload["target_node"] != first_node
 
 
 # --------------------------------------------------------------------------- #
@@ -124,8 +144,8 @@ def test_focused_downgrade_recorded(session, curriculum):
 @pytest.mark.asyncio
 async def test_event_fields_filled(curriculum):
     session = Session(student_id="s1", topic_id="ind_as_115")
-    grader = MockGrader()
-    tutor = MockTutor()
+    grader = ScriptedGrader([result(verdict("ind_as_115.step_1", "VERIFIED"))])
+    tutor = ScriptedTutor(["Let's continue."])
 
     events = []
     async for ev in run_turn(session, "I know about contracts", curriculum, grader, tutor):
@@ -135,11 +155,12 @@ async def test_event_fields_filled(curriculum):
     done_event = next(e for e in events if e.kind == "done")
     ledger_delta = done_event.payload["ledger_delta"]
 
+    assert len(ledger_delta) >= 1
     for ld in ledger_delta:
         assert ld["source"] == "diagnostic"
         assert ld["content_version"] == curriculum.content_hash
         assert ld["session_id"] == session.id
-        assert ld["grader_call_id"] is not None
+        assert ld["grader_call_id"] == grader.calls[0]["call_id"]
 
 
 # --------------------------------------------------------------------------- #
@@ -168,6 +189,11 @@ def test_export_status_mapping(session, curriculum):
     assert by_id["ind_as_115.step_1"].confidence_score == 0.9
     assert by_id["ind_as_115.step_2"].confidence_score == 0.6
     assert by_id["ind_as_115.step_3"].confidence_score == 0.7
+
+    # Check last_verified equals the ts of each node's latest event
+    for ev in events:
+        node_export = by_id[ev.node_id]
+        assert node_export.last_verified == ev.ts
 
     # Check one entry per node
     assert len(exported.events) == 3

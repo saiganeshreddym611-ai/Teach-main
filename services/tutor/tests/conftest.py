@@ -34,14 +34,6 @@ def isolate_grader_audit(tmp_path):
     ledger_store.clear()
 
 
-@pytest.fixture(autouse=True)
-def use_mocks(monkeypatch):
-    """Use mock LLM implementations for all tests."""
-    from tutor import main
-    monkeypatch.setattr(main, "get_grader", lambda: MockGrader())
-    monkeypatch.setattr(main, "get_tutor", lambda: MockTutor())
-
-
 class ScriptedGrader:
     """Returns the next scripted GraderOutput on each call and records calls."""
 

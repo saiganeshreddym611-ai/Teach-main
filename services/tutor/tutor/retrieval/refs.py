@@ -77,12 +77,12 @@ def passage_label(passage: Passage, doc: SourceDoc) -> str:
         match = re.fullmatch(r"ch(\d+)\.s(\d+)\.p\d+", passage.locator)
         chapter = match[1] if match else passage.chapter.removeprefix("Chapter ").split(" ")[0]
         section = match[2] if match else ""
-        return f"{name}, Ch {chapter}" + (f" §{section}" if section else "")
+        return f"{name}, Ch {chapter}" + (f" §{section}" if section and section != "0" else "")
     locator = passage.locator
     match = re.fullmatch(r"q(\d+)(?:\.(ans))?", locator)
     if match:
         prefix = {"rtp": "RTP", "mtp": "MTP", "past_paper": "Past paper"}[doc.doc_type]
-        attempt = _month(doc.attempt or passage.attempt)
+        attempt = _month(doc.attempt)
         label = f"{prefix} {attempt}, Q{match[1]}" if attempt else f"{prefix}, Q{match[1]}"
         if match[2]:
             label += " (answer)"

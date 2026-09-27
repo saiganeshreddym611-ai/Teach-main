@@ -10,7 +10,7 @@ from fastapi.testclient import TestClient
 from tutor.content import clear_pack_cache, load_pack
 from tutor.main import app
 from tutor.retrieval.corpus import load_corpus
-from tutor.retrieval.refs import UnresolvedRef, parse_ref, ref_label, resolve_ref
+from tutor.retrieval.refs import UnresolvedRef, parse_ref, passage_label, ref_label, resolve_ref
 from scripts import validate_pack
 
 FIXTURES = Path(__file__).parent / "fixtures" / "packs"
@@ -74,6 +74,15 @@ def test_labels(corpus):
     assert ref_label("IndAS115.para.22(b)", corpus) == "Ind AS 115, para 22(b)"
     assert ref_label("ICAI.SM.FR.ch1.s1.p1", corpus) == "ICAI Study Material, Ch 1 §1"
     assert ref_label("RTP.2099-01.q1.ans", corpus) == "RTP January 2099, Q1 (answer)"
+
+
+def test_label_edge_cases(corpus):
+    sm = corpus.passage("ICAI.SM.FR.ch1.s1.p1")
+    section_zero = sm.model_copy(update={"locator": "ch4.s0.p1"})
+    assert passage_label(section_zero, corpus.doc(sm.doc_id)) == "ICAI Study Material, Ch 4"
+    rtp = corpus.passage("RTP.2099-01.q1")
+    no_attempt = corpus.doc(rtp.doc_id).model_copy(update={"attempt": None})
+    assert passage_label(rtp, no_attempt) == "RTP, Q1"
 
 
 def test_passage_endpoint(monkeypatch):

@@ -2,9 +2,12 @@ import pytest
 
 from tutor.curriculum import load_curriculum
 from tutor.contracts.grading import GraderOutput, NodeVerdictV2
+from tutor.grader import MockGrader
 from tutor.grader_audit import grade_memo
 from tutor.models import NodeStatus, Session
 from tutor.prompts import TEACH_BACK_SENTINEL
+from tutor.store import ledger_store
+from tutor.tutor_voice import MockTutor
 
 
 @pytest.fixture
@@ -24,9 +27,19 @@ def isolate_grader_audit(tmp_path):
     original_capture_dir = settings.grader_capture_dir
     settings.grader_capture_dir = tmp_path
     grade_memo.clear()
+    ledger_store.clear()
     yield
     settings.grader_capture_dir = original_capture_dir
     grade_memo.clear()
+    ledger_store.clear()
+
+
+@pytest.fixture(autouse=True)
+def use_mocks(monkeypatch):
+    """Use mock LLM implementations for all tests."""
+    from tutor import main
+    monkeypatch.setattr(main, "get_grader", lambda: MockGrader())
+    monkeypatch.setattr(main, "get_tutor", lambda: MockTutor())
 
 
 class ScriptedGrader:

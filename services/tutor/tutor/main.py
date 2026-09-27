@@ -13,10 +13,11 @@ from fastapi.responses import Response, StreamingResponse
 
 from .config import settings
 from .content import load_pack
-from .contracts.api import ContentInfo, PassageResponse, VerifyRequest, VerifyResponse
+from .contracts.api import ContentInfo, LedgerTrace, PassageResponse, StudentLedger, TracePassage, VerifyRequest, VerifyResponse
 from .curriculum import load_curriculum
 from .integrity import UnknownVerifierError, describe_verifier, get_verifier
-from .ledger import mastery_view
+from .ledger import export_ledger, mastery_view, student_events
+from .store import ledger_store, store
 from .llm import describe_grader, describe_tutor, get_grader, get_tutor
 from .models import (
     CreateSessionRequest,
@@ -29,7 +30,6 @@ from .models import (
     TurnRequest,
 )
 from .state_machine import TurnEvent, run_turn
-from .store import store
 from .tts import describe_tts, get_tts, prepare_tts, wav_bytes
 from .review import current_release, review_counts, strict_problems
 from .retrieval.corpus import load_corpus
@@ -176,6 +176,37 @@ async def get_session(session_id: str) -> SessionView:
         turns=session.turns,
         ledger=session.ledger,
     )
+
+
+@app.get("/students/{student_id}/ledger", response_model=StudentLedger)
+async def get_student_ledger(student_id: str) -> StudentLedger:
+    pack = load_pack()
+    curriculum = pack.curriculum
+    corpus = load_corpus(pack)
+    events = student_events(Session(student_id=student_id, topic_id=curriculum.tree.topic_id), ledger_store)
+    return export_ledger(student_id, curriculum, events, corpus)
+
+
+@app.get("/students/{student_id}/ledger/{event_id}/trace", response_model=LedgerTrace)
+async def get_ledger_trace(student_id: str, event_id: str) -> LedgerTrace:
+    pack = load_pack()
+    corpus = load_corpus(pack)
+    event = ledger_store.event(student_id, event_id)
+    if event is None:
+        raise HTTPException(404, "event not found")
+    session = await store.get(event.session_id)
+    if session is None:
+        raise HTTPException(404, "session not found")
+    student_turn = next((t.text for t in session.turns if t.id == event.evidence_turn_id), None)
+    if student_turn is None:
+        raise HTTPException(404, "evidence turn not found")
+    passages: list[TracePassage] = []
+    if corpus is not None:
+        for pid in event.passage_ids:
+            if pid in corpus.by_id:
+                passage = corpus.by_id[pid]
+                passages.append(TracePassage(citation=cite_passage(passage, corpus), text=passage.text))
+    return LedgerTrace(event=event, student_turn=student_turn, passages=passages, grader_call_id=event.grader_call_id)
 
 
 def _sse(event: TurnEvent) -> str:

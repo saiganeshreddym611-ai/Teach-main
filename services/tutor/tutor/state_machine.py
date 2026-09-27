@@ -173,7 +173,7 @@ async def run_turn(
             curriculum, transcript, focus_node_id=None, prior_context="", session_id=session.id,
             student_id=session.student_id, call_id=call_id
         )
-        ledger_delta = append_verdicts(session, result.verdicts, student_turn.id, Phase.DIAGNOSTIC, grader_call_id=call_id)
+        ledger_delta = append_verdicts(session, result.verdicts, student_turn.id, Phase.DIAGNOSTIC, grader_call_id=call_id, content_version=curriculum.content_hash)
         session.student_level_summary = result.summary
         missing = omissions(curriculum, result, node_links(curriculum))
         yield TurnEvent("grade", _grade_payload(result, missing))
@@ -194,7 +194,7 @@ async def run_turn(
             student_id=session.student_id, call_id=call_id
         )
         ledger_delta = append_verdicts(
-            session, result.verdicts, student_turn.id, Phase.TEACH_BACK, focus_node_ids={target}, grader_call_id=call_id
+            session, result.verdicts, student_turn.id, Phase.TEACH_BACK, focus_node_ids={target}, grader_call_id=call_id, content_version=curriculum.content_hash
         )
         yield TurnEvent("grade", _grade_payload(result, []))
         verdict = next((v for v in result.verdicts if v.node_id == target), None)

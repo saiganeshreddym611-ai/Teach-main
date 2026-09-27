@@ -40,6 +40,14 @@ on the code as it actually landed. When no eligible task has a spec, the loop st
 
 ## The loop
 
+**Default: Claude drives Copilot CLI.** Claude runs `python tools/task_runner.py run`. The runner
+gives the next eligible task with a spec to GitHub Copilot CLI in headless mode, runs the tests,
+commits the work as `[awaiting review]`, and stops at the checkpoint. Claude then reviews it. The
+owner pastes no prompts and clicks no approvals; the owner sees the deliverables (D8).
+Copilot CLI may use every tool except the runner's deny list (commits, pushes, resets, deletes,
+downloads), and only on files inside the repository.
+
+**Fallback: Copilot in VS Code.** The steps below run the same loop from Copilot Chat's agent mode.
 Copilot and Claude coordinate through the status board and `tools/task_runner.py`. Nobody relays
 messages.
 

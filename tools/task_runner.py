@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Drive a coding agent, backed by an Ollama model, through TASKS.md one task at a time.
+"""Drive a coding agent through TASKS.md one task at a time.
 
 Agents:
-  claude    (default) Claude Code in headless mode, pointed at the local Ollama server.
+  copilot   (default) GitHub Copilot CLI in headless mode (npm install -g @github/copilot). It gets
+            a short prompt pointing at specs/<ID>.md, so only tasks with a spec can run. It may
+            use every tool except COPILOT_DENIED_TOOLS, and only on files inside the repository.
+  claude    Claude Code in headless mode, pointed at the local Ollama server.
             It runs with --bare, so it never reads your Claude login or subscription: every
             model call goes to Ollama and counts against your Ollama plan only.
   openclaw  OpenClaw's embedded agent (`openclaw agent --local`), if installed.
@@ -66,7 +69,7 @@ TASKS_MD = REPO / "TASKS.md"
 RUNS_DIR = REPO / ".task-runs"
 TUTOR_DIR = REPO / "services" / "tutor"
 
-DEFAULT_AGENT = os.environ.get("TASK_AGENT", "claude")
+DEFAULT_AGENT = os.environ.get("TASK_AGENT", "copilot")
 DEFAULT_MODEL = os.environ.get("TASK_MODEL", "gemma4:31b-cloud")
 OLLAMA_HOST = os.environ.get("OLLAMA_HOST", "http://localhost:11434").rstrip("/")
 if not OLLAMA_HOST.startswith("http"):
@@ -94,6 +97,15 @@ CLAUDE_DENIED_TOOLS = [
     "Bash(git checkout:*)", "Bash(git restore:*)", "Bash(git clean:*)", "Bash(git rebase:*)",
     "Bash(rm -rf:*)", "WebFetch", "WebSearch",
 ]
+# Copilot CLI runs with every tool allowed except these. Without --allow-all-paths it can only
+# touch files under the repository, and without --allow-all-urls it cannot fetch web pages.
+COPILOT_DENIED_TOOLS = [
+    "shell(git push)", "shell(git commit)", "shell(git reset)", "shell(git checkout)",
+    "shell(git restore)", "shell(git clean)", "shell(git rebase)", "shell(git remote)",
+    "shell(git stash)", "shell(rm)", "shell(del)", "shell(Remove-Item)", "shell(curl)",
+    "shell(Invoke-WebRequest)", "shell(Invoke-RestMethod)",
+]
+COPILOT_MODEL = os.environ.get("TASK_COPILOT_MODEL")  # unset: Copilot picks ("auto")
 
 
 # --------------------------------------------------------------------------- #
@@ -189,16 +201,44 @@ Rules for this run:
 {section}
 """
 
+# Copilot gets the spec, not TASKS.md: the spec is binding and .github/copilot-instructions.md
+# (which Copilot CLI loads by itself) holds the project rules.
+COPILOT_TEMPLATE = """You are GitHub Copilot working in the repository at:
+{repo}
+
+Your task: {id} - {title}
+Implement specs/{id}.md exactly. Its "Prompt for Copilot" block is your instruction, and the spec
+is binding. Follow .github/copilot-instructions.md.
+
+Rules for this run:
+- Do only this task. Do not edit TASKS.md, specs/ or .github/.
+- Do not commit, push or add git remotes. The runner commits your work.
+- Create and edit files with your file-edit tools, never from the terminal.
+- Some shell commands are refused. If a refused command is essential, stop and report BLOCKED
+  with the command you needed.
+- Run the spec's "Done when" commands and report their real output. Never claim a check passed
+  without running it.
+- When you are finished, write one line to the file {result_file}
+  and also end your reply with that same line: "RESULT: DONE", or "RESULT: BLOCKED" followed by a
+  one-line reason.
+"""
+
 
 def feedback_file(task_id: str) -> Path:
     return RUNS_DIR / task_id / "feedback.md"
 
 
-def build_prompt(text: str, row: dict, result_file: Path) -> str:
-    prompt = PROMPT_TEMPLATE.format(
-        repo=REPO, id=row["id"], title=row["title"], result_file=result_file,
-        shared=shared_sections(text), section=task_section(text, row["id"]),
-    )
+def build_prompt(text: str, row: dict, result_file: Path, agent: str = "claude") -> str:
+    if agent == "copilot":
+        if not (REPO / "specs" / f"{row['id']}.md").exists():
+            sys.exit(f"{row['id']} has no specs/{row['id']}.md; Copilot only takes specified tasks.")
+        prompt = COPILOT_TEMPLATE.format(repo=REPO, id=row["id"], title=row["title"],
+                                         result_file=result_file)
+    else:
+        prompt = PROMPT_TEMPLATE.format(
+            repo=REPO, id=row["id"], title=row["title"], result_file=result_file,
+            shared=shared_sections(text), section=task_section(text, row["id"]),
+        )
     fb = feedback_file(row["id"])
     if fb.exists():
         prompt += ("\n===== Review feedback on earlier attempts (fix every point) =====\n"
@@ -242,8 +282,25 @@ def claude_env(model: str) -> dict:
     return env
 
 
+def agent_label(args) -> str:
+    """How the agent appears on the status board and in commit messages."""
+    if args.agent == "copilot":
+        return f"Copilot CLI ({args.model or 'auto'})"
+    return f"{args.agent} {args.model}"
+
+
 def agent_command(args, session_id: str, prompt_path: Path) -> tuple[list[str], dict | None, str | None]:
     """Return (command, env, stdin_text)."""
+    if args.agent == "copilot":
+        # The prompt stays in a file: a long -p argument would hit the Windows command-line limit.
+        cmd = [shutil.which("copilot") or "copilot", "-p",
+               f"Read the file {prompt_path} and follow it exactly.",
+               "-s", "--no-ask-user", "--no-color", "--allow-all-tools"]
+        for tool in COPILOT_DENIED_TOOLS:
+            cmd += ["--deny-tool", tool]
+        if args.model:
+            cmd += ["--model", args.model]
+        return cmd, None, None
     if args.agent == "claude":
         exe = find_claude() or "claude"
         cmd = [exe, "-p", "--bare", "--strict-mcp-config", "--disable-slash-commands",
@@ -359,6 +416,10 @@ def ollama_models() -> list[str] | None:
 
 
 def preflight(args) -> None:
+    if args.agent == "copilot":
+        if not shutil.which("copilot"):
+            sys.exit("Copilot CLI not found. Install it: npm install -g @github/copilot")
+        return
     if args.agent == "claude" and not find_claude():
         sys.exit("Claude Code not found. Install it (npm install -g @anthropic-ai/claude-code) "
                  "or install the Claude Code VS Code extension.")
@@ -404,7 +465,7 @@ def cmd_smoke(args) -> int:
         "Create a file named hello.txt in the current directory containing the single word hello.\n"
         f"Then write the line RESULT: DONE to the file {result_file} and end your reply with that line.\n",
         encoding="utf-8")
-    print(f"smoke test: {args.agent} + {args.model} in {work}")
+    print(f"smoke test: {agent_label(args)} in {work}")
     started = dt.datetime.now()
     code, reply = run_agent(args, work, work, prompt_path, f"smoke-{stamp}")
     secs = (dt.datetime.now() - started).total_seconds()
@@ -423,7 +484,7 @@ def run_one(args, row: dict) -> bool:
     log_dir.mkdir(parents=True, exist_ok=True)
     result_file = log_dir / "result.txt"
     prompt_path = log_dir / "prompt.md"
-    prompt_path.write_text(build_prompt(text, row, result_file), encoding="utf-8")
+    prompt_path.write_text(build_prompt(text, row, result_file, args.agent), encoding="utf-8")
     session_id = f"teach-{row['id']}-{stamp}"
 
     if args.dry_run:
@@ -437,7 +498,7 @@ def run_one(args, row: dict) -> bool:
         return True
 
     today = dt.date.today().isoformat()
-    set_status(row["id"], f"in progress ({args.agent} {args.model}, {today})")
+    set_status(row["id"], f"in progress ({agent_label(args)}, {today})")
     print(f"==> {row['id']} - {row['title']}  (log: {log_dir.relative_to(REPO).as_posix()})")
     try:
         code, reply = run_agent(args, REPO, log_dir, prompt_path, session_id)
@@ -466,9 +527,9 @@ def run_one(args, row: dict) -> bool:
         print("    left uncommitted for inspection")
         return False
 
-    set_status(row["id"], f"review ({args.agent} {args.model}, {today}, log {rel})")
+    set_status(row["id"], f"review ({agent_label(args)}, {today}, log {rel})")
     sha = git_commit(f"{row['id']}: {row['title']} [awaiting review]\n\n"
-                     f"Automated run: {args.agent} with {args.model} via Ollama. Not reviewed yet.")
+                     f"Automated run: {agent_label(args)}. Not reviewed yet.")
     (log_dir / "commit.txt").write_text(sha, encoding="utf-8")
     print(f"    status: review  commit: {sha}")
     print(f"    CHECKPOINT: review before anything else runs:  python tools/task_runner.py review {row['id']}")
@@ -700,9 +761,10 @@ def main() -> int:
     sub.add_parser("status", help="show the status board summary and eligible tasks")
 
     def agent_opts(p):
-        p.add_argument("--agent", choices=["claude", "openclaw"], default=DEFAULT_AGENT,
+        p.add_argument("--agent", choices=["copilot", "claude", "openclaw"], default=DEFAULT_AGENT,
                        help=f"coding agent (default {DEFAULT_AGENT}; env TASK_AGENT)")
-        p.add_argument("--model", default=DEFAULT_MODEL, help=f"Ollama model (default {DEFAULT_MODEL}; env TASK_MODEL)")
+        p.add_argument("--model", help=f"copilot: Copilot model (default auto; env TASK_COPILOT_MODEL); "
+                                       f"claude/openclaw: Ollama model (default {DEFAULT_MODEL}; env TASK_MODEL)")
         p.add_argument("--timeout", type=int, default=3600, help="seconds per task (default 3600, 0 = none)")
         p.add_argument("--thinking", default="medium", help="openclaw thinking level (default medium)")
         p.add_argument("--yolo", action="store_true", help="claude: allow every command (disposable checkouts only)")
@@ -737,6 +799,8 @@ def main() -> int:
     rj.add_argument("--by", default="Claude + owner")
     rj.add_argument("--revert", action="store_true", help="also git-revert the task commit")
     args = ap.parse_args()
+    if hasattr(args, "agent") and args.model is None:
+        args.model = COPILOT_MODEL if args.agent == "copilot" else DEFAULT_MODEL
     return {"status": cmd_status, "smoke": cmd_smoke, "run": cmd_run, "submit": cmd_submit,
             "wait": cmd_wait, "review": cmd_review, "approve": cmd_approve,
             "reject": cmd_reject}[args.cmd](args)

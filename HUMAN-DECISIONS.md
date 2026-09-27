@@ -11,6 +11,9 @@ How to read each item:
   only when the owner writes "Confirmed" or a change next to it, with a date.
 - **Open** — needs an answer or evidence that does not exist yet.
 
+On 2026-09-27 the owner confirmed every recommendation in this file as written. The blanks that
+remain are evidence still to come (source files, licence owner, calibrated threshold, audit results).
+
 Copy each decided row into the decision log at the end, and into `TASKS.md` section 10.
 
 ---
@@ -41,7 +44,7 @@ is meant to replace exams, such errors would repeat for every student. These saf
 of the decision; agents build them in `TASKS.md` T11 and T23.
 
 1. **Official sources only, ranked.** For each course the content pack lists its sources in order
-   of authority. Recommended order: law or notified standard; the standard-setter's own
+   of authority. Order: law or notified standard; the standard-setter's own
    pronouncements; the regulator's or professional body's study material; past papers with
    official answers. Coaching notes, videos and unreviewed scripts are never review evidence.
 2. **Claim-level grounding.** The reviewer splits every item into single claims (each rubric item,
@@ -65,14 +68,15 @@ of the decision; agents build them in `TASKS.md` T11 and T23.
 8. **The reviewer is tested too.** Before a reviewer model is used, it must catch deliberately
    planted errors (wrong paragraph, reversed rule, invented exception) in a test set.
 
-| Setting | Recommended | Alternatives and why not |
+| Setting | Decided | Alternatives and why not |
 |---|---|---|
 | Reviewer models | Two Ollama cloud models from different families than the drafter `gemma4:31b-cloud`, for example `qwen3.5:cloud` and `kimi-k2.5:cloud`. Confirm with the reviewer test in point 8. | One reviewer: cheaper, but no cross-check. The same model as the drafter: shares its blind spots. A Claude model: stronger, but needs API credits. |
 | Sample size per release | 10% of changed items, at least 10, plus all `needs_expert` items | Smaller samples miss systematic errors. Full review defeats D1. |
 | Audit failure rule | Any substantive error found in the sample sends the whole release back through review, and the error becomes a test case | A percentage threshold such as 2% sounds precise but lets known errors ship. |
 | Planted-error catch rate before a reviewer is trusted | At least 95% | Lower lets real errors through. |
 
-Status: **Recommended** — confirm the settings above. ______________________
+Status: **Confirmed** by the owner, 2026-09-27. The reviewer models must still pass the T23 self-test
+before use; if one fails, pick another model from a different family and record it here.
 
 ---
 
@@ -95,18 +99,18 @@ Accepted by: ____________________  Date: __________  Notes: ____________________
 
 ## 4. T00 baseline commit
 
-**Recommended: approve `638b803` and mark T00 done.** The commit holds 75 files. It does not contain
+**Decided: approve `638b803` and mark T00 done.** The commit holds 75 files. It does not contain
 `.env`, grader captures, the virtual environment, `node_modules` or voice models. One flag:
 `Pitch.pdf` is committed. That is fine while the repository is private; remove it from history
 before the repository is ever made public if the pitch is confidential.
 
-Status: Confirm / Change ______________________  Date: __________
+Status: **Confirmed** by the owner, 2026-09-27. T00 is marked done in `TASKS.md`.
 
 ---
 
 ## 5. Scope and sources (H1)
 
-**5.1 Target attempt.** Recommended: **CA Final, May 2027.** CA Final now runs only in May and
+**5.1 Target attempt.** Decided: **CA Final, May 2027.** CA Final now runs only in May and
 November. May 2027 leaves time to build and review. Practice questions can reuse RTPs, MTPs and past
 papers from May 2026 and November 2026, each tagged with its own attempt, after the AI reviewer
 confirms they still apply.
@@ -114,18 +118,18 @@ confirms they still apply.
   immediately. Choose only for a one-off demo.
 - November 2027: too far; its RTPs and MTPs arrive late, which starves the practice feature.
 
-Status: Confirm / Change ______________________
+Status: **Confirmed** by the owner, 2026-09-27.
 
-**5.2 Chapters.** Recommended: **one chapter, Ind AS 115**, plus only the Ind AS 37 paragraphs that
+**5.2 Chapters.** Decided: **one chapter, Ind AS 115**, plus only the Ind AS 37 paragraphs that
 the onerous-contract node needs. The 42-node map already covers the chapter. Out of scope for this
 pack: service concession arrangements, lease components under Ind AS 116, receivable impairment
 detail under Ind AS 109, and first-time adoption.
 - Adding Ind AS 37 as a full second chapter pairs well with an onerous-contract task, but adds 20 to
   30 nodes before anything is proven end to end.
 
-Status: Confirm / Change ______________________
+Status: **Confirmed** by the owner, 2026-09-27.
 
-**5.3 Sources.** Recommended:
+**5.3 Sources.** Decided:
 - Grading citations: the MCA-notified Ind AS 115 text as amended, with its stable paragraph numbers.
 - Ind AS 37 paragraphs 66 to 69, including 68A on the cost of fulfilling a contract.
 - Tutor explanations and official worked illustrations: the ICAI study material chapter on Ind AS 115
@@ -137,7 +141,7 @@ Status: Confirm / Change ______________________
 
 Files supplied (title, issuer, attempt, local path): __________________________________________
 
-**5.4 Storage and licensing.** Recommended:
+**5.4 Storage and licensing.** Decided:
 - Keep ICAI files and any text extracted from them out of git. They live in
   `content/packs/*/sources/raw/`, which is gitignored, with a private backup. Commit only the source
   registry: titles, hashes and attempts. The corpus is rebuilt from the raw files.
@@ -150,13 +154,14 @@ Files supplied (title, issuer, attempt, local path): ___________________________
 - Alternative: commit everything to a private repository. Simpler for several agents and machines,
   but the history keeps the material forever if the repository is ever made public.
 
-Status: Confirm / Change ______________________  Licence owner: __________________
+Status: **Confirmed** by the owner, 2026-09-27.
+Licence owner: __________________
 
-**5.5 Ind AS 37 boundary.** Recommended: include paragraphs 66 to 69 only and keep the onerous node at
+**5.5 Ind AS 37 boundary.** Decided: include paragraphs 66 to 69 only and keep the onerous node at
 Level 3. Alternative: drop the node for a pure Ind AS 115 pack; simpler, but loses one exam-relevant
 concept and the onerous-task option. Exclude Ind AS 109 and Ind AS 116 cross-references.
 
-Status: Confirm / Change ______________________
+Status: **Confirmed** by the owner, 2026-09-27.
 
 ---
 
@@ -184,7 +189,7 @@ AI review report reference: ____________________  `needs_expert` items triaged: 
 
 ## 7. Skill and tasks (H3, Q5)
 
-**7.1 Task set.** Recommended: keep the four planned tasks, all set in **one fictional mid-size Indian
+**7.1 Task set.** Decided: keep the four planned tasks, all set in **one fictional mid-size Indian
 IT services company**:
 1. a fixed-price implementation contract (cost-to-cost progress);
 2. a change order mid-project (contract modification);
@@ -199,14 +204,14 @@ service-based company". The hunt draws on the owner's cut-off and revenue-qualit
   a fifth task, since FR-12 caps the MVP at three or four.
 - If time runs short, keep three: the hunt, cost-to-cost, and one judgement task.
 
-Status: Confirm / Change ______________________
+Status: **Confirmed** by the owner, 2026-09-27.
 
 **7.2 Ground truth for tasks under D1.** Task narratives and rubrics are drafted by agents and must
 pass AI review. Answer keys are computed by calculator code. Each calculator is tested against
 official worked illustrations with published solutions. The owner checks each task once during MVP
 acceptance (section 3).
 
-**7.3 Grading defaults.** Recommended:
+**7.3 Grading defaults.** Decided:
 - About half the weight on numbers and half on judgement. The key treatment decision is a required
   item (for example, choosing cumulative catch-up in the modification task).
 - Pass mark 0.75, with every required item met.
@@ -215,9 +220,9 @@ acceptance (section 3).
 - Hunt: four planted issues plus one or two clean rows that look suspicious. No penalty for false
   alarms in the MVP; they are logged.
 
-Status: Confirm / Change ______________________
+Status: **Confirmed** by the owner, 2026-09-27.
 
-**7.4 Unlock and remediation.** Recommended:
+**7.4 Unlock and remediation.** Decided:
 - A skill unlocks only when all its tasks pass (FR-12).
 - **When a task fails, do not downgrade the concept automatically.** Schedule a review and send the
   student straight to a teach-back on the mapped concept. The teach-back measures the concept; if it
@@ -229,13 +234,13 @@ Status: Confirm / Change ______________________
 - Three attempts before a task is parked.
 - Tasks open only when their mapped concepts are verified; the demo keeps its override.
 
-Status: Confirm / Change ______________________
+Status: **Confirmed** by the owner, 2026-09-27.
 
 ---
 
 ## 8. Evaluations and practice (H4)
 
-Recommended:
+Decided:
 - The AI reviewer checks every expected verdict, citation and practice mapping against the sources.
   The owner spot-checks during MVP acceptance.
 - Zero tolerance for a false VERIFIED; accept some false PARTIAL or NOT_MENTIONED. Over-crediting is
@@ -245,13 +250,13 @@ Recommended:
 - Practice items: keep only questions fully answerable from the pack; for multi-standard case
   questions keep just the Ind AS 115 part.
 
-Status: Confirm / Change ______________________
+Status: **Confirmed** by the owner, 2026-09-27.
 
 ---
 
 ## 9. Retrieval threshold (H5)
 
-Recommended:
+Decided:
 - Lean toward refusing: at most 5% false accepts (ideally none in the review set) and up to about 15%
   false refusals. FR-11 forbids uncited answers; a wrong refusal only costs one "outside the
   syllabus" reply.
@@ -259,6 +264,8 @@ Recommended:
   AS 109, Ind AS 37 outside onerous contracts, old AS 7 and AS 9, GST on services).
 - Recalibrate whenever the corpus changes.
 - The owner approves the final number from the calibration report.
+
+Status: **Confirmed** by the owner, 2026-09-27. The number itself is approved after calibration.
 
 Approved `RETRIEVAL_MIN_CONFIDENCE`: __________  Date: __________
 
@@ -282,27 +289,30 @@ These shape the data model now, even though they are built after the MVP (`TASKS
 - Courses link to each other through prerequisite edges, so a topic in one course can require a
   concept from another.
 
-**Open decisions for later:**
+**Decisions for later stages (confirmed 2026-09-27):**
 
-| Decision | Recommended | Alternatives and why not |
+| Decision | Decided | Alternatives and why not |
 |---|---|---|
 | Second course | Advanced Auditing: the audio scripts are already being converted, and it tests a second CA paper. Needs the ICAI permission in 5.4. | A graduation-level Financial Accounting bridge course: proves "beyond exams" and the graduation-profile idea, and needs no ICAI licence if built from public sources. A strong third course. |
 | Learner profile data | Only degree, subjects, interests, goals and language, with consent, under India's DPDP Act 2023 | Collecting marks or institution details adds privacy risk without improving recommendations much at first. |
 | How interests influence learning | Interests change the order and examples, never the verification standard | Letting interests lower the bar would make the record meaningless to employers. |
 | Credential | A signed, portable ledger export the student owns and can share | Platform-only records trap students, and conflict with deletion rights when the platform must erase data. |
 
+Status: **Confirmed** by the owner, 2026-09-27.
+
 ---
 
 ## 11. Product, privacy and release
 
-**11.1 Authentication.** Recommended: stay localhost-only until authentication exists. For the pilot,
+**11.1 Authentication.** Decided: stay localhost-only until authentication exists. For the pilot,
 use an OIDC-capable provider such as Supabase Auth, which can later link to the student's ICAI
 registration number and to voice biometrics. A device token plus PIN is acceptable for the local
 demo only, since a record that replaces exams needs real identity.
 
-Owner: ____________________  Required before: __________
+Status: **Confirmed** by the owner, 2026-09-27.
+Implementer: ____________________  Required before: any pilot with real students.
 
-**11.2 Student data and deletion.** Recommended:
+**11.2 Student data and deletion.** Decided:
 - The student can request deletion from their own logged-in session; an admin can too.
 - Keep the ledger and transcripts while the account is active; they are the evidence.
 - Ask for consent to use grader captures for research. Strip the student's identity from captures
@@ -312,19 +322,19 @@ Owner: ____________________  Required before: __________
 - Never keep raw audio. Phase 2 voice biometrics would store voice embeddings under separate consent.
 - Have a lawyer confirm the consent notice and deletion flow under the DPDP Act 2023 before a pilot.
 
-Status: Confirm / Change ______________________
+Status: **Confirmed** by the owner, 2026-09-27.
 
-**11.3 Prerequisite explanations.** Recommended: keep `ALLOW_PREREQUISITE_EXPLANATIONS=0` for the MVP.
+**11.3 Prerequisite explanations.** Decided: keep `ALLOW_PREREQUISITE_EXPLANATIONS=0` for the MVP.
 In the long term, prerequisites become proper nodes in a lower-level or bridge course, not uncited
 background.
 
-Status: Confirm / Change ______________________
+Status: **Confirmed** by the owner, 2026-09-27.
 
-**11.4 Content release cadence.** Recommended: one content release per CA attempt, started when ICAI
+**11.4 Content release cadence.** Decided: one content release per CA attempt, started when ICAI
 publishes the applicability announcement. Because reviews are tied to content hashes, only changed
 items go through AI review again.
 
-Status: Confirm / Change ______________________
+Status: **Confirmed** by the owner, 2026-09-27.
 
 ---
 
@@ -336,3 +346,17 @@ Status: Confirm / Change ______________________
 | D2 Scope of the product | Not limited to exams; personalised by interests and graduation knowledge; recommends next and weak topics | Owner | 2026-09-27 | `REQUIREMENTS.md` section 9; `TASKS.md` milestone M10 |
 | D3 Phase 2 interfaces, Git hooks | Preserve interfaces; no hooks | Owner | earlier | — |
 | D4 Git identity | Configured locally | Owner | earlier | — |
+| T00 baseline commit | Approve `638b803`; T00 done | Owner | 2026-09-27 | `TASKS.md` status board |
+| 2 AI review settings | Two reviewer models of different families; 10% sample (min 10); any audit error returns the release; 95% planted-error catch rate | Owner | 2026-09-27 | T23 self-test confirms models |
+| 5.1 Attempt (Q1) | CA Final May 2027; reuse May/Nov 2026 practice items after AI review | Owner | 2026-09-27 | `TASKS.md` T10 manifest |
+| 5.2, 5.5 Scope | Ind AS 115 only, plus Ind AS 37 paras 66–69 for the onerous node; exclude Ind AS 109 and 116 | Owner | 2026-09-27 | — |
+| 5.3, 5.4 Sources and storage (Q2) | Official sources listed in 5.3; ICAI material kept out of git; MCA text may be committed; ICAI licence conversation before any pilot | Owner | 2026-09-27 | Licence owner to be named |
+| 7.1 Task set (Q5) | Four tasks in one fictional IT services company | Owner | 2026-09-27 | `TASKS.md` T50 |
+| 7.3 Grading defaults | 50/50 numbers and judgement; pass 0.75 plus required items; ₹ tolerance 0.5% or ₹1,000; FY April–March | Owner | 2026-09-27 | `TASKS.md` T50 |
+| 7.4 Task failure (Q3) | No automatic downgrade; schedule review and teach-back; arithmetic slips retry only; 3 attempts; mastery before tasks | Owner | 2026-09-27 | `TASKS.md` T53 |
+| 8 Evaluations | Zero false VERIFIED; coverage rules in section 8 | Owner | 2026-09-27 | — |
+| 9 Threshold approach | Lean toward refusing; calibration set rules; number approved after calibration | Owner | 2026-09-27 | H5 |
+| 10 Long-term | Advanced Auditing as second course; minimal learner profile; interests change order not standard; signed portable ledger | Owner | 2026-09-27 | `TASKS.md` M10 |
+| 11.1 Auth (Q4) | Localhost only until auth; OIDC provider such as Supabase Auth before any pilot | Owner | 2026-09-27 | Implementer to be named |
+| 11.2 Retention | Consent-based research use; de-identify captures after 90 days, else delete; strip identity from off-syllabus log after 30 days; no raw audio; DPDP legal check | Owner | 2026-09-27 | `TASKS.md` T80 |
+| 11.3, 11.4 | Prerequisite mode off for MVP; one content release per attempt | Owner | 2026-09-27 | — |

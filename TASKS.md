@@ -62,6 +62,19 @@ npm run dev
 Before writing any Next.js code, follow `apps/web/AGENTS.md`: this Next.js version has breaking
 changes, so read the relevant guide in `apps/web/node_modules/next/dist/docs/` first.
 
+### Automated runner
+
+`tools/task_runner.py` feeds eligible tasks from the status board to a coding agent (Claude Code in
+headless mode, pointed at the local Ollama model, by default). It sets statuses, runs pytest, and
+commits each passing task. Logs go to `.task-runs/` (gitignored).
+
+```bash
+python tools/task_runner.py status        # what is eligible
+python tools/task_runner.py smoke         # check agent + model in about a minute
+python tools/task_runner.py run           # next eligible task; it lands in `review`
+python tools/task_runner.py run --max 5 --auto-done   # chain tasks without human review
+```
+
 ---
 
 ## 2. Rules for agents (invariants)
@@ -215,7 +228,7 @@ TaskVariant    {task_id, seed, params{}, narrative, documents[], answer_key{}, a
 | `REVIEW_INTERVALS_DAYS` | T70 | `1,3,7,21` | Spaced-repetition intervals. |
 | `STORE` | T81 | `memory` | `sqlite` for the optional persistent store. |
 | `SPEAKER_VERIFIER` | T82 | `stub` | Voice verification backend. |
-| `REVIEW_MODELS` | T23 | two families other than the drafter | Comma-separated reviewer models for grounded AI review. |
+| `REVIEW_MODELS` | T23 | `qwen3.5:cloud,kimi-k2.5:cloud` | Comma-separated reviewer models for grounded AI review. |
 
 ---
 
@@ -226,7 +239,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 
 | ID | Title | Lane | Depends on | Status |
 |---|---|---|---|---|
-| T00 | Initialise git and baseline commit | A | — | review |
+| T00 | Initialise git and baseline commit | A | — | done (638b803) |
 | T01 | Baseline green and housekeeping | A | T00 | todo |
 | T02 | Shared contracts module | A | T01 | todo |
 | T10 | Content pack layout and loader | A | T02 | todo |
@@ -341,8 +354,8 @@ marked *(new)* do not exist yet.
     `tests/fixtures/` *(new)*.
   - Create `content/packs/ind_as_115/` *(new)* per section 3.1. Move
     `curriculum/ind_as_115.json` to `concept_map.json` with `git mv`. Node IDs stay identical.
-  - `manifest.json`: `exam: "CA Final"`, `paper: "Financial Reporting"`, `attempt: "TBD"` (H1
-    decides), `version: "0.1.0"`, `doc_codes: {"IndAS115": ..., "IndAS37": ...}`.
+  - `manifest.json`: `exam: "CA Final"`, `paper: "Financial Reporting"`, `attempt: "2027-05"` (CA Final May 2027,
+    owner decision), `version: "0.1.0"`, `doc_codes: {"IndAS115": ..., "IndAS37": ...}`.
   - Add optional `chapter` to `Node`. Set it to the standard's name for every node as a draft;
     T23 checks it against the sources; the owner can change it.
   - `tutor/content.py` *(new)*: `load_pack(pack_id=None)` returning a `ContentPack` (manifest,
@@ -739,14 +752,17 @@ marked *(new)* do not exist yet.
     words. The answer key and model answer are never in any directive.
   - Grading a task answer writes a `TaskAttemptEvent` and emits `task_result`.
     - Pass: move to the next task, or emit `skill` when the skill unlocks.
-    - Fail: name the first failing item with its citation, write an explicit focused concept event
-      (`status=PARTIAL`, `source="task"`) for that item's node, set it as the target and run the
-      normal probe, explain and teach-back loop. When that node is verified or parked, return to
-      the task with a new seed derived from student, task and attempt number.
+    - Fail (owner decision, `HUMAN-DECISIONS.md` 7.4): name the first failing item with its
+      citation. Do **not** write a concept downgrade. If every failing item is numeric and the
+      student's reasoning items passed, it is an arithmetic slip: offer a retry only. Otherwise
+      record the failing item's node as a review request on the `TaskAttemptEvent` (T70's
+      scheduler picks these up once it exists), set it as the target and run the normal probe,
+      explain and teach-back loop; that teach-back verdict changes mastery, with evidence.
+      When that node is verified or parked, return to the task with a new seed derived from
+      student, task and attempt number.
     - After `MAX_TASK_ATTEMPTS` failures the task is parked.
 - **Acceptance:** tests for the pass path, fail → teach-back → return with a new variant, a check
   that no directive ever contains answer-key values, unlock after all tasks pass, and parking.
-- **Open question:** whether a failed task should downgrade concept mastery (see section 10).
 
 #### T54 — Skill projection and API
 - **Requirements:** FR-12 ("show skill state and remaining tasks"), FR-13, NFR traceability, AC6.
@@ -847,8 +863,13 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
   grader and task captures, off-syllabus log entries and memo entries, and returns counts.
   Document that this is the only operation that removes ledger events. Confirm no code path
   stores audio. Document `CAPTURE_GRADER_CALLS=0` for any non-local deployment.
+  - Retention (owner decision, `HUMAN-DECISIONS.md` 11.2): a `consent_research` flag on the
+    student. A scheduled purge strips `student_id` from grader captures after 90 days when consent
+    is given, and deletes them after 90 days when it is not. It strips `student_id` from the
+    off-syllabus log after 30 days. Retention periods are configuration.
 - **Acceptance:** a test creates data for two students, deletes one, and shows every artifact of
-  that student is gone while the other's are intact.
+  that student is gone while the other's are intact. A fake-clock test shows the retention purge
+  de-identifies or deletes captures according to consent.
 - **Security note:** the API has no authentication. Record in section 10 that it must not be
   exposed beyond localhost until auth exists.
 
@@ -1071,12 +1092,12 @@ Agents append rows here. Humans answer them. Do not delete answered rows; mark t
 
 | # | Raised by | Task | Question | Status |
 |---|---|---|---|---|
-| Q1 | planning | H1 | Which exam attempt and which one or two chapters does the MVP cover? | recommended in `HUMAN-DECISIONS.md` 5.1, 5.2; awaiting owner |
-| Q2 | planning | H1 | May ICAI study material, RTP and MTP text be committed to this repository, or must it stay local? | recommended in `HUMAN-DECISIONS.md` 5.4; awaiting owner |
-| Q3 | planning | T53 | Should a failed task downgrade the concept to PARTIAL (the planned default) or only schedule a review? | recommended: schedule review and teach-back, no automatic downgrade (`HUMAN-DECISIONS.md` 7.4); awaiting owner |
-| Q4 | planning | T80 | Authentication is needed before any non-local deployment, since student data endpoints are open. Who owns it and when? | recommended in `HUMAN-DECISIONS.md` 11.1; awaiting owner |
-| Q5 | planning | H3 | Keep the default four tasks, or swap in time-and-materials billing or an onerous contract? | recommended in `HUMAN-DECISIONS.md` 7.1; awaiting owner |
+| Q1 | planning | H1 | Which exam attempt and which one or two chapters does the MVP cover? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` 5.1, 5.2): CA Final May 2027; Ind AS 115 plus Ind AS 37 paras 66–69 |
+| Q2 | planning | H1 | May ICAI study material, RTP and MTP text be committed to this repository, or must it stay local? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` 5.4): ICAI material and extracts stay out of git; MCA text may be committed; ICAI licence before any pilot |
+| Q3 | planning | T53 | Should a failed task downgrade the concept to PARTIAL (the planned default) or only schedule a review? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` 7.4): no automatic downgrade; review plus teach-back; arithmetic slips retry only |
+| Q4 | planning | T80 | Authentication is needed before any non-local deployment, since student data endpoints are open. Who owns it and when? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` 11.1): localhost only until auth; OIDC provider such as Supabase Auth before any pilot; implementer to be named |
+| Q5 | planning | H3 | Keep the default four tasks, or swap in time-and-materials billing or an onerous contract? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` 7.1): keep four tasks in one fictional IT services company |
 | Q6 | owner | T11, T23 | Who reviews content? | answered 2026-09-27 (D1): grounded AI review against official sources, two independent reviewer models, sampled expert audit; the owner does MVP acceptance |
 | Q7 | owner | M10 | Is Teach limited to exams? | answered 2026-09-27 (D2): no; personalised by interests and graduation knowledge, recommends next and weak topics |
-| Q8 | planning | T23 | Which reviewer models go in `REVIEW_MODELS`? | recommended in `HUMAN-DECISIONS.md` section 2; confirm after the T23 self-test |
-| Q9 | planning | T100 | Which course comes second: Advanced Auditing or a graduation-level bridge course? | recommended in `HUMAN-DECISIONS.md` section 10; open |
+| Q8 | planning | T23 | Which reviewer models go in `REVIEW_MODELS`? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` section 2): `qwen3.5:cloud` and `kimi-k2.5:cloud`, subject to passing the T23 self-test |
+| Q9 | planning | T100 | Which course comes second: Advanced Auditing or a graduation-level bridge course? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` section 10): Advanced Auditing is the second course |

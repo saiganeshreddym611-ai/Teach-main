@@ -20,7 +20,7 @@ Thumbs.db
 
 # local tooling state
 .claude/settings.local.json
-.openclaw-runs/
+.task-runs/
 apps/web/tsconfig.tsbuildinfo
 
 # TTS model files (fetch with services/tutor/scripts/download_tts_models.py)

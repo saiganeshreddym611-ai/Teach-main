@@ -27,11 +27,13 @@ done (section 2).
 
 ## 2. Code review checkpoint (D5)
 
-Coding agents write the software from `TASKS.md`, one task at a time. They run on an Ollama model,
-which is fast and cheap but not trusted to judge its own work. So every task stops at a checkpoint:
+Coding agents write the software from `TASKS.md`, one task at a time: GitHub Copilot working from
+the code specs in `specs/`, or the runner's agent on an Ollama model. Neither is trusted to judge
+its own work. So every task stops at a checkpoint:
 
-1. The runner (`tools/task_runner.py run`) gives one task to the coding agent, runs the tests, and
-   commits the result marked `[awaiting review]`. The task's status becomes `review`.
+1. The code enters the checkpoint: the runner (`tools/task_runner.py run`) gives one task to its
+   agent, or the owner submits Copilot's work (`task_runner.py submit <ID>`). Either way the tests
+   run and the result is committed marked `[awaiting review]`. The task's status becomes `review`.
 2. Nothing else runs while a task waits at the checkpoint.
 3. Claude, working with the owner in a Claude Code session, reviews the change:
    `task_runner.py review <ID>` builds a packet with the diff, the test output, the agent's report

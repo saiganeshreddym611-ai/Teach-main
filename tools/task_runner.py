@@ -30,6 +30,11 @@ Usage:
     python tools/task_runner.py approve T10 --by "Claude + owner" --note "..."
     python tools/task_runner.py reject T10 --reason "what must change" [--revert]
 
+Code written outside the runner (for example by GitHub Copilot from specs/<ID>.md) enters the same
+checkpoint with `submit`: it runs the tests, commits the work as `[awaiting review]` and sets the
+status to `review`:
+    python tools/task_runner.py submit T01 --by "Copilot (<model>)" [--notes "what was done"]
+
 Permissions (claude): file edits are allowed; shell commands only from an allowlist (git without
 push/commit/reset, python, pip, pytest, npm, node, basic file inspection). Anything else is
 refused automatically. --yolo allows every command; use it only in a disposable checkout.
@@ -489,6 +494,51 @@ def cmd_run(args) -> int:
     return 0 if run_one(args, row) else 1
 
 
+def cmd_submit(args) -> int:
+    """Put work written outside the runner (e.g. by Copilot) through the review checkpoint."""
+    rows = parse_board(read_tasks_md())
+    row = next((r for r in rows if r["id"] == args.task_id), None)
+    if row is None:
+        sys.exit(f"{args.task_id} is not on the status board")
+    if row["lane"] == "human":
+        sys.exit(f"{args.task_id} is a human task")
+    if row["status"].startswith(("done", "review")):
+        sys.exit(f"{args.task_id} is already {row['status']}")
+    waiting = [r["id"] for r in pending_reviews(rows) if r["id"] != row["id"]]
+    if waiting:
+        sys.exit(f"Checkpoint: {', '.join(waiting)} waiting for review. Close it first.")
+    status = {r["id"]: r["status"] for r in rows}
+    open_deps = [d for d in row["deps"] if not status.get(d, "").startswith("done")]
+    if open_deps:
+        sys.exit(f"{args.task_id} depends on {', '.join(open_deps)}, which are not done yet.")
+    if not is_git():
+        sys.exit("submit needs a git repository")
+    if not dirty():
+        sys.exit("No changes to submit. Let the coding agent write the task first.")
+
+    stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_dir = RUNS_DIR / row["id"] / stamp
+    log_dir.mkdir(parents=True, exist_ok=True)
+    passed, tail = verify(args, log_dir)
+    print(f"    verify: {'pass' if passed else 'FAIL'} - {tail}")
+    if not passed and not args.allow_failing:
+        sys.exit(f"Tests fail, so {row['id']} was not submitted. Fix them first "
+                 f"(output: {log_dir / 'verify.txt'}), or pass --allow-failing to review anyway.")
+    (log_dir / "result.txt").write_text(f"RESULT: DONE (submitted by {args.by})\n", encoding="utf-8")
+    (log_dir / "reply.md").write_text(args.notes or f"Submitted by {args.by}. No agent report.",
+                                      encoding="utf-8")
+
+    rel = log_dir.relative_to(REPO).as_posix()
+    today = dt.date.today().isoformat()
+    set_status(row["id"], f"review ({args.by}, {today}, log {rel})")
+    sha = git_commit(f"{row['id']}: {row['title']} [awaiting review]\n\n"
+                     f"Written by {args.by}. Tests: {tail}. Not reviewed yet.")
+    (log_dir / "commit.txt").write_text(sha, encoding="utf-8")
+    print(f"    status: review  commit: {sha}")
+    print(f"    CHECKPOINT: ask Claude to review {row['id']}  (python tools/task_runner.py review {row['id']})")
+    return 0
+
+
 # --------------------------------------------------------------------------- #
 # Review checkpoint
 # --------------------------------------------------------------------------- #
@@ -611,6 +661,12 @@ def main() -> int:
     r.add_argument("--verify", help="custom verification shell command (default: pytest in services/tutor)")
     r.add_argument("--allow-dirty", action="store_true", help="allow starting with uncommitted changes")
     r.add_argument("--dry-run", action="store_true", help="write the prompt and print the command only")
+    sb = sub.add_parser("submit", help="send work written outside the runner (e.g. Copilot) to the checkpoint")
+    sb.add_argument("task_id")
+    sb.add_argument("--by", required=True, help="who wrote the code, e.g. 'Copilot (GPT-5)'")
+    sb.add_argument("--notes", help="short report of what was done; shown in the review packet")
+    sb.add_argument("--verify", help="custom verification shell command (default: pytest in services/tutor)")
+    sb.add_argument("--allow-failing", action="store_true", help="submit even if the tests fail")
     rv = sub.add_parser("review", help="build the review packet for a task waiting at the checkpoint")
     rv.add_argument("task_id")
     apv = sub.add_parser("approve", help="close the checkpoint: mark the task done")
@@ -623,8 +679,8 @@ def main() -> int:
     rj.add_argument("--by", default="Claude + owner")
     rj.add_argument("--revert", action="store_true", help="also git-revert the task commit")
     args = ap.parse_args()
-    return {"status": cmd_status, "smoke": cmd_smoke, "run": cmd_run, "review": cmd_review,
-            "approve": cmd_approve, "reject": cmd_reject}[args.cmd](args)
+    return {"status": cmd_status, "smoke": cmd_smoke, "run": cmd_run, "submit": cmd_submit,
+            "review": cmd_review, "approve": cmd_approve, "reject": cmd_reject}[args.cmd](args)
 
 
 if __name__ == "__main__":

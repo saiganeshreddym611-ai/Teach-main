@@ -12,7 +12,7 @@ from fastapi.responses import Response, StreamingResponse
 
 from .config import settings
 from .content import load_pack
-from .contracts.api import ContentInfo
+from .contracts.api import ContentInfo, PassageResponse
 from .curriculum import load_curriculum
 from .ledger import mastery_view
 from .llm import describe_grader, describe_tutor, get_grader, get_tutor
@@ -30,6 +30,8 @@ from .state_machine import TurnEvent, run_turn
 from .store import store
 from .tts import describe_tts, get_tts, wav_bytes
 from .review import current_release, review_counts, strict_problems
+from .retrieval.corpus import load_corpus
+from .retrieval.refs import cite_passage
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -61,6 +63,15 @@ async def content() -> ContentInfo:
         content_hash=pack.content_hash,
         review_counts=review_counts(pack),
     )
+
+
+@app.get("/passages/{passage_id}", response_model=PassageResponse)
+async def get_passage(passage_id: str) -> PassageResponse:
+    corpus = load_corpus(load_pack())
+    if corpus is None or passage_id not in corpus.by_id:
+        raise HTTPException(404, "passage not found")
+    passage = corpus.passage(passage_id)
+    return PassageResponse(passage=passage, source=corpus.doc(passage.doc_id), citation=cite_passage(passage, corpus))
 
 
 @app.get("/health")

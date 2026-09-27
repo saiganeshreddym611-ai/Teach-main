@@ -1,26 +1,39 @@
-# Code specs for GitHub Copilot
+# Code specs and prompts
 
-Each file here defines the code for one task in `TASKS.md`: files, signatures, behaviour and
-tests. Copilot writes the code from the spec. Claude and the owner review it at the checkpoint
-(owner decision D5) and fix or reject it. Specs define code; they never contain syllabus text or
+Owner decision D8 splits the coding work. Claude writes the complex code itself: architecture,
+contracts between modules, core algorithms, and code where determinism, security, privacy or domain
+correctness is at stake. GitHub Copilot gets only easy tasks: a task that follows an existing
+pattern, touches one or two modules, and is fully checked by its listed tests. If the instructions
+must explain *how* (an algorithm or a design choice), not only *what*, Claude writes the code.
+
+Each delegated task gets a specific instruction, never a long document:
+
+- **Small task** (about 150 lines of code or less): a prompt of 10 to 25 lines in `specs/<ID>.md`.
+- **Larger delegated task**: a slim spec of about 5,000 characters or less (see "Spec format").
+
+Every task stops at the review checkpoint (D5). Claude reviews Copilot's work. Claude never
+approves its own code: the owner approves tasks Claude wrote. Specs never contain syllabus text or
 answer keys.
 
 ## Order
 
 Do the tasks in this order. Each one must be approved before the next starts. "Owner approves"
-marks tasks that change domain content: Claude reviews them, but only the owner approves them
-(owner decision D5). Claude approves the others.
+marks tasks that change domain content, or that Claude wrote: Claude reviews them, but only the
+owner approves them (D5, D8). Claude approves the others.
 
-| Order | Spec | Task | Depends on | Owner approves |
-|---|---|---|---|---|
-| 1 | [T01](T01.md) | Baseline green and housekeeping | T00 (done) | done |
-| 2 | [T02](T02.md) | Shared contracts module | T01 | done |
-| 3 | [T10](T10.md) | Content pack layout and loader | T02 | yes (concept map moves; draft chapters) |
-| 4 | [T82](T82.md) | Voice verification mock endpoint | T01 | no |
-| 5 | [T11](T11.md) | Review gate | T10 | no |
-| 6 | [T20](T20.md) | Ingestion pipeline | T10 | no (synthetic fixtures only) |
-| 7 | [T21](T21.md) | Source-ref resolver and passage API | T20 | no |
-| 8 | [T22](T22.md) | Retriever (node-linked + BM25) | T21 | no |
+| Order | Spec | Task | Depends on | Coder | Owner approves |
+|---|---|---|---|---|---|
+| 1 | [T01](T01.md) | Baseline green and housekeeping | T00 (done) | Copilot | done |
+| 2 | [T02](T02.md) | Shared contracts module | T01 | Copilot | done |
+| 3 | [T10](T10.md) | Content pack layout and loader | T02 | Copilot | done |
+| 4 | [T82](T82.md) | Voice verification mock endpoint | T01 | Copilot | no |
+| 5 | [T11](T11.md) | Review gate | T10 | Copilot | done |
+| 6 | [T20](T20.md) | Ingestion pipeline | T10 | Copilot | done |
+| 7 | [T21](T21.md) | Source-ref resolver and passage API | T20 | Copilot | no |
+| 8 | [T22](T22.md) | Retriever (node-linked + BM25) | T21 | Copilot | no |
+
+T01 to T22 and T82 were specified before D8, so they keep their full specs and stay with Copilot.
+From T23 on, the "Coder" column is set when the batch is written.
 
 Specs for later tasks (T23, T30, T50 and on) are written after these are reviewed, so they build
 on the code as it actually landed. When no eligible task has a spec, the loop stops and waits.
@@ -75,13 +88,18 @@ REJECTED -> fix feedback.md, submit again
 
 ## Spec format
 
-Every spec has the same parts:
+**Small task: prompt only.** Name the files to create or change, the exact signatures, the test
+names with what each asserts, and the "done when" commands. 10 to 25 lines.
 
-- **Goal**: one paragraph.
-- **Read first**: files to read before writing code.
+**Larger delegated task: slim spec**, about 5,000 characters or less:
+
 - **Files**: what to create or change.
-- **Code**: signatures and behaviour. Signatures are binding; bodies are for Copilot.
-- **Tests**: test files, test names and what each asserts.
-- **Done when**: commands that must pass.
+- **Code**: signatures, data shapes and regexes, which are binding. Add behaviour notes only where
+  they are not obvious from the signature.
+- **Tests**: test names and what each asserts.
+- **Done when**: commands that must pass, including a clean-export test run.
 - **Do not**: what is out of scope.
 - **Prompt for Copilot**: the text to paste into Copilot Chat.
+
+No goal or "read first" prose that repeats `TASKS.md`. When a task gets a spec, its section in
+`TASKS.md` shrinks to a summary line and a link here.

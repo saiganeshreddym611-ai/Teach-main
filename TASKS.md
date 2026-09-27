@@ -319,7 +319,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T81 | Optional SQLite store | F | T80 | todo |
 | T82 | Voice verification mock endpoint | F | T01 | done (18c4895, reviewed by Claude) |
 | T83 | Content swap proof | A | T22, T50 | todo |
-| T84 | Optional seeded job profile | F | T31 | todo |
+| T84 | Optional seeded job profile | F | T31 | review (Copilot (Auto), 2026-09-28, log .task-runs/T84/20260928-032247) |
 | T85 | Student flags and community check | F | T31, T41, T80 | todo |
 | T86 | Professional review queue and development report | F | T85, T11 | todo |
 | T90 | Demo-script acceptance test | G | T54, T42 | todo |

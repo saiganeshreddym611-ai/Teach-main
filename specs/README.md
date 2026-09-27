@@ -11,9 +11,9 @@ Each delegated task gets a specific instruction, never a long document:
 - **Small task** (about 150 lines of code or less): a prompt of 10 to 25 lines in `specs/<ID>.md`.
 - **Larger delegated task**: a slim spec of about 5,000 characters or less (see "Spec format").
 
-Every task stops at the review checkpoint (D5). Claude reviews Copilot's work. Claude never
-approves its own code: the owner approves tasks Claude wrote. Specs never contain syllabus text or
-answer keys.
+Every task stops at the review checkpoint (D5). Claude reviews Copilot's work. Claude never approves
+its own work: the owner approves the output of tasks Claude wrote, from a demo. Specs never contain
+syllabus text or answer keys.
 
 ## Order
 

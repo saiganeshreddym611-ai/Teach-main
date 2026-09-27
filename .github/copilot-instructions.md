@@ -48,6 +48,9 @@ ledger. A Next.js kiosk (`apps/web`) talks to it over SSE.
   stores, and check with a clean export: `git archive HEAD services/tutor | tar -x -C <tmp>`, then
   run the tests there.
 - Paths are built from `Path(__file__)`, never from the current working directory.
+- Create and edit files with your file-edit tools, never from the terminal (`Set-Content`,
+  `Out-File`, `Add-Content`, `>`). Terminal writes need the owner's approval and skip the diff
+  review.
 - Next.js: this version has breaking changes. Before writing Next.js code, read the relevant guide
   in `apps/web/node_modules/next/dist/docs/` (see `apps/web/AGENTS.md`).
 

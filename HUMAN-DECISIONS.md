@@ -60,9 +60,9 @@ design in `QUALITY-AND-REVIEW.md` section 4; open thresholds in section 12 below
 architecture, contracts between modules, core algorithms, and code where determinism, security,
 privacy or domain correctness is at stake. GitHub Copilot gets only easy tasks that follow an
 existing pattern and are fully checked by their tests, each with a specific prompt (10 to 25 lines)
-or a slim spec (about 5,000 characters or less). Claude never approves its own code; the owner
-approves tasks Claude wrote. This saves Claude's tokens and saves rework rounds. It refines D5
-(`specs/README.md`).
+or a slim spec (about 5,000 characters or less). Claude never approves its own work; the owner
+approves the output of tasks Claude wrote, from a demo, not a read of the code. This saves Claude's
+tokens and saves rework rounds. It refines D5 (`specs/README.md`).
 
 ---
 
@@ -400,7 +400,7 @@ Status: Confirm / Change ______________________  Date: __________
 | D5 Code review checkpoint | Every coding-agent task stops at review; Claude approves code-only tasks, the owner approves domain-content tasks; Copilot may submit but never approve | Owner | 2026-09-27 | `tools/task_runner.py`; `QUALITY-AND-REVIEW.md` section 2 |
 | D6 Reviewer | Claude and humans review code and content; Ollama models never review; professional sign-off per release | Owner | 2026-09-27 | `TASKS.md` T11, T23 |
 | D7 Student flags | 10 unique flags open a community check; confirmed items go to professional review | Owner | 2026-09-27 | `TASKS.md` T85, T86, T66; thresholds in section 12 |
-| D8 Who writes which code | Claude writes complex code; Copilot gets easy tasks with a specific prompt or slim spec; the owner approves Claude's code | Owner | 2026-09-27 | `specs/README.md`; `TASKS.md` section 1 |
+| D8 Who writes which code | Claude writes complex code; Copilot gets easy tasks with a specific prompt or slim spec; the owner approves the output of Claude's tasks from a demo | Owner | 2026-09-27 | `specs/README.md`; `TASKS.md` section 1 |
 | 5.1 Attempt (Q1) | CA Final May 2027; reuse May/Nov 2026 practice items after AI review | Owner | 2026-09-27 | `TASKS.md` T10 manifest |
 | 5.2, 5.5 Scope | Ind AS 115 only, plus Ind AS 37 paras 66–69 for the onerous node; exclude Ind AS 109 and 116 | Owner | 2026-09-27 | — |
 | 5.3, 5.4 Sources and storage (Q2) | Official sources listed in 5.3; ICAI material kept out of git; MCA text may be committed; ICAI licence conversation before any pilot | Owner | 2026-09-27 | Licence owner to be named |

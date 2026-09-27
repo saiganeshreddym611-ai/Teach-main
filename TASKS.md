@@ -91,7 +91,7 @@ algorithms, anything where determinism, security, privacy or domain correctness 
 GitHub Copilot's agent mode gets only easy tasks, each with a specific prompt or a slim spec in
 `specs/`; it also reads `.github/copilot-instructions.md`. The spec is binding, and it is the only
 detailed description of its task: this file keeps a summary line and a link. Both coders' work
-enters the same checkpoint, and the owner approves code Claude wrote:
+enters the same checkpoint; the owner approves the output of Claude's tasks from a demo:
 
 ```bash
 python tools/task_runner.py submit T01 --by "Copilot (<model>)" --notes "<Copilot's report>"

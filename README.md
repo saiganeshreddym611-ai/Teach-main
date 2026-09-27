@@ -76,7 +76,7 @@ OLLAMA_MODEL=nemotron-3-super:cloud .venv/Scripts/python tests/evals/grader/run_
 .venv/Scripts/python tests/evals/tutor/bench_tutor.py --models gemma4:31b-cloud nemotron-3-super:cloud
 ```
 
-The eval set (`tests/evals/grader/cases/`) is the thing that proves the grader is trustworthy: beginner vs advanced transcripts, a confident wrong answer, a stated misconception, vague name-dropping that must *not* verify, and STT-noisy speech that *must* verify. `--repeat 3` also checks that the same transcript gets the same verdicts every time. Every live grader call is captured to `tests/evals/grader/captured/` to seed more cases.
+The eval set (`tests/evals/grader/cases/`) is the thing that proves the grader is trustworthy: beginner vs advanced transcripts, a confident wrong answer, a stated misconception, vague name-dropping that must *not* verify, and STT-noisy speech that *must* verify. `--repeat 3` also checks that the same transcript gets the same verdicts every time. Every live grader call is captured to `services/tutor/data/captures/` to seed more cases.
 
 ## Model comparison (2026-09-18, Ollama cloud models, same prompts)
 
@@ -88,6 +88,14 @@ The eval set (`tests/evals/grader/cases/`) is the thing that proves the grader i
 | `nemotron-3-super:cloud` | yes (default) | 28/28 | yes | 22 s | ~2,150 |
 | `nemotron-3-super:cloud` | off | 23/28 | — | 5.5 s | — |
 | `claude-opus-5` | adaptive | not run (no API credits) | | | |
+
+**T33 grader eval** — 2026-09-28, Ollama `gemma4:31b-cloud`, three repeats:
+
+| date | model | passes / cases | consistent across 3 runs | seconds per grade |
+|---|---|---:|---|---:|
+| 2026-09-28 | `gemma4:31b-cloud` | 12/13 (39 grades) | no (case 12 citation varied) | 2.96 |
+
+Draft case 12 returned the expected `GAP` verdict in all three runs, but one run cited `IndAS37.para.10` without the expected `IndAS37.para.27` prefix. Its expectation remains unchanged. The 2.96-second mean is from 90 successful grader captures reported by `scripts/grader_usage.py`.
 
 Nemotron is only reliable with its reasoning on, which costs ~22 s per grade. Gemma reaches the same 28/28 without reasoning at under a second, after one prompt fix: an explicit "name-dropping is not evidence" rule with an example (it initially awarded PARTIAL to bare mentions).
 

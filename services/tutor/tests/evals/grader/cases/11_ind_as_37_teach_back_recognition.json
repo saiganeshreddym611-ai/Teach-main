@@ -1,0 +1,16 @@
+{
+  "name": "Teach-back: three conditions for recognising a provision",
+  "pack": "ind_as_37",
+  "status": "draft",
+  "focus_node_id": "ind_as_37.recognition",
+  "prior_context": "Tutor asked: When would a company record a provision? Explain each condition.",
+  "transcript": "First something already happened that leaves the company owing something, either by law or because people have a fair reason to expect the company to act. Then it's more likely than not that resources will have to go out to settle it. And the amount has to be estimated reliably enough. You need all three; if one is missing, no provision.",
+  "expect": {
+    "ind_as_37.recognition": "VERIFIED"
+  },
+  "expect_citations": {
+    "ind_as_37.recognition": [
+      "IndAS37.para.14"
+    ]
+  }
+}

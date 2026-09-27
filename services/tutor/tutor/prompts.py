@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from .curriculum import Curriculum
 
+PROMPT_VERSION = "1"
+
 # Sentinel the tutor appends when its last question is the teach-back request.
 TEACH_BACK_SENTINEL = "<<TEACH_BACK>>"
 

@@ -97,6 +97,13 @@ class LedgerEvent(BaseModel):
     evidence_turn_id: str
     phase: Phase
     ts: datetime = Field(default_factory=_now)
+    kind: Literal["concept"] = "concept"
+    session_id: str | None = None
+    evidence: str = ""
+    passage_ids: list[str] = Field(default_factory=list)
+    grader_call_id: str | None = None
+    content_version: str | None = None
+    source: Literal["diagnostic", "probe", "teach_back", "task", "review", "practice"] = "diagnostic"
 
 
 class Session(BaseModel):

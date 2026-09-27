@@ -1,0 +1,2 @@
+1 [TEST FIXTURE - NOT SYLLABUS TEXT] Fixture Co replaces an imaginary widget label.
+Supersedes: IndAS115.para.9, IndAS115.para.10

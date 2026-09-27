@@ -1,0 +1,27 @@
+Invented fixture preamble for Fixture Co widgets.
+
+9 [TEST FIXTURE - NOT SYLLABUS TEXT] Fixture Co records a widget agreement in its imaginary register.
+
+10 [TEST FIXTURE - NOT SYLLABUS TEXT] Fixture Co records the widget unit price in its imaginary register.
+
+11 [TEST FIXTURE - NOT SYLLABUS TEXT] The fictional ledger uses a blue token for each widget.
+
+22 [TEST FIXTURE - NOT SYLLABUS TEXT] Fixture Co groups its imaginary widget notes.
+
+(a) [TEST FIXTURE - NOT SYLLABUS TEXT] The first note describes a pretend brass widget.
+
+(b) [TEST FIXTURE - NOT SYLLABUS TEXT] The second note describes a pretend paper widget.
+
+27A [TEST FIXTURE - NOT SYLLABUS TEXT] A made-up label identifies a purple widget.
+
+B28 [TEST FIXTURE - NOT SYLLABUS TEXT] A fictional box contains a widget-shaped wooden token.
+
+B29 [TEST FIXTURE - NOT SYLLABUS TEXT] Fixture Co paints a green stripe on the wooden token.
+
+B30 [TEST FIXTURE - NOT SYLLABUS TEXT] The imaginary stripe has no effect outside this fixture.
+
+IE3 [TEST FIXTURE - NOT SYLLABUS TEXT] Fixture Co stores an invented widget in a cardboard moon.
+
+## Fixture Scope
+
+C1 [TEST FIXTURE - NOT SYLLABUS TEXT] This fictional paragraph is only about pretend widgets.

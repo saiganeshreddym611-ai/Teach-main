@@ -1,0 +1,9 @@
+Question 1 [TEST FIXTURE - NOT SYLLABUS TEXT] Describe Fixture Co's imaginary widget token.
+
+Answer 1 [TEST FIXTURE - NOT SYLLABUS TEXT] The token is fictional and colored blue.
+
+Question 2 [TEST FIXTURE - NOT SYLLABUS TEXT] What label is on the pretend box?
+
+A company sells no real products in this invented example.
+
+Answer [TEST FIXTURE - NOT SYLLABUS TEXT] The imaginary box has a violet label.

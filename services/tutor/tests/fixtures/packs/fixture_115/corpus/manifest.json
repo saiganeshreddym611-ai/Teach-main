@@ -1,0 +1,11 @@
+{
+  "built_from": {
+    "fx_amd": "02b5b772446a126cc063fe6f713e8f44336a3cabec95cc24a9eabc5f385f64c6",
+    "fx_rtp": "4da2fb76d86b7459f42cec9e506c0c1b248c936fbf8daa8fe1d9420dddb26dcf",
+    "fx_sm": "e2725f97eb4a0a9bd0351395818c22072557aada114ed3b108e3d41d8d1043d0",
+    "fx_std115": "5823e21f102d6fef28304d4ff442b824aaf6f6b1e8e05fdf8987c47089770afa",
+    "fx_std37": "f9c2206e532f25cc852b9f0cf04457d533add6195ad9009d7749e82590ff1abb"
+  },
+  "chunk_count": 23,
+  "corpus_sha256": "5a6ec456fff77e317f5c00908c8fc986d3bde842681ac5b55ae9e94d2775a141"
+}

@@ -1,0 +1,44 @@
+{
+  "topic_id": "fixture_115",
+  "subject": "TEST SUBJECT",
+  "standard": "Synthetic fixture topic",
+  "opening_prompt": "Describe the imaginary fixture topic.",
+  "nodes": [
+    {
+      "id": "fixture_115.one",
+      "level": 1,
+      "parent": null,
+      "title": "Fixture node one",
+      "rubric": ["[TEST FIXTURE - NOT SYLLABUS TEXT]"],
+      "canonical_explanation": "[TEST FIXTURE - NOT SYLLABUS TEXT]",
+      "source_refs": ["IndAS115.para.9-11", "IndAS115.para.22(b)"]
+    },
+    {
+      "id": "fixture_115.two",
+      "level": 1,
+      "parent": null,
+      "title": "Fixture node two",
+      "rubric": ["[TEST FIXTURE - NOT SYLLABUS TEXT]"],
+      "canonical_explanation": "[TEST FIXTURE - NOT SYLLABUS TEXT]",
+      "source_refs": ["IndAS115.para.B28-B30"]
+    },
+    {
+      "id": "fixture_115.three",
+      "level": 1,
+      "parent": null,
+      "title": "Fixture node three",
+      "rubric": ["[TEST FIXTURE - NOT SYLLABUS TEXT]"],
+      "canonical_explanation": "[TEST FIXTURE - NOT SYLLABUS TEXT]",
+      "source_refs": ["IndAS37.para.66-69"]
+    },
+    {
+      "id": "fixture_115.four",
+      "level": 1,
+      "parent": null,
+      "title": "Fixture node four",
+      "rubric": ["[TEST FIXTURE - NOT SYLLABUS TEXT]"],
+      "canonical_explanation": "[TEST FIXTURE - NOT SYLLABUS TEXT]",
+      "source_refs": ["ICAI.SM.FR.ch1.s1.p1"]
+    }
+  ]
+}

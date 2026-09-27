@@ -1,0 +1,64 @@
+[
+  {
+    "doc_id": "fx_std115",
+    "doc_code": "IndAS115",
+    "title": "Fixture Ind AS 115",
+    "short_name": "Ind AS 115",
+    "doc_type": "standard",
+    "issuer": "Fixture Co",
+    "authority_rank": 1,
+    "version": "0.0.1",
+    "path": "sources/raw/ind_as_115.txt",
+    "sha256": "5823e21f102d6fef28304d4ff442b824aaf6f6b1e8e05fdf8987c47089770afa"
+  },
+  {
+    "doc_id": "fx_std37",
+    "doc_code": "IndAS37",
+    "title": "Fixture Ind AS 37",
+    "short_name": "Ind AS 37",
+    "doc_type": "standard",
+    "issuer": "Fixture Co",
+    "authority_rank": 1,
+    "version": "0.0.1",
+    "path": "sources/raw/ind_as_37.txt",
+    "sha256": "f9c2206e532f25cc852b9f0cf04457d533add6195ad9009d7749e82590ff1abb"
+  },
+  {
+    "doc_id": "fx_sm",
+    "doc_code": "ICAI.SM.FR",
+    "title": "Fixture ICAI study material",
+    "short_name": "ICAI Study Material",
+    "doc_type": "study_material",
+    "issuer": "Fixture Co",
+    "authority_rank": 2,
+    "version": "0.0.1",
+    "path": "sources/raw/study_material.txt",
+    "sha256": "e2725f97eb4a0a9bd0351395818c22072557aada114ed3b108e3d41d8d1043d0"
+  },
+  {
+    "doc_id": "fx_rtp",
+    "doc_code": "RTP.2099-01",
+    "title": "Fixture RTP 2099-01",
+    "short_name": "RTP",
+    "doc_type": "rtp",
+    "issuer": "Fixture Co",
+    "authority_rank": 3,
+    "attempt": "2099-01",
+    "version": "0.0.1",
+    "path": "sources/raw/rtp.txt",
+    "sha256": "4da2fb76d86b7459f42cec9e506c0c1b248c936fbf8daa8fe1d9420dddb26dcf"
+  },
+  {
+    "doc_id": "fx_amd",
+    "doc_code": "AMD.2099-01",
+    "title": "Fixture amendment 2099-01",
+    "short_name": "Amendment 2099",
+    "doc_type": "amendment",
+    "issuer": "Fixture Co",
+    "authority_rank": 1,
+    "attempt": "2099-01",
+    "version": "0.0.1",
+    "path": "sources/raw/amendment.txt",
+    "sha256": "02b5b772446a126cc063fe6f713e8f44336a3cabec95cc24a9eabc5f385f64c6"
+  }
+]

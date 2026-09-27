@@ -7,8 +7,10 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import ValidationError
+
 from .config import settings
-from .contracts.content import PackManifest
+from .contracts.content import PackManifest, SourceDoc
 from .curriculum import Curriculum
 from .models import Tree
 
@@ -138,6 +140,26 @@ def load_pack(pack_id: str | None = None, packs_dir: Path | None = None) -> Cont
     selected_id = pack_id or settings.content_pack
     selected_dir = packs_dir or PACKS_DIR
     return _cached_load_pack(selected_id, selected_dir.resolve())
+
+
+def load_sources(pack: ContentPack) -> list[SourceDoc]:
+    """Load and validate the source registry for a content pack."""
+    path = pack.sources_path
+    if not path.exists():
+        return []
+    try:
+        raw_sources = json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(raw_sources, list):
+            raise ValueError("expected a JSON list of SourceDoc objects")
+        sources = [SourceDoc.model_validate(item) for item in raw_sources]
+    except (OSError, json.JSONDecodeError, ValueError, TypeError, ValidationError) as exc:
+        raise ContentPackError(f"{path}: {exc}") from exc
+
+    doc_ids = [source.doc_id for source in sources]
+    duplicates = sorted({doc_id for doc_id in doc_ids if doc_ids.count(doc_id) > 1})
+    if duplicates:
+        raise ContentPackError(f"{path}: duplicate doc_id values: {', '.join(duplicates)}")
+    return sources
 
 
 def clear_pack_cache() -> None:

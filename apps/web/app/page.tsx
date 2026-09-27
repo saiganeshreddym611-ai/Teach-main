@@ -13,6 +13,9 @@ const PHASE_LABEL: Record<Phase, string> = {
   INSTRUCT: "Instruction",
   TEACH_BACK: "Teach-back",
   COMPLETE: "Complete",
+  TASK: "Task",
+  REVIEW: "Review",
+  PRACTICE: "Practice",
 };
 
 export default function Kiosk() {

@@ -1,0 +1,8 @@
+event: grade
+data: {"verdicts":[{"node_id":"ind_as_115.step_1","status":"VERIFIED","confidence":0.9,"evidence":"Revenue recognised when control transfers."}],"summary":"Good baseline."}
+
+event: text
+data: {"delta":"We recognise revenue when control transfers."}
+
+event: done
+data: {"phase":"INSTRUCT","target_node":"ind_as_115.step_1","tutor_turn_id":"t-1","student_turn_id":"s-1","ledger_delta":[{"id":"l-1","student_id":"demo","node_id":"ind_as_115.step_1","status":"VERIFIED","confidence":0.9,"evidence_turn_id":"turn-1","phase":"INSTRUCT","ts":"2024-01-01T00:00:00Z"}]}

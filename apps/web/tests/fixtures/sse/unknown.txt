@@ -1,0 +1,8 @@
+event: grade
+data: {"verdicts":[{"node_id":"ind_as_115.step_4","status":"GAP","confidence":0.2,"evidence":"missing"}],"summary":"Not yet."}
+
+event: mystery
+data: {"ignored":true}
+
+event: text
+data: {"delta":"Still learning."}

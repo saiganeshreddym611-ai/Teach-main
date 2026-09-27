@@ -1,4 +1,58 @@
-import type { NodeStatus, Phase } from "./api";
+export type Phase = "DIAGNOSTIC" | "INSTRUCT" | "TEACH_BACK" | "COMPLETE" | "TASK" | "REVIEW" | "PRACTICE";
+export type NodeStatus = "NOT_MENTIONED" | "GAP" | "PARTIAL" | "VERIFIED";
+
+export type Turn = {
+  id: string;
+  role: "student" | "tutor";
+  text: string;
+  phase: Phase;
+  ts: string;
+};
+
+export type MasteryEntry = {
+  node_id: string;
+  title: string;
+  level: 1 | 2 | 3;
+  parent: string | null;
+  status: NodeStatus;
+  confidence: number | null;
+};
+
+export type Verdict = {
+  node_id: string;
+  status: NodeStatus;
+  confidence: number;
+  evidence: string;
+};
+
+export type GradeEvent = {
+  verdicts: Verdict[];
+  summary: string;
+  claims?: ReviewClaim[];
+  omissions?: Omission[];
+};
+
+export type DoneEvent = {
+  phase: Phase;
+  target_node: string | null;
+  tutor_turn_id: string;
+  student_turn_id: string;
+  ledger_delta: LedgerEvent[];
+  citations?: Citation[];
+  grounding?: Passage[];
+};
+
+export type SessionView = {
+  session_id: string;
+  student_id: string;
+  topic_id: string;
+  phase: Phase;
+  target_node: string | null;
+  student_level_summary: string;
+  mastery: MasteryEntry[];
+  turns: Turn[];
+  ledger: LedgerEvent[];
+};
 
 export type Sha256 = string;
 export type ReviewStatus = "draft" | "claude_reviewed" | "needs_expert" | "signed_off";

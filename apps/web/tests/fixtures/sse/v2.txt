@@ -1,0 +1,5 @@
+event: grade
+data: {"verdicts":[{"node_id":"ind_as_115.step_2","status":"PARTIAL","confidence":0.75,"evidence":"The amount is measured at transaction price."}],"summary":"Needs a clearer link to the contract asset.","claims":[{"claim":"The entity recognises revenue over time when control transfers.","verdict":"supported","passage_id":"p-1"}],"omissions":[{"node_id":"ind_as_115.step_3","citations":[{"passage_id":"p-2","label":"Ind AS 115.27","doc_id":"ind_as_115"}]}]}
+
+event: done
+data: {"phase":"TASK","target_node":"ind_as_115.step_2","tutor_turn_id":"t-2","student_turn_id":"s-2","ledger_delta":[{"id":"l-2","student_id":"demo","node_id":"ind_as_115.step_2","status":"PARTIAL","confidence":0.75,"evidence_turn_id":"turn-2","phase":"TASK","ts":"2024-01-01T00:00:01Z"}],"citations":[{"passage_id":"p-3","label":"Ind AS 115.26","doc_id":"ind_as_115"}],"grounding":[{"passage_id":"p-3","doc_id":"ind_as_115","doc_type":"standard","locator":"Ind AS 115.26","text":"Control transfers over time when one of the criteria is met.","sha256":"abc123"}]}

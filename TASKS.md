@@ -301,7 +301,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T52 | Task grader | D | T51, T30, T32 | todo |
 | T53 | TASK phase in the state machine | D | T52, T42, T31 | todo |
 | T54 | Skill projection and API | D | T53 | todo |
-| T60 | Web client types and SSE handling | E | T02 | todo |
+| T60 | Web client types and SSE handling | E | T02 | review (Copilot CLI (auto), 2026-09-27, log .task-runs/T60/20260927-155054) |
 | T61 | Mastery dashboard v2 | E | T60, T31 | todo |
 | T62 | Citation chips on tutor turns | E | T60, T41 | todo |
 | T63 | Task workspace | E | T60, T53 | todo |

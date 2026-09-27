@@ -1,70 +1,12 @@
 // Thin client for the tutor service. The /turn endpoint is SSE over POST, so we
 // parse the stream by hand instead of using EventSource (which is GET-only).
 
+import type { DoneEvent, GradeEvent, MasteryEntry, NodeStatus, Passage, Phase, SessionView, SkillDef, Turn, Verdict } from "./contracts";
+import { dispatch } from "./sse";
+
 export const API_BASE = process.env.NEXT_PUBLIC_TUTOR_API ?? "http://localhost:8000";
 
-export type Phase = "DIAGNOSTIC" | "INSTRUCT" | "TEACH_BACK" | "COMPLETE";
-export type NodeStatus = "NOT_MENTIONED" | "GAP" | "PARTIAL" | "VERIFIED";
-
-export interface Turn {
-  id: string;
-  role: "student" | "tutor";
-  text: string;
-  phase: Phase;
-  ts: string;
-}
-
-export interface MasteryEntry {
-  node_id: string;
-  title: string;
-  level: 1 | 2 | 3;
-  parent: string | null;
-  status: NodeStatus;
-  confidence: number | null;
-}
-
-export interface LedgerEvent {
-  id: string;
-  student_id: string;
-  node_id: string;
-  status: NodeStatus;
-  confidence: number;
-  evidence_turn_id: string;
-  phase: Phase;
-  ts: string;
-}
-
-export interface SessionView {
-  session_id: string;
-  student_id: string;
-  topic_id: string;
-  phase: Phase;
-  target_node: string | null;
-  student_level_summary: string;
-  mastery: MasteryEntry[];
-  turns: Turn[];
-  ledger: LedgerEvent[];
-}
-
-export interface Verdict {
-  node_id: string;
-  status: NodeStatus;
-  confidence: number;
-  evidence: string;
-}
-
-export interface GradeEvent {
-  verdicts: Verdict[];
-  summary: string;
-}
-
-export interface DoneEvent {
-  phase: Phase;
-  target_node: string | null;
-  tutor_turn_id: string;
-  student_turn_id: string;
-  ledger_delta: LedgerEvent[];
-}
+export type { DoneEvent, GradeEvent, MasteryEntry, NodeStatus, Passage, Phase, SessionView, SkillDef, Turn, Verdict };
 
 export async function createSession(studentId = "demo_student", topicId = "ind_as_115") {
   const r = await fetch(`${API_BASE}/session`, {
@@ -87,6 +29,11 @@ export interface TurnHandlers {
   onText?: (delta: string) => void;
   onDone?: (d: DoneEvent) => void;
   onError?: (message: string) => void;
+  onScope?: (payload: unknown) => void;
+  onTask?: (payload: unknown) => void;
+  onTaskResult?: (payload: unknown) => void;
+  onSkill?: (payload: unknown) => void;
+  onPractice?: (payload: unknown) => void;
 }
 
 export async function streamTurn(sessionId: string, transcript: string, h: TurnHandlers): Promise<void> {
@@ -116,27 +63,20 @@ export async function streamTurn(sessionId: string, transcript: string, h: TurnH
   if (buf.trim()) dispatch(buf, h);
 }
 
-function dispatch(block: string, h: TurnHandlers) {
-  let kind = "";
-  let data = "";
-  for (const line of block.split("\n")) {
-    if (line.startsWith("event: ")) kind = line.slice(7);
-    else if (line.startsWith("data: ")) data += line.slice(6);
-  }
-  if (!kind) return;
-  const payload = data ? JSON.parse(data) : {};
-  switch (kind) {
-    case "grade":
-      h.onGrade?.(payload as GradeEvent);
-      break;
-    case "text":
-      h.onText?.((payload as { delta: string }).delta);
-      break;
-    case "done":
-      h.onDone?.(payload as DoneEvent);
-      break;
-    case "error":
-      h.onError?.((payload as { message: string }).message);
-      break;
-  }
+export async function getPassage(id: string): Promise<unknown> {
+  const r = await fetch(`${API_BASE}/passages/${encodeURIComponent(id)}`);
+  if (!r.ok) throw new Error(`getPassage ${r.status}: ${await r.text()}`);
+  return r.json();
+}
+
+export async function getStudentLedger(studentId: string): Promise<unknown> {
+  const r = await fetch(`${API_BASE}/students/${encodeURIComponent(studentId)}/ledger`);
+  if (!r.ok) throw new Error(`getStudentLedger ${r.status}: ${await r.text()}`);
+  return r.json();
+}
+
+export async function getSkills(studentId: string): Promise<SkillDef[]> {
+  const r = await fetch(`${API_BASE}/students/${encodeURIComponent(studentId)}/skills`);
+  if (!r.ok) throw new Error(`getSkills ${r.status}: ${await r.text()}`);
+  return (await r.json()) as SkillDef[];
 }

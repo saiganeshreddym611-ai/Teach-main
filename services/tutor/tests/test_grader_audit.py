@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -18,6 +19,7 @@ from tutor.grader_audit import (
     sha256_text,
     write_capture,
 )
+from tutor.grading_links import offered_passage_ids, passages_block
 from tutor.llm import get_grader
 from tutor.contracts.grading import GraderOutput, NodeVerdictV2
 from tutor.models import NodeStatus
@@ -319,47 +321,38 @@ async def test_capture_disabled(curriculum):
         settings.capture_grader_calls = True
 
 
-def test_offered_ids_match_block(curriculum):
+def _fixture_links():
+    """fixture_115 has a corpus, unlike the default pack, so these tests never skip."""
+    from tutor.content import load_pack
+    from tutor.grading_links import NodeLinks
+    from tutor.retrieval import get_retriever
+
+    pack = load_pack("fixture_115", packs_dir=Path(__file__).parent / "fixtures" / "packs")
+    retriever = get_retriever(pack)
+    links = NodeLinks({n.id: retriever.for_node(n.id) for n in pack.curriculum.tree.nodes}, retriever.corpus)
+    return pack.curriculum, links
+
+
+def _block_ids(block) -> list[str]:
+    return re.findall(r'<passage id="([^"]+)">', block["text"])
+
+
+def test_offered_ids_match_block():
     """The ids from a regex over the passages_block text equal offered_passage_ids."""
-    from tutor.grading_links import node_links, passages_block, offered_passage_ids
-    import re
-
-    links = node_links(curriculum)
-    block = passages_block(curriculum, links, focus_node_id=None)
-    if block is None:
-        pytest.skip("No passages in pack")
-    text = block["text"]
-    # Extract passage ids from the XML
-    found = re.findall(r'<passage id="([^"]+)">', text)
+    curriculum, links = _fixture_links()
     offered = offered_passage_ids(curriculum, links, focus_node_id=None)
-    assert found == offered
+    assert offered and _block_ids(passages_block(curriculum, links, None)) == offered
 
 
-def test_offered_ids_focus_only_when_over_limit(curriculum, monkeypatch):
-    """When focus_node_id is given and the full block exceeds the token limit,
-    offered_passage_ids returns only the focus node's passage ids."""
-    from tutor.grading_links import node_links, offered_passage_ids, PASSAGES_BLOCK_TOKEN_LIMIT
-
-    # Force the limit to 0 so any content exceeds it
+def test_offered_ids_focus_only_when_over_limit(monkeypatch):
+    """Over the token limit, a teach-back block and its offered ids hold only the focus node's passages."""
+    curriculum, links = _fixture_links()
+    focus = next(n.id for n in curriculum.tree.nodes if links.ids(n.id))
+    assert set(links.ids(focus)) < links.all_ids()  # the focus-only block is really smaller
     monkeypatch.setattr("tutor.grading_links.PASSAGES_BLOCK_TOKEN_LIMIT", 0)
-
-    links = node_links(curriculum)
-    if not links.passages:
-        pytest.skip("No passages in pack")
-
-    # Pick a node that has linked passages
-    focus_node = None
-    for node_id, passages in links.passages.items():
-        if passages:
-            focus_node = node_id
-            break
-    if focus_node is None:
-        pytest.skip("No node with passages in pack")
-
-    offered = offered_passage_ids(curriculum, links, focus_node_id=focus_node)
-    # Should only contain the focus node's passage ids
-    expected = links.ids(focus_node)
-    assert offered == expected
+    offered = offered_passage_ids(curriculum, links, focus_node_id=focus)
+    assert offered == links.ids(focus)
+    assert _block_ids(passages_block(curriculum, links, focus)) == offered
 
 
 def test_citation_diffs():

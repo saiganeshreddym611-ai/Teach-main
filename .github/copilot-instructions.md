@@ -48,6 +48,9 @@ ledger. A Next.js kiosk (`apps/web`) talks to it over SSE.
 
 ## Commands (Windows paths; use `.venv/bin` on macOS/Linux)
 
+Always use the project venv at `services/tutor/.venv`. Never `pip install` into the global Python:
+the review checkpoint runs tests only through that venv.
+
 ```bash
 cd services/tutor
 python -m venv .venv                          # once
@@ -60,7 +63,7 @@ cd apps/web && npm run lint && npm run build  # only if you touched apps/web
 
 - Do not run `git commit`, `git push`, `git reset`, `git checkout -- <file>` or `git clean`.
   The owner submits your work to review with `python tools/task_runner.py submit <ID>`.
-- Do not edit `TASKS.md`, `REQUIREMENTS.md`, `HUMAN-DECISIONS.md`, `QUALITY-AND-REVIEW.md`,
+- Do not edit `TASKS.md` (not even the status board), `REQUIREMENTS.md`, `HUMAN-DECISIONS.md`, `QUALITY-AND-REVIEW.md`,
   `specs/`, `tools/` or `.github/`. They are owned by the owner and the reviewer.
 - Do not commit secrets, `.env` files, licensed source documents or personal data.
 - Do not change `tutor/grader.py`, `tutor/state_machine.py` or `tutor/tutor_voice.py` unless the
@@ -70,6 +73,7 @@ cd apps/web && npm run lint && npm run build  # only if you touched apps/web
 
 End with a short report:
 
+- Every test in the spec's test table, by name, and whether it exists and passes.
 - Files created and changed.
 - The exact test command you ran and its last line of output.
 - Anything in the spec you could not do, and why.

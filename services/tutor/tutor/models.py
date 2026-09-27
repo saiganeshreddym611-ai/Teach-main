@@ -29,6 +29,7 @@ class Node(BaseModel):
     level: Literal[1, 2, 3]
     parent: str | None
     title: str
+    chapter: str | None = None
     rubric: list[str]
     misconceptions: list[str] = []
     canonical_explanation: str

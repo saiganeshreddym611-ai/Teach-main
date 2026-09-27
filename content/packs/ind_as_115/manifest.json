@@ -1,0 +1,10 @@
+{
+  "pack_id": "ind_as_115",
+  "exam": "CA Final",
+  "paper": "Financial Reporting",
+  "attempt": "2027-05",
+  "version": "0.1.0",
+  "topics": ["ind_as_115"],
+  "doc_codes": {"IndAS115": "ind_as_115", "IndAS37": "ind_as_37"},
+  "out_of_scope_message": "That is outside the syllabus material I have for this topic, so I won't answer it from general knowledge."
+}

@@ -7,7 +7,7 @@ MVP scope: **CA Final · Financial Reporting · Ind AS 115** (42 concept nodes a
 ```
 apps/web            Next.js kiosk UI (talk button, waveform, transcript, mastery grid)
 services/tutor      FastAPI orchestrator: state machine + grader + tutor voice + ledger
-curriculum/         Knowledge tree JSON (the core asset - authored, versioned, rubric per node)
+content/packs/      Content packs: concept map, sources, corpus, reviews (one folder per exam pack)
 ```
 
 ## Run it
@@ -41,6 +41,7 @@ Optional — local text-to-speech (recommended; the browser voice is the fallbac
 | `OLLAMA_GRADER_THINK` | Unset = model default. Nemotron needs thinking to grade reliably (22 s/grade); Gemma does not (0.8 s). |
 | `ANTHROPIC_API_KEY`, `TUTOR_MODEL` | For the Claude backends (`claude-opus-5`; effort tuned per route in code). |
 | `MOCK_LLM=1` | Deterministic keyword grader + template tutor. No models, no cost — for UI work and demos. |
+| `CONTENT_PACK` | Active versioned content pack under `content/packs/`; defaults to `ind_as_115`. |
 | `TTS_ENGINE` | `browser` (Web Speech API in the kiosk), `piper` or `kokoro` (server-side, `POST /tts`). |
 | `PIPER_VOICE`, `KOKORO_VOICE`, `TTS_SPEED` | Default voice and rate. The kiosk header has a voice picker for any voice in `models/`. |
 

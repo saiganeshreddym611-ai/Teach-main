@@ -11,6 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response, StreamingResponse
 
 from .config import settings
+from .content import load_pack
+from .contracts.api import ContentInfo
 from .curriculum import load_curriculum
 from .ledger import mastery_view
 from .llm import describe_grader, describe_tutor, get_grader, get_tutor
@@ -30,6 +32,7 @@ from .tts import describe_tts, get_tts, wav_bytes
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    load_pack()
     # Load TTS voices off the event loop so the first sentence of a session is fast.
     try:
         engine = get_tts()
@@ -47,6 +50,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/content", response_model=ContentInfo)
+async def content() -> ContentInfo:
+    pack = load_pack()
+    return ContentInfo(manifest=pack.manifest, content_hash=pack.content_hash)
 
 
 @app.get("/health")

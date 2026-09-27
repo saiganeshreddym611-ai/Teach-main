@@ -12,6 +12,7 @@ load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 @dataclass
 class Settings:
+    content_pack: str = os.getenv("CONTENT_PACK", "ind_as_115")
     model: str = os.getenv("TUTOR_MODEL", "claude-opus-5")
     mock_llm: bool = os.getenv("MOCK_LLM", "0") in {"1", "true", "yes"}
     # Backends: "claude" (default) or "ollama", per role. MOCK_LLM=1 overrides both.

@@ -279,7 +279,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T00 | Initialise git and baseline commit | A | — | done (638b803) |
 | T01 | Baseline green and housekeeping | A | T00 | done (a6f4f87, reviewed by Claude + owner) |
 | T02 | Shared contracts module | A | T01 | done (7373959, reviewed by Claude + owner) |
-| T10 | Content pack layout and loader | A | T02 | todo |
+| T10 | Content pack layout and loader | A | T02 | review (Copilot (gpt-5.6-luna), 2026-09-27, log .task-runs/T10/20260927-130118) |
 | T11 | Review gate | A | T10 | todo |
 | T20 | Ingestion pipeline | A | T10 | todo |
 | T21 | Source-ref resolver and passage API | A | T20 | todo |

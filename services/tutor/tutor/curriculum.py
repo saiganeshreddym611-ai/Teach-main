@@ -1,21 +1,28 @@
-"""Load and index a knowledge tree from curriculum/<topic>.json."""
+"""Knowledge-tree model and prompt-stable serialisation."""
 from __future__ import annotations
 
 import json
-from functools import lru_cache
-from pathlib import Path
 
 from .models import Node, Tree
 
-# repo_root/curriculum — resolved relative to this file so it works from any cwd.
-CURRICULUM_DIR = Path(__file__).resolve().parents[3] / "curriculum"
+PROMPT_TREE_FIELDS = ("topic_id", "subject", "standard", "opening_prompt")
+PROMPT_NODE_FIELDS = (
+    "id",
+    "level",
+    "parent",
+    "title",
+    "rubric",
+    "misconceptions",
+    "canonical_explanation",
+    "example",
+    "source_refs",
+)
 
 
 class Curriculum:
     def __init__(self, tree: Tree):
         self.tree = tree
         self.by_id: dict[str, Node] = {n.id: n for n in tree.nodes}
-        # Document order is the priority order within a level.
         self.order: dict[str, int] = {n.id: i for i, n in enumerate(tree.nodes)}
 
     def node(self, node_id: str) -> Node:
@@ -34,19 +41,25 @@ class Curriculum:
 
     def subtree_ids(self, node_id: str) -> list[str]:
         ids = [node_id]
-        for c in self.children(node_id):
-            ids.extend(self.subtree_ids(c.id))
+        for child in self.children(node_id):
+            ids.extend(self.subtree_ids(child.id))
         return ids
 
     def stable_json(self) -> str:
-        """Byte-stable serialisation for the cached prompt prefix."""
-        return json.dumps(self.tree.model_dump(), sort_keys=True, ensure_ascii=False, indent=1)
+        """Byte-stable prompt serialisation excluding review and chapter metadata."""
+        tree_data = self.tree.model_dump(
+            include={
+                **{field: ... for field in PROMPT_TREE_FIELDS},
+                "nodes": {"__all__": set(PROMPT_NODE_FIELDS)},
+            }
+        )
+        return json.dumps(tree_data, sort_keys=True, ensure_ascii=False, indent=1)
 
 
-@lru_cache(maxsize=8)
 def load_curriculum(topic_id: str) -> Curriculum:
-    path = CURRICULUM_DIR / f"{topic_id}.json"
-    if not path.exists():
-        raise FileNotFoundError(f"No curriculum for topic '{topic_id}' at {path}")
-    data = json.loads(path.read_text(encoding="utf-8"))
-    return Curriculum(Tree.model_validate(data))
+    from .content import load_pack
+
+    pack = load_pack()
+    if topic_id == pack.curriculum.tree.topic_id:
+        return pack.curriculum
+    raise FileNotFoundError(f"No curriculum for topic '{topic_id}' in content pack '{pack.pack_id}'")

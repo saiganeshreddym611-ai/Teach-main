@@ -9,6 +9,7 @@
       "level": 1,
       "parent": null,
       "title": "Step 1 — Identify the contract with the customer",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Names identifying the contract as the first step of the five-step model",
         "Describes a contract as an agreement creating enforceable rights and obligations (written, oral or implied)"
@@ -23,6 +24,7 @@
       "level": 2,
       "parent": "ind_as_115.step_1",
       "title": "The five contract criteria",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "States that all five criteria must be met before the contract is accounted for",
         "Lists at least four of: parties approved and committed; rights identifiable; payment terms identifiable; commercial substance; collectability probable"
@@ -37,6 +39,7 @@
       "level": 2,
       "parent": "ind_as_115.step_1",
       "title": "Combining contracts",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Explains that contracts entered at or near the same time with the same customer may need to be combined",
         "Gives at least one combination indicator: negotiated as a package; price of one depends on the other; goods form a single performance obligation"
@@ -51,6 +54,7 @@
       "level": 3,
       "parent": "ind_as_115.step_1",
       "title": "Contract modifications",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Identifies when a modification is a separate contract: adds distinct goods/services at a price reflecting standalone selling price",
         "Distinguishes prospective treatment (remaining goods distinct) from cumulative catch-up (remaining goods not distinct)"
@@ -65,6 +69,7 @@
       "level": 3,
       "parent": "ind_as_115.step_1",
       "title": "Consideration received when criteria are not met",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "States that consideration received is recognised as a liability, not revenue, until the criteria are met",
         "Identifies when that liability can be released to revenue: no remaining obligations and consideration is non-refundable, or contract terminated"
@@ -80,6 +85,7 @@
       "level": 1,
       "parent": null,
       "title": "Step 2 — Identify the performance obligations",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Names identifying performance obligations as the second step",
         "Describes a performance obligation as a promise to transfer a distinct good or service (or series of distinct goods/services)"
@@ -94,6 +100,7 @@
       "level": 2,
       "parent": "ind_as_115.step_2",
       "title": "The two-part 'distinct' test",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "States both conditions: capable of being distinct (customer can benefit on its own or with readily available resources) AND distinct within the context of the contract (separately identifiable)",
         "Explains that both must be satisfied"
@@ -108,6 +115,7 @@
       "level": 2,
       "parent": "ind_as_115.step_2",
       "title": "Series of distinct goods or services",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Explains that a series of substantially-the-same goods/services with the same pattern of transfer is a single performance obligation",
         "Notes the series must be satisfied over time with the same measure of progress"
@@ -122,6 +130,7 @@
       "level": 3,
       "parent": "ind_as_115.step_2",
       "title": "Indicators that promises are not separately identifiable",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Gives at least two indicators: significant integration service; one good significantly modifies or customises another; goods are highly interdependent or interrelated"
       ],
@@ -135,6 +144,7 @@
       "level": 3,
       "parent": "ind_as_115.step_2",
       "title": "Assurance-type vs service-type warranties",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Distinguishes assurance warranties (product works as specified; Ind AS 37 provision) from service warranties (additional service; separate performance obligation)",
         "Mentions that a warranty the customer can purchase separately is a service-type warranty"
@@ -149,6 +159,7 @@
       "level": 3,
       "parent": "ind_as_115.step_2",
       "title": "Customer options and material rights",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Explains that an option giving the customer a material right (e.g. a discount it would not otherwise receive) is a separate performance obligation",
         "States that transaction price is allocated to the option based on its estimated standalone selling price"
@@ -163,6 +174,7 @@
       "level": 3,
       "parent": "ind_as_115.step_2",
       "title": "Principal versus agent",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "States that the test is whether the entity controls the good or service before it is transferred to the customer",
         "Explains gross (principal) vs net (agent) presentation",
@@ -179,6 +191,7 @@
       "level": 1,
       "parent": null,
       "title": "Step 3 — Determine the transaction price",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Names determining the transaction price as the third step",
         "Defines it as the consideration the entity expects to be entitled to, excluding amounts collected for third parties (e.g. GST)"
@@ -193,6 +206,7 @@
       "level": 2,
       "parent": "ind_as_115.step_3",
       "title": "Estimating variable consideration",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Gives examples of variable consideration (discounts, rebates, refunds, penalties, bonuses, contingencies)",
         "Names both estimation methods: expected value and most likely amount",
@@ -208,6 +222,7 @@
       "level": 2,
       "parent": "ind_as_115.step_3",
       "title": "Constraint on variable consideration",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "States that variable consideration is included only to the extent it is highly probable that a significant reversal will not occur",
         "Gives at least one factor increasing reversal risk: outside entity's influence; long time until resolution; limited experience; broad range of outcomes"
@@ -222,6 +237,7 @@
       "level": 2,
       "parent": "ind_as_115.step_3",
       "title": "Significant financing component",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Explains that the transaction price is adjusted for the time value of money when timing of payment provides a significant financing benefit",
         "Mentions the practical expedient: no adjustment if the period between transfer and payment is one year or less",
@@ -237,6 +253,7 @@
       "level": 3,
       "parent": "ind_as_115.step_3",
       "title": "Non-cash consideration",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "States that non-cash consideration is measured at fair value at contract inception",
         "Explains the fallback to standalone selling price when fair value cannot be reasonably estimated"
@@ -251,6 +268,7 @@
       "level": 3,
       "parent": "ind_as_115.step_3",
       "title": "Consideration payable to a customer",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "States that amounts payable to a customer reduce the transaction price unless they are payment for a distinct good or service received from the customer",
         "Explains that revenue is reduced at the later of when revenue is recognised or the payment is promised"
@@ -265,6 +283,7 @@
       "level": 3,
       "parent": "ind_as_115.step_3",
       "title": "Sales with a right of return",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Explains that revenue is recognised only for goods not expected to be returned",
         "Identifies the refund liability and the asset for the right to recover returned goods"
@@ -280,6 +299,7 @@
       "level": 1,
       "parent": null,
       "title": "Step 4 — Allocate the transaction price to performance obligations",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Names allocation as the fourth step",
         "States the objective: allocate an amount to each performance obligation that depicts the consideration the entity expects for that obligation"
@@ -294,6 +314,7 @@
       "level": 2,
       "parent": "ind_as_115.step_4",
       "title": "Relative standalone selling price basis",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Defines standalone selling price as the price at which the entity would sell the good or service separately",
         "Explains that observable prices from separate sales are the best evidence",
@@ -309,6 +330,7 @@
       "level": 2,
       "parent": "ind_as_115.step_4",
       "title": "Estimating standalone selling price when not observable",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Names at least two estimation approaches: adjusted market assessment; expected cost plus a margin; residual approach",
         "States that the residual approach is permitted only when the price is highly variable or uncertain"
@@ -323,6 +345,7 @@
       "level": 3,
       "parent": "ind_as_115.step_4",
       "title": "Allocating a discount",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "States that a bundle discount is allocated proportionately to all performance obligations by default",
         "Explains the exception: allocate entirely to some obligations when observable evidence shows the discount relates only to them"
@@ -337,6 +360,7 @@
       "level": 3,
       "parent": "ind_as_115.step_4",
       "title": "Allocating variable consideration to specific obligations",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Explains that variable consideration may be allocated entirely to one performance obligation (or distinct good in a series) when both conditions are met",
         "States the two conditions: the variable terms relate specifically to that obligation, and the allocation is consistent with the allocation objective"
@@ -352,6 +376,7 @@
       "level": 1,
       "parent": null,
       "title": "Step 5 — Recognise revenue when (or as) performance obligations are satisfied",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Names recognition on satisfaction of performance obligations as the fifth step",
         "States that satisfaction occurs when control of the good or service transfers to the customer",
@@ -367,6 +392,7 @@
       "level": 2,
       "parent": "ind_as_115.step_5",
       "title": "The concept of control",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Defines control as the ability to direct the use of, and obtain substantially all remaining benefits from, the asset",
         "Notes that control includes the ability to prevent others from directing use and obtaining benefits"
@@ -381,6 +407,7 @@
       "level": 2,
       "parent": "ind_as_115.step_5",
       "title": "Criteria for satisfaction over time",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Lists all three criteria: customer simultaneously receives and consumes benefits; entity creates or enhances an asset the customer controls; asset has no alternative use AND entity has an enforceable right to payment for performance to date",
         "States that meeting any one criterion means over-time recognition"
@@ -395,6 +422,7 @@
       "level": 2,
       "parent": "ind_as_115.step_5",
       "title": "Indicators of control transfer at a point in time",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Gives at least three indicators: present right to payment; legal title; physical possession; risks and rewards of ownership; customer acceptance",
         "Explains that these are indicators, not a checklist requiring all to be met"
@@ -409,6 +437,7 @@
       "level": 2,
       "parent": "ind_as_115.step_5",
       "title": "Measuring progress towards complete satisfaction",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Names output methods and input methods and gives an example of each",
         "States that a single method is applied consistently to each performance obligation",
@@ -424,6 +453,7 @@
       "level": 3,
       "parent": "ind_as_115.step_5",
       "title": "Enforceable right to payment for performance to date",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Explains the right must compensate for performance to date (approximately cost plus a reasonable margin), not just reimburse costs",
         "States that the right must exist at all times throughout the contract if the customer terminates for reasons other than the entity's failure"
@@ -438,6 +468,7 @@
       "level": 3,
       "parent": "ind_as_115.step_5",
       "title": "Uninstalled materials and wasted inputs in input methods",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Explains that costs not contributing to progress (wasted materials, inefficiencies) are excluded from the cost-to-cost measure",
         "Explains the uninstalled materials adjustment: recognise revenue equal to cost (zero margin) when control passes but the goods are not yet installed"
@@ -452,6 +483,7 @@
       "level": 3,
       "parent": "ind_as_115.step_5",
       "title": "Bill-and-hold arrangements",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Lists the conditions for recognising revenue while goods remain with the seller: substantive reason; goods identified separately; ready for physical transfer; entity cannot use or redirect the goods",
         "Notes that custodial services may be a separate performance obligation"
@@ -466,6 +498,7 @@
       "level": 3,
       "parent": "ind_as_115.step_5",
       "title": "Consignment arrangements",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "States that revenue is not recognised on delivery to a consignee because control has not transferred",
         "Gives at least one indicator: entity controls the product until a specified event (sale to end customer); entity can require return or transfer elsewhere; dealer has no unconditional obligation to pay"
@@ -480,6 +513,7 @@
       "level": 3,
       "parent": "ind_as_115.step_5",
       "title": "Repurchase agreements",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Distinguishes forward/call options (entity must or can repurchase) from put options (customer can require repurchase)",
         "Explains forward/call: lease if repurchase price below original price; financing arrangement if at or above",
@@ -495,6 +529,7 @@
       "level": 3,
       "parent": "ind_as_115.step_5",
       "title": "Licences of intellectual property",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Distinguishes a right to access IP (over time) from a right to use IP (point in time)",
         "Explains the criteria for 'right to access': entity's activities significantly affect the IP; customer is exposed to those activities; activities do not transfer a separate good/service",
@@ -511,6 +546,7 @@
       "level": 1,
       "parent": null,
       "title": "Beyond the five steps — contract costs, presentation and disclosure",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Mentions that Ind AS 115 also governs contract costs (obtaining and fulfilling) and balance-sheet presentation (contract assets/liabilities)"
       ],
@@ -524,6 +560,7 @@
       "level": 2,
       "parent": "ind_as_115.cross_cutting",
       "title": "Incremental costs of obtaining a contract",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "States that incremental costs (would not have been incurred if the contract were not obtained, e.g. sales commissions) are capitalised if expected to be recovered",
         "Mentions the practical expedient to expense when the amortisation period would be one year or less",
@@ -539,6 +576,7 @@
       "level": 2,
       "parent": "ind_as_115.cross_cutting",
       "title": "Costs to fulfil a contract",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "States that other standards (Ind AS 2, 16, 38) apply first; Ind AS 115 applies only to costs not in their scope",
         "Lists the three capitalisation criteria: relate directly to a contract; generate or enhance resources used to satisfy obligations; expected to be recovered"
@@ -553,6 +591,7 @@
       "level": 2,
       "parent": "ind_as_115.cross_cutting",
       "title": "Contract assets, receivables and contract liabilities",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "Defines a contract liability as consideration received (or due) before performance",
         "Distinguishes a contract asset (right to consideration conditional on something other than passage of time) from a receivable (unconditional right)"
@@ -567,6 +606,7 @@
       "level": 3,
       "parent": "ind_as_115.cross_cutting",
       "title": "Amortisation and impairment of contract cost assets",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "States that capitalised contract costs are amortised consistently with the transfer of the related goods or services (which may extend beyond the initial contract term for anticipated renewals)",
         "Explains the impairment test: carrying amount exceeds remaining consideration expected less directly related costs not yet expensed"
@@ -581,6 +621,7 @@
       "level": 3,
       "parent": "ind_as_115.cross_cutting",
       "title": "Disclosure objectives",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "States the objective: enable users to understand the nature, amount, timing and uncertainty of revenue and cash flows",
         "Lists at least two required areas: disaggregation of revenue; contract balances; remaining performance obligations; significant judgements; contract cost assets"
@@ -595,6 +636,7 @@
       "level": 3,
       "parent": "ind_as_115.cross_cutting",
       "title": "Onerous contracts",
+      "chapter": "Ind AS 115 — Revenue from Contracts with Customers",
       "rubric": [
         "States that Ind AS 115 contains no onerous-contract guidance; Ind AS 37 applies",
         "Explains that a provision is recognised when unavoidable costs of meeting the obligations exceed the expected economic benefits"

@@ -281,7 +281,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T02 | Shared contracts module | A | T01 | done (7373959, reviewed by Claude + owner) |
 | T10 | Content pack layout and loader | A | T02 | done (57d84b0, reviewed by Claude + owner) |
 | T11 | Review gate | A | T10 | done (5ad6966, reviewed by Claude) |
-| T20 | Ingestion pipeline | A | T10 | review (Copilot (gpt-5.6-luna), 2026-09-27, log .task-runs/T20/20260927-133346) |
+| T20 | Ingestion pipeline | A | T10 | done (6c9e42a, reviewed by Claude) |
 | T21 | Source-ref resolver and passage API | A | T20 | todo |
 | T22 | Retriever (node-linked + BM25) | A | T21 | todo |
 | T23 | Grounded Claude review pipeline | A | T22, T11 | todo |

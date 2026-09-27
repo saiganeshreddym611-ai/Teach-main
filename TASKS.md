@@ -38,7 +38,8 @@ grader, tutor voice, ledger, kiosk). Nothing in this plan has been implemented y
   into a prompt, you bumped `PROMPT_VERSION` and re-ran the grader evals (or wrote in the commit
   message that no model was available and the evals were not run).
 - New environment variables are added to `services/tutor/.env.example` and the README table.
-- No content was marked as reviewed by an agent (see rule 7 below).
+- No review status was set by hand. Only the AI review pipeline (T23) or a recorded human audit
+  sets it (see rule 7 below).
 - Commit message starts with the task ID, for example `T21: resolve node source_refs to passages`.
 - Never push to a remote or open a PR unless a human asked for it.
 
@@ -82,10 +83,13 @@ if its tests pass.
    question is outside the available syllabus material. No uncited general knowledge.
 6. **Grading never uses similarity search.** Grading uses the passages linked to a node through its
    reviewed `source_refs`. Similarity search is only for student questions and practice lookup.
-7. **Agents never author ground truth.** Do not write syllabus text, answer keys, model answers or
-   verified solutions, and never mark content as reviewed. You may draft structure and wording
-   for a human to review; drafts carry `review.status = "draft"`. Answer keys are always computed
-   by calculator code from template parameters.
+7. **Agents never author ground truth, and never set review status by hand.** Do not write
+   syllabus text, and never invent answer keys or solutions. You may draft concept nodes, task
+   narratives, rubrics and model answers; drafts carry `review.status = "draft"`. Only the grounded
+   AI review pipeline (T23) moves an item to `ai_reviewed`, from logged, quote-checked evidence
+   against official sources; only a recorded human audit sets `expert_audited`. Answer keys are
+   always computed by calculator code from template parameters (owner decision D1 in
+   `HUMAN-DECISIONS.md`).
 8. **The answer key never reaches the tutor LLM.** Task directives carry the brief, never the
    solution.
 9. **Content is data.** Exam content, concept maps, task templates and application logic stay
@@ -125,8 +129,11 @@ The active pack is chosen by `CONTENT_PACK` (default `ind_as_115`). Test fixture
 ### 3.2 Content models
 
 ```text
-ReviewMeta   {status: "draft"|"reviewed", reviewer, reviewed_at, content_sha256, notes}
-SourceDoc    {doc_id, doc_code, title, doc_type, issuer, attempt, version, path, sha256, license_note}
+ReviewMeta   {status: "draft"|"ai_reviewed"|"needs_expert"|"expert_audited", content_sha256,
+              reviewers[{model, verdict}], claims[{claim, passage_id, quote, supported}],
+              report_id, auditor, audited_at, notes}
+SourceDoc    {doc_id, doc_code, title, doc_type, issuer, authority_rank, attempt, version, path,
+              sha256, license_note}
              doc_type: standard | study_material | rtp | mtp | past_paper | amendment
 Passage      {passage_id, doc_id, doc_type, paper, chapter, section, locator, attempt, version,
               page, text, sha256}
@@ -208,6 +215,7 @@ TaskVariant    {task_id, seed, params{}, narrative, documents[], answer_key{}, a
 | `REVIEW_INTERVALS_DAYS` | T70 | `1,3,7,21` | Spaced-repetition intervals. |
 | `STORE` | T81 | `memory` | `sqlite` for the optional persistent store. |
 | `SPEAKER_VERIFIER` | T82 | `stub` | Voice verification backend. |
+| `REVIEW_MODELS` | T23 | two families other than the drafter | Comma-separated reviewer models for grounded AI review. |
 
 ---
 
@@ -222,10 +230,11 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T01 | Baseline green and housekeeping | A | T00 | todo |
 | T02 | Shared contracts module | A | T01 | todo |
 | T10 | Content pack layout and loader | A | T02 | todo |
-| T11 | CA review gate | A | T10 | todo |
+| T11 | Review gate | A | T10 | todo |
 | T20 | Ingestion pipeline | A | T10 | todo |
 | T21 | Source-ref resolver and passage API | A | T20 | todo |
 | T22 | Retriever (node-linked + BM25) | A | T21 | todo |
+| T23 | Grounded AI review pipeline | A | T22, T11 | todo |
 | T30 | Grader v2: claims and citations | B | T22 | todo |
 | T31 | Ledger v2: student-scoped, cited, exportable | B | T30 | todo |
 | T32 | Grader audit log and determinism | B | T30 | todo |
@@ -255,14 +264,21 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T90 | Demo-script acceptance test | G | T54, T42 | todo |
 | T91 | Live demo runbook and latency benchmark | G | T90, T65 | todo |
 | T92 | README architecture update | G | T42, T83 | todo |
+| T100 | Course graph: course-agnostic packs and prerequisite edges | L | T83, T23, H6 | todo |
+| T101 | Learner profile and consent | L | T80, H6 | todo |
+| T102 | Placement diagnostic from graduation profile | L | T100, T101, T70 | todo |
+| T103 | Goals and next-topic recommender | L | T100, T101, T70, T84 | todo |
+| T104 | Signed portable ledger export | L | T31, T80, H6 | todo |
 | H1 | Supply source documents and confirm licensing | human | — | todo |
-| H2 | Review the concept map | human | T11 | todo |
-| H3 | Author and verify task content | human | T50 | todo |
-| H4 | Review eval expectations and practice mapping | human | T33, T71 | todo |
+| H2 | Triage AI review of the concept map | human | T23 | todo |
+| H3 | Supply official worked illustrations; triage task review | human | T50, T23 | todo |
+| H4 | Spot-check AI-reviewed evals and practice mapping | human | T33, T71, T23 | todo |
 | H5 | Sign off the retrieval threshold | human | T22 | todo |
+| H6 | Owner acceptance of the MVP | human | T90, T91 | todo |
 
 Lanes: **A** content and retrieval, **B** grading and ledger, **C** tutor, **D** skills,
-**E** web UI, **F** revision, privacy and integrity, **G** acceptance and docs.
+**E** web UI, **F** revision, privacy and integrity, **G** acceptance and docs, **L** long-term
+personalisation (post-MVP: do not start before H6).
 
 ---
 
@@ -328,7 +344,7 @@ marked *(new)* do not exist yet.
   - `manifest.json`: `exam: "CA Final"`, `paper: "Financial Reporting"`, `attempt: "TBD"` (H1
     decides), `version: "0.1.0"`, `doc_codes: {"IndAS115": ..., "IndAS37": ...}`.
   - Add optional `chapter` to `Node`. Set it to the standard's name for every node as a draft;
-    H2 confirms or changes it.
+    T23 checks it against the sources; the owner can change it.
   - `tutor/content.py` *(new)*: `load_pack(pack_id=None)` returning a `ContentPack` (manifest,
     curriculum, paths, `content_hash`). `load_curriculum(topic_id)` keeps its signature and
     delegates to the active pack. An unknown topic still raises `FileNotFoundError` (the 404 test).
@@ -341,24 +357,31 @@ marked *(new)* do not exist yet.
   - Existing tests pass. An unknown `CONTENT_PACK` fails with a clear error.
 - **Out of scope:** corpus, reviews, new content.
 
-#### T11 — CA review gate
-- **Requirements:** FR-2 ("a CA must review it before it is used"), NFR accuracy and review.
-- **Read first:** T10 output, section 2 rule 7.
+#### T11 — Review gate
+- **Requirements:** FR-2 (grounded review before use), NFR accuracy and review, owner decision D1
+  in `HUMAN-DECISIONS.md`.
+- **Read first:** T10 output, section 2 rule 7, `HUMAN-DECISIONS.md` section 2.
 - **Build:**
   - Reviews live in `reviews.json` keyed by item ID (node, task, practice item), not inline, so
-    the concept-map hash stays clean. Each entry stores the SHA-256 of the item's canonical JSON.
-    A review is valid only while that hash matches, so editing a node invalidates its review.
-  - `REQUIRE_REVIEWED_CONTENT=1` makes `POST /session` return 409 listing unreviewed items in
-    scope. With `0` (dev default) the service runs and `/health` and `/content` report
-    `unreviewed: {nodes, tasks, practice}`.
-  - `services/tutor/scripts/review_sheet.py` *(new)*: writes a Markdown review sheet per pack
-    showing, for each node, every field plus its resolved passages (refs only until T21 lands),
-    and a sign-off column. After T50 it also lists tasks.
-  - `services/tutor/scripts/approve.py` *(new)*: records a reviewer name, date and the current
-    hash for the given item IDs. Only a human runs it against a real pack.
-- **Acceptance:** tests on a fixture pack show that approval validates, an edit invalidates, and
-  strict mode refuses drafts.
-- **Human gate:** H2 uses the sheet and `approve.py`.
+    the concept-map hash stays clean. Each entry is a `ReviewMeta` with the SHA-256 of the item's
+    canonical JSON. A review is valid only while that hash matches, so editing an item sends it
+    back to `draft`.
+  - Usable statuses are `ai_reviewed` and `expert_audited`. `draft` and `needs_expert` are not.
+  - `REQUIRE_REVIEWED_CONTENT=1` makes `POST /session` return 409 listing unusable items in
+    scope. With `0` (dev default) the service runs and `/health` and `/content` report counts per
+    status for nodes, tasks and practice items.
+  - `services/tutor/scripts/review_sheet.py` *(new)*: writes a Markdown report per pack with each
+    item's status, reviewer verdicts, claims and quoted evidence. It lists `needs_expert` items
+    first, then a random audit sample of `ai_reviewed` items (10% of changed items, at least 10,
+    seeded so the sample is reproducible).
+  - `services/tutor/scripts/record_audit.py` *(new)*: records a human audit result (auditor, date,
+    pass or error with note) for given item IDs. `pass` sets `expert_audited`; `error` sets
+    `draft` and adds the item to the reviewer's regression set. Only a human runs it against a
+    real pack.
+- **Acceptance:** tests on a fixture pack show that an edit invalidates a review, strict mode
+  refuses `draft` and `needs_expert`, the audit sample is reproducible, and a recorded audit error
+  returns the item to `draft`.
+- **Human gate:** H2 and H3 use the report and `record_audit.py`.
 
 ### M2 — Corpus and retrieval
 
@@ -425,6 +448,43 @@ marked *(new)* do not exist yet.
 - **Acceptance:** ordering is deterministic across runs; recall@5 is at least 0.8 on fixture
   queries; fixture out-of-syllabus queries score below the suggested threshold.
 - **Human gate:** H5 signs off the threshold for the real pack.
+
+#### T23 — Grounded AI review pipeline
+- **Requirements:** FR-2, FR-12, NFR accuracy and review, owner decision D1 and its safeguards in
+  `HUMAN-DECISIONS.md` section 2.
+- **Read first:** `HUMAN-DECISIONS.md` sections 1 and 2, T11 and T22 output, `tutor/grader.py`
+  (the Ollama structured-output and corrective-retry pattern to reuse).
+- **Build:**
+  - `services/tutor/scripts/ai_review.py --pack <id> [--items ...]` *(new)* reviews every item
+    whose status is `draft` or whose hash changed: concept nodes now, task templates after T50,
+    practice items after T71, eval expectations after T33.
+  - Claim split: code splits each item into claims (each rubric item, each sentence of the
+    explanation and example, each misconception, each task answer step). Misconceptions are
+    checked as "the source contradicts this".
+  - Evidence: for each claim, candidate passages come from the item's `source_refs` first, then
+    `search()` restricted to sources of equal or higher `authority_rank`. The reviewer model returns
+    per claim: `supported | contradicted | not_found`, the passage ID and a verbatim quote.
+  - Quote check in code: the quote must appear word for word, after whitespace normalisation, in
+    that passage. A failed quote check makes the claim `not_found`.
+  - Two reviewers: `REVIEW_MODELS` (comma-separated Ollama models, default two families different
+    from the drafting model). Both run at temperature 0 with structured output. The item becomes
+    `ai_reviewed` only if both support every claim. Any disagreement or unsupported claim makes it
+    `needs_expert`, with the reasons in the report.
+  - Coverage check for concept nodes: each node's cited passages must not contain a rule that the
+    node's rubric omits and a student would need. The reviewer lists such gaps; any gap makes the
+    node `needs_expert`.
+  - Answer keys: for each calculator, run the official worked illustrations in
+    `tests/skills/reference_cases/`; a mismatch makes the task `needs_expert`.
+  - Every run writes a report under `services/tutor/data/reviews/` with inputs, models, prompts
+    hash and outputs, and updates `reviews.json` through T11's code path only.
+  - Reviewer test set `tests/evals/review/` *(new)*: copies of fixture nodes with planted errors
+    (wrong paragraph, reversed rule, invented exception, missing rubric item). A reviewer model
+    may be used only if it catches at least 95% of them; `ai_review.py --self-test` reports this.
+- **Acceptance:** on the fixture pack, clean items become `ai_reviewed`, planted-error items become
+  `needs_expert`, a fabricated quote fails the quote check, and the self-test reports the catch
+  rate. Mock reviewers make the whole path runnable with `MOCK_LLM=1`.
+- **Out of scope:** changing content to fix what the reviewer finds; that is a drafting step.
+- **Human gate:** H2 triages `needs_expert` items and the audit sample.
 
 ### M3 — Cited, claim-level grading
 
@@ -510,11 +570,12 @@ marked *(new)* do not exist yet.
     - The AC4 teach-back: extend case 03 (allocates on cost) with citation expectations.
     - One multi-claim answer that mixes an accurate and an inaccurate claim on the same node.
     - STT-noisy speech that must still verify, with citations.
-  - Mark each new case `"reviewed": false` until H4 confirms the expected verdicts.
+  - New cases start as `draft`; T23 reviews each expected verdict and citation against the
+    sources before the case counts.
   - Run against the configured model with `--repeat 3` and update the README results table.
   - You may iterate the grader prompt (bumping `PROMPT_VERSION` and re-running every case), but
     never weaken the strictness rules.
-- **Human gate:** H4 confirms expected verdicts.
+- **Human gate:** H4 spot-checks the AI-reviewed cases.
 
 ### M4 — Socratic, grounded tutor
 
@@ -595,7 +656,8 @@ marked *(new)* do not exist yet.
   - `content/packs/ind_as_115/skills/revenue_recognition_services.json` *(new)*: one skill,
     "Revenue recognition for a service-based company", with four task IDs.
   - Four draft task templates in `tasks/` *(new)*, all `review.status = "draft"`, with narrative,
-    rubric and model-answer text marked `TODO(CA)` where domain judgement is needed:
+    rubric and model-answer text drafted for T23 review. Use one fictional mid-size Indian IT
+    services company across all four tasks (see `HUMAN-DECISIONS.md` section 7):
     1. `rr_fixed_price_cost_to_cost` — fixed-price implementation contract, cost-to-cost input
        method, revenue to date and contract asset or liability at period end. Nodes include
        `step_5.over_time_criteria`, `step_5.measuring_progress`, `cross_cutting.presentation`.
@@ -606,8 +668,9 @@ marked *(new)* do not exist yet.
        `step_3.constraint`.
     4. `rr_discrepancy_hunt` — an invoice register and GL extract with planted premature revenue,
        duplicate billing, a missing credit note and wrong-period recognition.
-    The domain expert may swap in time-and-materials billing or an onerous contract later; that is
-    a content change only.
+    The owner may swap in time-and-materials billing or an onerous contract later; that is a
+    content change only. Use the grading defaults in `HUMAN-DECISIONS.md` section 7.3 unless the
+    owner changed them.
   - Extend `validate_pack.py`: node IDs exist, passage IDs resolve, the calculator is registered,
     rubric weights sum to 1.0, planted discrepancies point at real document rows, every narrative
     placeholder has a parameter, and constraints parse.
@@ -615,7 +678,8 @@ marked *(new)* do not exist yet.
     Never Python `eval`.
 - **Acceptance:** schema tests; the validator passes on the drafts (passage checks are skipped with
   a warning while the real corpus is missing) and fails on broken fixtures.
-- **Human gate:** H3 authors and verifies the content.
+- **Human gate:** T23 reviews the drafts; H3 supplies official worked illustrations and triages
+  `needs_expert` items.
 
 #### T51 — Deterministic calculators and variant generator
 - **Requirements:** FR-12 ("calculations must be deterministic code"), AC7.
@@ -631,8 +695,10 @@ marked *(new)* do not exist yet.
     `random.Random(seed)`. Sample parameters from their specs, reject-sample until constraints
     hold (fail loudly after a bounded number of tries), pick names from template lists, and set
     `answer_key = calculator(params)` with its SHA-256. No LLM.
-  - `tests/skills/reference_cases/` *(new)* holds CA-verified worked examples from H3. Agents may
-    write arithmetic unit tests; they may not write reference answers.
+  - `tests/skills/reference_cases/` *(new)* holds official worked illustrations with published
+    solutions (for example ICAI study-material illustrations), transcribed with their source
+    passage IDs. H3 supplies the sources. Agents may write arithmetic unit tests; they may not
+    invent reference answers.
 - **Acceptance:** property tests over 500 seeds per template: constraints hold, the answer key
   recomputes identically, the same seed gives an identical variant hash, and every planted
   discrepancy is detectable with no extra anomalies. Reference cases, once supplied, pass exactly.
@@ -656,8 +722,8 @@ marked *(new)* do not exist yet.
   - Reuse the T32 capture and memo, with `kind="task"`.
 - **Acceptance:** tests with scripted extraction cover partial-credit arithmetic, tolerance edges
   and discrepancy matching; the mock path works end to end; `tests/evals/tasks/` *(new)* has at
-  least four cases (correct, one numeric error, a missed discrepancy, wrong reasoning), marked
-  unreviewed until H3 confirms them.
+  least four cases (correct, one numeric error, a missed discrepancy, wrong reasoning), which
+  start as `draft` until T23 reviews them.
 
 #### T53 — TASK phase in the state machine
 - **Requirements:** FR-12, FR-13, AC5, AC6.
@@ -771,7 +837,7 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
     Write concept events with `source="practice"`.
 - **Acceptance:** tests on fixture Q/A passages; every practice result cites its question and
   answer passages; unreviewed items are never used in strict mode.
-- **Human gate:** H4 reviews the mapping.
+- **Human gate:** T23 reviews the mapping; H4 spot-checks it.
 
 ### M8 — Privacy, integrity, portability
 
@@ -835,17 +901,77 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
   questions and practice). Document content packs, the review flow and the new endpoints.
 - **Acceptance:** every command in the README runs as written.
 
+### M10 — Long-term: personalised learning beyond exams (post-MVP)
+
+Owner decision D2 in `HUMAN-DECISIONS.md`: Teach is not limited to exams. Do not start these tasks
+before H6 (owner acceptance of the MVP). They are specified here so earlier work does not block them.
+
+#### T100 — Course graph: course-agnostic packs and prerequisite edges
+- **Requirements:** REQUIREMENTS section 9 (personalised learning beyond exams), D2.
+- **Read first:** T10 and T83 output, `HUMAN-DECISIONS.md` section 10.
+- **Build:**
+  - Generalise the pack manifest from "exam attempt" to "course version": `course_id`, `kind`
+    (`exam | graduation | professional | interest`), `version`; an exam attempt is one kind.
+  - Add `requires: [{node_id, min_status}]` to nodes. Edges may point into other packs by fully
+    qualified node ID. Load several packs at once into one graph and reject cycles.
+  - `validate_pack.py` checks that every cross-pack edge resolves when the target pack is loaded.
+- **Acceptance:** tests load two fixture packs with cross-pack prerequisites; a cycle is rejected;
+  existing single-pack behaviour and node IDs are unchanged.
+
+#### T101 — Learner profile and consent
+- **Requirements:** REQUIREMENTS section 9, NFR privacy, `HUMAN-DECISIONS.md` section 10.
+- **Build:** a `LearnerProfile` {student_id, graduation_degree, subjects[], interests[], goals[],
+  language, consents{}} store behind an interface, with endpoints to read, update and delete it.
+  Collect only these fields. Deletion is part of `DELETE /students/{id}` (T80).
+- **Acceptance:** tests for create, update, consent flags and deletion together with the ledger.
+
+#### T102 — Placement diagnostic from graduation profile
+- **Requirements:** REQUIREMENTS section 9 ("start from what the student knows").
+- **Build:** a deterministic placement plan: from the profile's degree and subjects, choose which
+  prerequisite nodes to check first, then run the existing diagnostic and teach-back loop on them.
+  The profile only orders what is checked; nothing is marked verified without graded evidence.
+- **Acceptance:** tests show two profiles get different placement orders, and no node becomes
+  VERIFIED without a graded ledger event.
+
+#### T103 — Goals and next-topic recommender
+- **Requirements:** REQUIREMENTS section 9, section 2 rules 1 and 2 of this file.
+- **Build:**
+  - Goals generalise T84 job profiles: `{goal_id, kind: exam|job|interest, required[{node_id,
+    min_status}]}`.
+  - `recommend(student_id) -> [{node_id, kind: "new"|"strengthen", score, reasons[]}]` as pure
+    code over the ledger, course graph, profile and revision schedule. Signals: prerequisites met,
+    gap against goals, interest match, revision due (T70), later demand signals. Weights are
+    content configuration, not code constants.
+  - `GET /students/{id}/recommendations`. A model may phrase the reasons for speech; it never
+    chooses or reorders topics.
+  - Interests change order and examples only; verification rules are the same for everyone.
+- **Acceptance:** tests show that a node with unmet prerequisites is never recommended as new, a
+  due revision appears as "strengthen", identical inputs give identical rankings, and every item has
+  at least one reason.
+
+#### T104 — Signed portable ledger export
+- **Requirements:** REQUIREMENTS section 9 and roadmap Phase 3, NFR privacy.
+- **Build:** export the student's ledger projection with evidence references as a signed document
+  the student owns and can share; include a verification endpoint and key rotation notes.
+- **Acceptance:** tests show a tampered export fails verification and a deleted student's platform
+  data is gone while a previously issued export still verifies.
+
 ---
 
-## 6. Human tasks (domain expert)
+## 6. Human tasks (owner and experts)
+
+Use `HUMAN-DECISIONS.md` to collect answers, approvals and evidence for the gates below and the
+open questions in section 10. Do not mark a human task done until its required review or decision
+has been recorded.
 
 | ID | Task | Delivers to | Blocks |
 |---|---|---|---|
-| H1 | Choose the exam attempt and the one or two chapters. Supply the Ind AS 115 text, the Ind AS 37 onerous-contract paragraphs, the ICAI study material chapter(s), and the RTPs, MTPs and past papers for that attempt. Confirm what may be committed to the repository. | `content/packs/ind_as_115/sources/` | Real corpus (T20 onward runs on the fixture until then) |
-| H2 | Review all 42 concept-map nodes with the review sheet: accuracy, coverage, rubric, misconceptions, chapter, source refs. Approve with `approve.py`. | `reviews.json` | Strict mode; final eval expectations |
-| H3 | Author and verify task narratives, rubrics, model answers, planted discrepancies, pass thresholds, and CA-verified worked examples for each calculator. | `tasks/*.json`, `tests/skills/reference_cases/` | T51 reference tests, T52 evals, strict mode |
-| H4 | Confirm expected verdicts in new grader and task eval cases; review the practice mapping. | eval case files, `practice_map.json` | T33 and T71 sign-off |
+| H1 | Choose the exam attempt and the one or two chapters. Supply the official sources: Ind AS 115 text, Ind AS 37 onerous-contract paragraphs, ICAI study material chapter(s), RTPs, MTPs and past papers. Confirm what may be committed and start the ICAI licence conversation. | `content/packs/ind_as_115/sources/` | Real corpus (T20 onward runs on the fixture until then) |
+| H2 | Triage the AI review of the concept map: resolve `needs_expert` items and audit the random sample with `record_audit.py`. No node-by-node review (D1). | `reviews.json` | Strict mode; final eval expectations |
+| H3 | Supply official worked illustrations with published solutions for each calculator; triage `needs_expert` task items; confirm the task set and grading defaults. | `tests/skills/reference_cases/`, `HUMAN-DECISIONS.md` section 7 | T51 reference tests, strict mode |
+| H4 | Spot-check the AI-reviewed eval cases and practice mapping. | eval case files, `practice_map.json` | T33 and T71 sign-off |
 | H5 | Sign off the retrieval threshold from the calibration output. | `.env` / manifest | Strict boundary guard |
+| H6 | Owner acceptance of the MVP: run the checklist in `HUMAN-DECISIONS.md` section 3. | `HUMAN-DECISIONS.md` | Milestone M10, any pilot |
 
 ---
 
@@ -861,7 +987,7 @@ done.
 | 3 | T11, T20 |
 | 4 | T21 |
 | 5 | T22, T50 |
-| 6 | T30, T51 |
+| 6 | T30, T51, T23 |
 | 7 | T31, T32, T83 |
 | 8 | T40, T33, T61, T84 |
 | 9 | T41, T52 |
@@ -870,6 +996,7 @@ done.
 | 12 | T54, T63, T70, T81, T92 |
 | 13 | T64, T71, T90 |
 | 14 | T65, then T91 |
+| 15 (post-MVP, after H6) | T100, T101, T104, then T102, T103 |
 
 **Critical path:** T00 → T01 → T02 → T10 → T20 → T21 → T22 → T30 → T31 → T40 → T41 → T42 →
 T53 → T54 → T90 → T91.
@@ -884,7 +1011,7 @@ dependencies already force them into that order. Do not start one of them in par
 | Requirement | Tasks |
 |---|---|
 | FR-1 Voice-to-voice interface | baseline, T60, T63, T65, T91 |
-| FR-2 Hierarchical knowledge tree | T10, T11, H2 |
+| FR-2 Hierarchical knowledge tree | T10, T11, T23, H2 |
 | FR-3 Grading (extract and map) | T30, T32, T33 |
 | FR-4 Deepest missing node selection | baseline, T31, T70, T84 |
 | FR-5 Adaptive tutor voice | T40, T41, T43 |
@@ -894,12 +1021,12 @@ dependencies already force them into that order. Do not start one of them in par
 | FR-9 Voice verification (mock) | T82 |
 | FR-10 Syllabus content and retrieval | T10, T20, T21, T22, T83, H1 |
 | FR-11 Syllabus boundary guard | T42, T43, H5 |
-| FR-12 Skills | T50, T51, T52, T53, T54, T63, T64, H3 |
+| FR-12 Skills | T50, T51, T52, T53, T54, T63, T64, T23, H3 |
 | FR-13 Mastery, revision, practice | T53, T61, T64, T70, T71 |
 | NFR Flow owned by code | T40, T42, T53 (rules 1–2) |
 | NFR Auditability | T31, T32 |
 | NFR Determinism | T30, T32, T51 |
-| NFR Accuracy and review | T11, H2, H3 |
+| NFR Accuracy and review | T11, T23, H2, H3, H6 |
 | NFR Traceability | T31, T54 |
 | NFR Latency and efficiency | T30, T91 |
 | NFR Distraction-free | T61–T64 (rule 10) |
@@ -914,6 +1041,8 @@ dependencies already force them into that order. Do not start one of them in par
 | AC6 Skill unlock and remaining tasks | T54, T64, T90 |
 | AC7 Repeatable grading and answer keys | T32, T51, T90 |
 | AC8 Out-of-syllabus question | T42, T90 |
+| D1 Grounded AI review | T11, T23, H2, H3, H4, H6 |
+| D2 Personalised learning beyond exams | T100, T101, T102, T103, T104 |
 
 ---
 
@@ -924,7 +1053,7 @@ dependencies already force them into that order. Do not start one of them in par
 | 1 | `README.md` "Why there is no RAG" | Says retrieval makes grading non-deterministic; FR-10/11 require retrieval and citations. | Grading uses node-linked passages only (rule 6). Update README in T92. |
 | 2 | `state_machine.py` `_introduce()` | Explains the node directly; FR-5 requires a probe first. | T40. |
 | 3 | `models.py` `NodeVerdict`, `LedgerEvent` | No citations or source refs; FR-3/FR-7 need them. | T30, T31. |
-| 4 | `curriculum/ind_as_115.json` | No review status; FR-2 requires CA review before use. | T11, H2. |
+| 4 | `curriculum/ind_as_115.json` | No review status; FR-2 requires grounded review before use. | T11, T23, H2. |
 | 5 | `ledger.py` status names | `VERIFIED`/`GAP` vs the pitch's `MASTERED`/`GAP_IDENTIFIED`. | Keep internal names; map in the export (T31). |
 | 6 | `grader.py` `_capture()` | Captures sit under `tests/` keyed by session only; deletion needs the student ID. | T32, T80. |
 | 7 | `llm.py` `describe_grader()` | Reports the tutor model for Ollama. | T01. |
@@ -942,8 +1071,12 @@ Agents append rows here. Humans answer them. Do not delete answered rows; mark t
 
 | # | Raised by | Task | Question | Status |
 |---|---|---|---|---|
-| Q1 | planning | H1 | Which exam attempt and which one or two chapters does the MVP cover? | open |
-| Q2 | planning | H1 | May ICAI study material, RTP and MTP text be committed to this repository, or must it stay local? | open |
-| Q3 | planning | T53 | Should a failed task downgrade the concept to PARTIAL (the planned default) or only schedule a review? | open |
-| Q4 | planning | T80 | Authentication is needed before any non-local deployment, since student data endpoints are open. Who owns it and when? | open |
-| Q5 | planning | H3 | Keep the default four tasks, or swap in time-and-materials billing or an onerous contract? | open |
+| Q1 | planning | H1 | Which exam attempt and which one or two chapters does the MVP cover? | recommended in `HUMAN-DECISIONS.md` 5.1, 5.2; awaiting owner |
+| Q2 | planning | H1 | May ICAI study material, RTP and MTP text be committed to this repository, or must it stay local? | recommended in `HUMAN-DECISIONS.md` 5.4; awaiting owner |
+| Q3 | planning | T53 | Should a failed task downgrade the concept to PARTIAL (the planned default) or only schedule a review? | recommended: schedule review and teach-back, no automatic downgrade (`HUMAN-DECISIONS.md` 7.4); awaiting owner |
+| Q4 | planning | T80 | Authentication is needed before any non-local deployment, since student data endpoints are open. Who owns it and when? | recommended in `HUMAN-DECISIONS.md` 11.1; awaiting owner |
+| Q5 | planning | H3 | Keep the default four tasks, or swap in time-and-materials billing or an onerous contract? | recommended in `HUMAN-DECISIONS.md` 7.1; awaiting owner |
+| Q6 | owner | T11, T23 | Who reviews content? | answered 2026-09-27 (D1): grounded AI review against official sources, two independent reviewer models, sampled expert audit; the owner does MVP acceptance |
+| Q7 | owner | M10 | Is Teach limited to exams? | answered 2026-09-27 (D2): no; personalised by interests and graduation knowledge, recommends next and weak topics |
+| Q8 | planning | T23 | Which reviewer models go in `REVIEW_MODELS`? | recommended in `HUMAN-DECISIONS.md` section 2; confirm after the T23 self-test |
+| Q9 | planning | T100 | Which course comes second: Advanced Auditing or a graduation-level bridge course? | recommended in `HUMAN-DECISIONS.md` section 10; open |

@@ -6,6 +6,11 @@ code and this document disagree, raise it; do not silently pick one. The product
 hackathon MVP to include syllabus-grounded citations and one task-based skill; it does not replace
 the code-owned learning loop or mastery ledger described below.
 
+Owner decisions of 2026-09-27 (recorded in `HUMAN-DECISIONS.md`): **D1** content is reviewed by a
+grounded AI reviewer against official sources, with sampled expert audits, instead of a CA reviewing
+each concept; **D2** Teach is not limited to exams, and learning is personalised by the student's
+interests and graduation knowledge (section 9).
+
 ## 1. Vision (one paragraph)
 
 A distraction-free, voice-first, conversational learning system grounded in one exam's syllabus.
@@ -15,7 +20,9 @@ through teach-back, and records every verified concept in an immutable **mastery
 traceable evidence. After concept mastery, the student completes realistic company tasks to unlock
 job-level skills. First domain: CA Final, Financial Reporting, Ind AS 115 (Revenue from Contracts
 with Customers). The architecture must allow another exam or attempt to be loaded by replacing its
-content, without retraining a model.
+content, without retraining a model. Longer term, Teach is not limited to exams: the ledger replaces
+exams as the verified record of what the student knows, and the system recommends what to learn
+next based on the student's interests, graduation knowledge and goals (section 9).
 
 ## 2. Problems being solved
 
@@ -81,8 +88,9 @@ Example for Step 1 (identify the contract):
 Each node needs: id, level, parent, title, a grading rubric (what must be said to count),
 known misconceptions, a canonical explanation, an example, and source references to the exact
 reviewed material passage. Atomic nodes make teach-back gap detection, mastery tracking and task
-mapping consistent. An LLM may draft a map, but a CA must review it for accuracy and coverage
-before it is used for grading or teaching.
+mapping consistent. An LLM may draft a map. Before it is used for grading or teaching, every node
+must pass grounded AI review for accuracy and coverage against the official sources, with sampled
+audits by a qualified expert (owner decision D1; safeguards in `HUMAN-DECISIONS.md` section 2).
 
 ### FR-3 Grading (extract and map)
 - Map every concept the student mentions to tree nodes.
@@ -177,8 +185,9 @@ before it is used for grading or teaching.
   Return partial credit and citations; failed tasks route the student back to teach-back on the
   underlying concept.
 - A skill unlocks only when every task in its set is cleared. Show skill state and remaining tasks.
-- Tasks originate from authored case templates with CA-verified solutions. AI may vary names,
-  amounts and dates only within template constraints. Calculations must be deterministic code or
+- Tasks originate from authored case templates. Solutions are computed by deterministic code,
+  tested against official worked illustrations, and pass grounded AI review against official
+  sources (D1). AI may vary names, amounts and dates only within template constraints. Calculations must be deterministic code or
   checked against the answer key; the AI must never invent a solution or answer key.
 - The MVP revenue-recognition skill should cover a representative mix such as fixed-price
   cost-to-cost recognition, time-and-materials billing, a contract modification, variable
@@ -203,7 +212,9 @@ before it is used for grading or teaching.
 - **Determinism where it matters.** Grader runs at temperature 0 with structured output; the tutor
   voice may be creative.
 - **Accuracy and review.** Correctness of teaching and grading takes priority over latency.
-  Concept maps, task templates, rubrics and verified solutions require CA review before use.
+  Concept maps, task templates, rubrics and solutions require grounded AI review against official
+  sources before use: claim-level evidence, two independent reviewer models, verbatim quote
+  checks, and sampled audits by a qualified expert (D1).
 - **Traceability.** Every verdict is auditable to its retrieved source passage and the student's
   evidence; every task result is traceable to its authored case, rubric and verified solution.
 - **Latency and efficiency.** Stream responses; target grade + first spoken sentence within a few
@@ -241,7 +252,7 @@ before it is used for grading or teaching.
 Version 1 uses a capable general-purpose LLM through an API, with retrieval over syllabus
 documents; it does not use a custom-trained model. The deployment may be hybrid: speech-to-text,
 flashcards and simple quizzes on device, with claim-checking, tutoring and task grading in the
-cloud. Grading-model distillation using CA-reviewed examples is a later cost and on-device
+cloud. Grading-model distillation using reviewed examples is a later cost and on-device
 optimization; the syllabus remains in retrieval.
 
 Strategic alignment: competency-based education (NEP 2020), democratised 1-on-1 mentorship, and
@@ -264,6 +275,23 @@ product direction that the MVP data model must not block.
 - **Honest demand guidance.** Using workforce data (the Phase 3 macro engine), the system tells
   students plainly which sectors have demand, which are saturated, and what depth pays. Guidance
   must show the data behind it and must never hide oversupply to keep a student enrolled.
+
+### Personalised learning beyond exams (owner decision D2)
+
+- **Exams are one goal among several.** A goal is a set of nodes with a minimum depth: an exam
+  attempt, a job profile, or a topic the student is interested in. The ledger is the same for all.
+- **Learner profile.** Graduation degree and subjects, interests, goals and preferred language,
+  collected with consent and kept minimal.
+- **Start from what the student knows.** A placement diagnostic, informed by the graduation
+  profile, verifies existing knowledge so the student is never taught what they already know.
+- **Recommend the next topic and the topics to strengthen.** Ranking is deterministic code over the
+  ledger, the course graph and the profile: prerequisites met, gaps against goals, interest match,
+  revision due, and later demand signals. Every recommendation shows its reasons. A model may phrase
+  the explanation but never chooses the topic.
+- **Courses connect.** Nodes can require nodes in other courses through prerequisite edges, so a
+  bridge from graduation-level knowledge to professional topics is part of the same graph.
+- **Interests change the path, never the standard.** Order and examples adapt; verification rules
+  do not.
 
 Implications for the data model (cheap to respect now):
 
@@ -299,10 +327,13 @@ Not in the MVP. One seeded job profile is acceptable for a demo if it costs noth
 
 ## 11. Domain and delivery roles
 
-- **Domain expert (Swetha):** selects source content; reviews concept maps for accuracy and
-  coverage; defines grading rules and rubrics; authors and verifies task/case templates and answer
-  keys; reviews output quality and owns the pitch. Her FDD experience in revenue quality,
-  cut-off testing and anomaly detection informs the task and discrepancy-hunt design.
+- **Owner and domain expert (Swetha):** selects the official sources; sets grading policy;
+  accepts the MVP end to end as a CA; audits sampled and `needs_expert` items for accounting and
+  audit courses; owns the pitch. Concept-by-concept review is done by grounded AI (D1). Her FDD
+  experience in revenue quality, cut-off testing and anomaly detection informs the task and
+  discrepancy-hunt design.
+- **Subject experts for other courses:** audit samples of AI-reviewed content for courses outside
+  the owner's field.
 - **Developer (if on a team):** implements application plumbing, retrieval and versioned content
   pipeline, voice integration, task calculation safeguards and UI. Solo or team delivery remains
   undecided.
@@ -315,6 +346,8 @@ Not in the MVP. One seeded job profile is acceptable for a demo if it costs noth
   same voice loop. Unresolved; not in MVP.
 - Fairness across learner levels: the same opening prompt must work for a beginner and a finalist
   with several attempts behind them (motivates the three-level tree and adaptive tone).
+- Review must scale beyond the owner's field: later courses will have no reviewer on the team, so
+  content quality rests on grounded AI review with sampled expert audits (D1).
 
 ## 13. Repository context
 

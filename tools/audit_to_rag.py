@@ -44,16 +44,16 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
 
-PIPELINE_VERSION = "1"
+PIPELINE_VERSION = "2"
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_IN = REPO.parent / "Audit"
 DEFAULT_OUT = REPO.parent / "Audit_rag"
 
 SECTION_RE = re.compile(r"^-{2,}\s*SECTION:\s*(.*?)\s*-{2,}\s*$", re.M)
 FILE_RE = re.compile(r"^Chapter\s+(\d+)\s+(.*?)(?:_split_audio)?\.txt$", re.I)
+# Case-sensitive on purpose: "SA 500" / "Section 143(3)" are standards, "as 10" / "section 2.2" are not.
 STANDARD_RE = re.compile(
-    r"\b(?:SA|SQC|SQM|SRE|SAE|SRS|Ind AS|AS|CARO|Section)\s?\d{1,4}(?:\(\d+\))?(?:\([a-z]\))?",
-    re.I,
+    r"\b(?:SA|SQC|SQM|SRE|SAE|SRS|Ind AS|AS|CARO|Section)\s?\d{1,4}(?:\(\d+\))?(?:\([a-z]\))?(?!\d|\.\d)"
 )
 CHUNK_TYPES = ["concept", "requirement", "procedure", "example", "test_your_understanding", "summary", "other"]
 

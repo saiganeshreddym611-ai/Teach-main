@@ -44,7 +44,7 @@ TUTOR_DIR = REPO / "services" / "tutor"
 
 DEFAULT_MODEL = "ollama/gemma4:31b-cloud"
 ROW_RE = re.compile(
-    r"^\|\s*(?P<id>T\d{2}|H\d+)\s*\|(?P<title>[^|]*)\|(?P<lane>[^|]*)\|(?P<deps>[^|]*)\|(?P<status>[^|]*)\|\s*$"
+    r"^\|\s*(?P<id>T\d{2,3}|H\d+)\s*\|(?P<title>[^|]*)\|(?P<lane>[^|]*)\|(?P<deps>[^|]*)\|(?P<status>[^|]*)\|\s*$"
 )
 RESULT_RE = re.compile(r"RESULT:\s*(DONE|BLOCKED)\b[ \t]*([^\n\"\\]*)")
 

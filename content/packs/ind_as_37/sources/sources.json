@@ -1,0 +1,15 @@
+[
+  {
+    "doc_id": "ind_as_37",
+    "doc_code": "IndAS37",
+    "title": "Ind AS 37, Provisions, Contingent Liabilities and Contingent Assets (MCA text as amended by G.S.R. 255(E), 23 March 2022)",
+    "short_name": "Ind AS 37",
+    "doc_type": "standard",
+    "issuer": "Ministry of Corporate Affairs",
+    "authority_rank": 1,
+    "version": "2022-03-23",
+    "path": "sources/raw/ind_as_37.txt",
+    "sha256": "929552d36538278e48169c95ab7b9d543a8b84e88c3beb08fbbdc133363f30a0",
+    "license_note": "MCA notified text (Official Gazette). Converted from the MCA PDF with scripts/convert_mca_standard.py; raw files stay out of git (decision 5.4)."
+  }
+]

@@ -10,6 +10,9 @@ class ContentInfo(BaseModel):
     manifest: PackManifest
     content_hash: Sha256
     review_counts: dict[str, dict[str, int]] = {}
+    # The active topic, so clients never hard-code it (T25).
+    topic_id: str = ""
+    standard: str = ""
 
 
 class PassageResponse(BaseModel):

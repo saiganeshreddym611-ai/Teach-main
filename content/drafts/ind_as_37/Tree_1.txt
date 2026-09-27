@@ -1,0 +1,9 @@
+Alright, let's walk through how to handle a potential obligation. First, we need to determine if we actually have a present obligation, whether it's legal or constructive, that has arisen from a past event. If there is no obligation and the possibility of a future cost is remote, then we don't need to do anything—no provision is needed, and no disclosure is required.
+
+However, if we do have a present obligation, our next step is to ask if it's probable that an outflow of economic resources will be required to settle it. In accounting terms, "probable" means it's more likely than not, or greater than a fifty percent chance. If that's the case, we then have to check if we can reliably estimate the amount.
+
+If we can both confirm the probability and reliably estimate the amount, we recognize a provision. This means we record a liability on the balance sheet, categorizing it as either current or non-current depending on the timing. At the same time, we record a corresponding debit to the profit and loss statement as an expense, unless it's a decommissioning cost, in which case we would capitalize it.
+
+Now, if we meet the criteria for an obligation, but we either can't prove it's probable or we can't reliably estimate the amount, we treat it as a contingent liability. In this scenario, we do not recognize it on the balance sheet. Instead, we disclose it in the notes to the financial statements, explaining the nature of the obligation, the estimated financial effect, the uncertainties involved, and whether there is a possibility of reimbursement.
+
+Once we've determined that a provision must be recognized, the next step is to figure out exactly how to measure that amount.

@@ -1,0 +1,372 @@
+{
+  "topic_id": "ind_as_37",
+  "subject": "Financial Reporting",
+  "standard": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+  "opening_prompt": "Welcome. Let's start with Ind AS 37, Provisions, Contingent Liabilities and Contingent Assets. Tell me everything you know about it — when a provision is recognised, how it is measured, and the special cases you remember. Take your time; speak for as long as you like.",
+  "nodes": [
+    {
+      "id": "ind_as_37.recognition",
+      "level": 1,
+      "parent": null,
+      "title": "Recognising a provision",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that a provision is recognised only when all three conditions are met: a present obligation from a past event, a probable outflow of resources, and a reliable estimate",
+        "Describes a provision as a liability of uncertain timing or amount"
+      ],
+      "misconceptions": [
+        "Recognising a provision for any expected future cost, without a present obligation"
+      ],
+      "canonical_explanation": "A provision is a liability of uncertain timing or amount. It is recognised only when an entity has a present obligation, legal or constructive, as a result of a past event; it is probable that an outflow of resources embodying economic benefits will be required to settle it; and a reliable estimate can be made of the amount. If any condition is not met, no provision is recognised.",
+      "example": "A manufacturer that sells goods with a one-year warranty has a present obligation from the sales already made, expects some claims, and can estimate them from past experience, so it recognises a warranty provision.",
+      "source_refs": ["IndAS37.para.10", "IndAS37.para.14"]
+    },
+    {
+      "id": "ind_as_37.recognition.present_obligation",
+      "level": 2,
+      "parent": "ind_as_37.recognition",
+      "title": "Present obligation from a past event",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "Explains that the obligation may be legal or constructive",
+        "Explains that a constructive obligation arises when the entity's established practice, published policies or a specific current statement create a valid expectation in others that it will discharge certain responsibilities",
+        "States that the obligating past event must leave the entity no realistic alternative to settling the obligation"
+      ],
+      "misconceptions": [
+        "Providing for costs the entity can avoid by its future actions",
+        "Treating a board decision that has not been communicated to anyone as creating an obligation"
+      ],
+      "canonical_explanation": "The obligation must exist at the reporting date as a result of a past event. It can be legal, arising from a contract or legislation, or constructive, arising when an entity's established pattern of past practice, published policies or a sufficiently specific current statement have created a valid expectation in other parties that it will discharge certain responsibilities. An obligating event leaves the entity no realistic alternative to settling the obligation. Costs that the entity can avoid by its future actions, such as changing its method of operation, are not obligations.",
+      "example": "A retailer with a well-known policy of refunding dissatisfied customers, even without a legal duty to do so, has a constructive obligation for expected refunds on goods already sold.",
+      "source_refs": ["IndAS37.para.10", "IndAS37.para.15-22"]
+    },
+    {
+      "id": "ind_as_37.recognition.probable_outflow",
+      "level": 2,
+      "parent": "ind_as_37.recognition",
+      "title": "Probable outflow of resources",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "Defines probable as more likely than not",
+        "Explains that for a number of similar obligations, such as warranties, probability is assessed for the class of obligations as a whole"
+      ],
+      "misconceptions": [
+        "Reading 'probable' as virtually certain"
+      ],
+      "canonical_explanation": "An outflow is probable when it is more likely than not to occur, that is, the probability that it will occur is greater than the probability that it will not. Where there are a number of similar obligations, such as product warranties, the probability of an outflow is determined by considering the class of obligations as a whole.",
+      "example": "Only a small share of individual products may be returned under warranty, but across all products sold some outflow is more likely than not, so a provision is recognised.",
+      "source_refs": ["IndAS37.para.23-24"]
+    },
+    {
+      "id": "ind_as_37.recognition.reliable_estimate",
+      "level": 2,
+      "parent": "ind_as_37.recognition",
+      "title": "Reliable estimate",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that a reliable estimate can be made in all but extremely rare cases",
+        "States that if no reliable estimate can be made, the liability is disclosed as a contingent liability"
+      ],
+      "misconceptions": [
+        "Using uncertainty about the amount as a reason not to recognise a provision"
+      ],
+      "canonical_explanation": "Using estimates is an essential part of preparing financial statements. Except in extremely rare cases, an entity can determine a range of possible outcomes and make an estimate of the obligation that is reliable enough to recognise a provision. In the extremely rare case where no reliable estimate can be made, the liability cannot be recognised and is disclosed as a contingent liability.",
+      "example": "",
+      "source_refs": ["IndAS37.para.25-26"]
+    },
+    {
+      "id": "ind_as_37.contingencies",
+      "level": 1,
+      "parent": null,
+      "title": "Contingent liabilities and contingent assets",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that neither contingent liabilities nor contingent assets are recognised in the balance sheet",
+        "Explains that they are disclosed in the notes depending on the likelihood of the outflow or inflow"
+      ],
+      "misconceptions": [
+        "Recognising a contingent liability as a provision because the amount is known"
+      ],
+      "canonical_explanation": "Contingent liabilities and contingent assets are not recognised. A contingent liability is disclosed unless the possibility of an outflow is remote; a contingent asset is disclosed only where an inflow of economic benefits is probable. Both are assessed continually, because a change in circumstances can turn a contingent liability into a provision or a contingent asset into a recognised asset.",
+      "example": "",
+      "source_refs": ["IndAS37.para.27-35"]
+    },
+    {
+      "id": "ind_as_37.contingencies.contingent_liability",
+      "level": 2,
+      "parent": "ind_as_37.contingencies",
+      "title": "Contingent liabilities",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "Defines a contingent liability as a possible obligation confirmed only by uncertain future events outside the entity's control, or a present obligation not recognised because the outflow is not probable or cannot be measured reliably",
+        "States that it is disclosed unless the possibility of an outflow is remote",
+        "Names the disclosures: its nature, an estimate of the financial effect, the uncertainties about amount or timing, and the possibility of any reimbursement"
+      ],
+      "misconceptions": [
+        "Disclosing every possible obligation, even when an outflow is remote"
+      ],
+      "canonical_explanation": "A contingent liability is either a possible obligation arising from past events whose existence will be confirmed only by uncertain future events not wholly within the entity's control, or a present obligation that is not recognised because an outflow is not probable or the amount cannot be measured reliably. It is not recognised. Unless the possibility of an outflow is remote, the entity discloses a brief description of its nature and, where practicable, an estimate of its financial effect, the uncertainties relating to the amount or timing of any outflow, and the possibility of any reimbursement.",
+      "example": "A company sued by a customer, whose lawyers advise that it is possible but unlikely that the company will be found liable, discloses a contingent liability and recognises no provision.",
+      "source_refs": ["IndAS37.para.10", "IndAS37.para.27-30", "IndAS37.para.86"]
+    },
+    {
+      "id": "ind_as_37.contingencies.contingent_asset",
+      "level": 2,
+      "parent": "ind_as_37.contingencies",
+      "title": "Contingent assets",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that a contingent asset is not recognised",
+        "States that when the inflow is virtually certain the related asset is not contingent and is recognised",
+        "States that a contingent asset is disclosed when the inflow is probable, and not when it is only possible or remote"
+      ],
+      "misconceptions": [
+        "Recognising a contingent asset as soon as the inflow is probable"
+      ],
+      "canonical_explanation": "A contingent asset is a possible asset arising from past events whose existence will be confirmed only by uncertain future events not wholly within the entity's control. It is not recognised, because that could mean recognising income that may never be realised. When the realisation of income is virtually certain, the related asset is not a contingent asset and it is appropriate to recognise it. Where an inflow of economic benefits is probable, the entity discloses a brief description of the contingent asset and, where practicable, an estimate of its financial effect.",
+      "example": "A company pursuing a damages claim that its lawyers expect to win discloses a contingent asset; it recognises an asset only once receipt becomes virtually certain.",
+      "source_refs": ["IndAS37.para.31-35", "IndAS37.para.89"]
+    },
+    {
+      "id": "ind_as_37.measurement",
+      "level": 1,
+      "parent": null,
+      "title": "Measuring a provision",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that a provision is measured at the best estimate of the expenditure required to settle the present obligation at the end of the reporting period",
+        "Explains the best estimate as the amount the entity would rationally pay to settle the obligation or to transfer it to a third party at that date"
+      ],
+      "misconceptions": [
+        "Measuring a provision at the most pessimistic outcome to be prudent"
+      ],
+      "canonical_explanation": "The amount recognised as a provision is the best estimate of the expenditure required to settle the present obligation at the end of the reporting period: the amount an entity would rationally pay to settle the obligation, or to transfer it to a third party, at that time. The estimate takes account of the risks and uncertainties surrounding the events, but uncertainty does not justify excessive provisions. It reflects the time value of money where material, and future events where there is sufficient objective evidence that they will occur.",
+      "example": "",
+      "source_refs": ["IndAS37.para.36-50"]
+    },
+    {
+      "id": "ind_as_37.measurement.best_estimate",
+      "level": 2,
+      "parent": "ind_as_37.measurement",
+      "title": "Best estimate: expected value and most likely outcome",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "Explains that for a large population of items the obligation is estimated by weighting all possible outcomes by their probabilities (expected value)",
+        "Explains that a single obligation may be measured at the individual most likely outcome, while still considering the other possible outcomes"
+      ],
+      "misconceptions": [
+        "Ignoring the other possible outcomes when measuring a single obligation at its most likely outcome"
+      ],
+      "canonical_explanation": "Where the provision involves a large population of items, such as product warranties, the obligation is estimated by weighting all possible outcomes by their associated probabilities; this is the expected value. Where a single obligation is being measured, the individual most likely outcome may be the best estimate, but the entity still considers the other possible outcomes: where they are mostly higher or mostly lower than the most likely outcome, the best estimate is a higher or lower amount.",
+      "example": "If 75% of goods sold have no defects, 20% have minor defects costing ₹1 lakh to repair in total and 5% have major defects costing ₹4 lakh, the warranty provision is 0.20 × ₹1 lakh + 0.05 × ₹4 lakh = ₹0.40 lakh.",
+      "source_refs": ["IndAS37.para.39-40"]
+    },
+    {
+      "id": "ind_as_37.measurement.present_value",
+      "level": 2,
+      "parent": "ind_as_37.measurement",
+      "title": "Discounting and unwinding",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that where the effect of the time value of money is material, the provision is the present value of the expected expenditure",
+        "States that the discount rate is a pre-tax rate reflecting current market assessments of the time value of money and the risks specific to the liability",
+        "States that the increase in the provision due to the passage of time is recognised as a borrowing cost"
+      ],
+      "misconceptions": [
+        "Discounting at a post-tax rate",
+        "Treating the unwinding of the discount as part of the original provision expense"
+      ],
+      "canonical_explanation": "Where the effect of the time value of money is material, the amount of a provision is the present value of the expenditures expected to be required to settle the obligation. The discount rate is a pre-tax rate that reflects current market assessments of the time value of money and the risks specific to the liability; it does not reflect risks for which the future cash flow estimates have already been adjusted. Where discounting is used, the carrying amount of the provision increases in each period to reflect the passage of time, and this increase is recognised as a borrowing cost.",
+      "example": "A provision of ₹10 lakh payable in two years, discounted at 10%, is recognised at about ₹8.26 lakh; the increase of about ₹0.83 lakh in the first year is a finance cost, not part of the original expense.",
+      "source_refs": ["IndAS37.para.45-47", "IndAS37.para.60"]
+    },
+    {
+      "id": "ind_as_37.measurement.disposal_gains",
+      "level": 2,
+      "parent": "ind_as_37.measurement",
+      "title": "Expected disposal gains",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that gains from the expected disposal of assets are not taken into account in measuring a provision, even if the disposal is closely linked to the event giving rise to it"
+      ],
+      "misconceptions": [
+        "Reducing a restructuring provision by the expected profit on selling a closed factory"
+      ],
+      "canonical_explanation": "Gains from the expected disposal of assets are not taken into account in measuring a provision, even if the expected disposal is closely linked to the event giving rise to the provision. Such gains are recognised at the time specified by the Indian Accounting Standard dealing with the assets concerned.",
+      "example": "",
+      "source_refs": ["IndAS37.para.51-52"]
+    },
+    {
+      "id": "ind_as_37.measurement.changes",
+      "level": 2,
+      "parent": "ind_as_37.measurement",
+      "title": "Reviewing, reversing and using provisions",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that provisions are reviewed at the end of each reporting period and adjusted to reflect the current best estimate",
+        "States that a provision is reversed when an outflow is no longer probable",
+        "States that a provision is used only for the expenditures for which it was originally recognised"
+      ],
+      "misconceptions": [
+        "Using a provision set up for one obligation to absorb unrelated costs"
+      ],
+      "canonical_explanation": "Provisions are reviewed at the end of each reporting period and adjusted to reflect the current best estimate. If it is no longer probable that an outflow of resources will be required to settle the obligation, the provision is reversed. A provision is used only for the expenditures for which it was originally recognised; setting expenditures against a provision that was recognised for another purpose would conceal the impact of two different events.",
+      "example": "",
+      "source_refs": ["IndAS37.para.59-62"]
+    },
+    {
+      "id": "ind_as_37.onerous",
+      "level": 1,
+      "parent": null,
+      "title": "Onerous contracts and future operating losses",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "Defines an onerous contract as one in which the unavoidable costs of meeting the obligations exceed the economic benefits expected to be received under it",
+        "States that the present obligation under an onerous contract is recognised and measured as a provision"
+      ],
+      "misconceptions": [
+        "Treating every loss-making business activity as an onerous contract"
+      ],
+      "canonical_explanation": "If an entity has a contract that is onerous, the present obligation under the contract is recognised and measured as a provision. A contract is onerous when the unavoidable costs of meeting the obligations under it exceed the economic benefits expected to be received under it. Contracts that can be cancelled without paying compensation to the other party create no obligation.",
+      "example": "",
+      "source_refs": ["IndAS37.para.10", "IndAS37.para.66-69"]
+    },
+    {
+      "id": "ind_as_37.onerous.unavoidable_costs",
+      "level": 2,
+      "parent": "ind_as_37.onerous",
+      "title": "Unavoidable costs",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that unavoidable costs are the lower of the cost of fulfilling the contract and any compensation or penalties arising from failure to fulfil it",
+        "Explains that this reflects the least net cost of exiting from the contract"
+      ],
+      "misconceptions": [
+        "Measuring the provision at the full cost of fulfilling the contract even when exiting it is cheaper"
+      ],
+      "canonical_explanation": "The unavoidable costs under a contract reflect the least net cost of exiting from the contract, which is the lower of the cost of fulfilling it and any compensation or penalties arising from failure to fulfil it.",
+      "example": "A company must supply goods under a contract that will cost ₹12 lakh to fulfil against revenue of ₹10 lakh, a loss of ₹2 lakh, while cancelling would cost a penalty of ₹3 lakh. Fulfilling is the cheaper way out, so the provision is ₹2 lakh.",
+      "source_refs": ["IndAS37.para.68"]
+    },
+    {
+      "id": "ind_as_37.onerous.cost_of_fulfilling",
+      "level": 2,
+      "parent": "ind_as_37.onerous",
+      "title": "Cost of fulfilling a contract",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that the cost of fulfilling a contract comprises the costs that relate directly to the contract",
+        "Names both components: incremental costs such as direct labour and materials, and an allocation of other costs that relate directly to fulfilling contracts"
+      ],
+      "misconceptions": [
+        "Counting only incremental costs as the cost of fulfilling a contract"
+      ],
+      "canonical_explanation": "The cost of fulfilling a contract comprises the costs that relate directly to the contract. These are both the incremental costs of fulfilling that contract, for example direct labour and materials, and an allocation of other costs that relate directly to fulfilling contracts, for example an allocation of the depreciation charge for an item of property, plant and equipment used in fulfilling that contract.",
+      "example": "",
+      "source_refs": ["IndAS37.para.68A"]
+    },
+    {
+      "id": "ind_as_37.onerous.impairment_first",
+      "level": 2,
+      "parent": "ind_as_37.onerous",
+      "title": "Impairment before the provision",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that before a separate onerous-contract provision is recognised, the entity recognises any impairment loss on assets used in fulfilling the contract"
+      ],
+      "misconceptions": [
+        "Recognising the full onerous provision without first impairing the assets used in fulfilling the contract"
+      ],
+      "canonical_explanation": "Before a separate provision for an onerous contract is established, an entity recognises any impairment loss that has occurred on assets used in fulfilling the contract, in accordance with Ind AS 36.",
+      "example": "",
+      "source_refs": ["IndAS37.para.69"]
+    },
+    {
+      "id": "ind_as_37.onerous.future_losses",
+      "level": 2,
+      "parent": "ind_as_37.onerous",
+      "title": "Future operating losses",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that provisions are not recognised for future operating losses",
+        "Explains that an expectation of future operating losses indicates that assets of the operation may be impaired and should be tested under Ind AS 36"
+      ],
+      "misconceptions": [
+        "Providing for next year's expected losses of a loss-making division"
+      ],
+      "canonical_explanation": "Provisions are not recognised for future operating losses: they do not meet the definition of a liability or the general recognition criteria. An expectation of future operating losses is an indication that certain assets of the operation may be impaired, so the entity tests those assets for impairment under Ind AS 36.",
+      "example": "",
+      "source_refs": ["IndAS37.para.63-65"]
+    },
+    {
+      "id": "ind_as_37.restructuring",
+      "level": 1,
+      "parent": null,
+      "title": "Restructuring provisions",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "Explains that a restructuring provision is recognised only when the general recognition criteria for provisions are met",
+        "Names examples of restructuring: sale or termination of a line of business, closure of business locations, changes in management structure, or fundamental reorganisations"
+      ],
+      "misconceptions": [
+        "Recognising a restructuring provision because the board has decided to restructure"
+      ],
+      "canonical_explanation": "A restructuring is a programme planned and controlled by management that materially changes either the scope of a business undertaken by an entity or the manner in which that business is conducted, for example the sale or termination of a line of business, the closure of business locations, changes in management structure, or fundamental reorganisations. A provision for restructuring costs is recognised only when the general recognition criteria for provisions are met.",
+      "example": "",
+      "source_refs": ["IndAS37.para.10", "IndAS37.para.70-71"]
+    },
+    {
+      "id": "ind_as_37.restructuring.constructive_obligation",
+      "level": 2,
+      "parent": "ind_as_37.restructuring",
+      "title": "When a restructuring obligation arises",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that a constructive obligation to restructure needs a detailed formal plan",
+        "States that the entity must also have raised a valid expectation in those affected, by starting to implement the plan or announcing its main features to them",
+        "States that a management or board decision before the reporting date does not by itself create a constructive obligation"
+      ],
+      "misconceptions": [
+        "Treating an approved but unannounced plan as an obligation"
+      ],
+      "canonical_explanation": "A constructive obligation to restructure arises only when an entity has a detailed formal plan, identifying at least the business concerned, the principal locations affected, the employees who will be compensated for termination, the expenditures that will be undertaken and when the plan will be implemented; and has raised a valid expectation in those affected that it will carry out the restructuring, by starting to implement the plan or announcing its main features to those affected by it. A management or board decision to restructure taken before the end of the reporting period does not give rise to a constructive obligation unless one of those events has also occurred by then.",
+      "example": "",
+      "source_refs": ["IndAS37.para.72-76"]
+    },
+    {
+      "id": "ind_as_37.restructuring.direct_costs",
+      "level": 2,
+      "parent": "ind_as_37.restructuring",
+      "title": "What a restructuring provision includes",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that the provision includes only direct expenditures that are necessarily entailed by the restructuring and not associated with the ongoing activities",
+        "Names excluded costs: retraining or relocating continuing staff, marketing, and investment in new systems and distribution networks"
+      ],
+      "misconceptions": [
+        "Including the cost of retraining staff who will stay in the business"
+      ],
+      "canonical_explanation": "A restructuring provision includes only the direct expenditures arising from the restructuring, which are both necessarily entailed by the restructuring and not associated with the ongoing activities of the entity. It does not include costs such as retraining or relocating continuing staff, marketing, or investment in new systems and distribution networks, because these relate to the future conduct of the business. Identifiable future operating losses up to the date of a restructuring are not included either, unless they relate to an onerous contract.",
+      "example": "",
+      "source_refs": ["IndAS37.para.80-83"]
+    },
+    {
+      "id": "ind_as_37.reimbursements",
+      "level": 1,
+      "parent": null,
+      "title": "Reimbursements",
+      "chapter": "Ind AS 37 — Provisions, Contingent Liabilities and Contingent Assets",
+      "rubric": [
+        "States that a reimbursement is recognised only when it is virtually certain to be received if the entity settles the obligation",
+        "States that the reimbursement is a separate asset, not netted against the provision, and the amount recognised does not exceed the provision",
+        "States that in profit or loss the expense may be presented net of the reimbursement"
+      ],
+      "misconceptions": [
+        "Deducting an expected insurance recovery from the provision in the balance sheet"
+      ],
+      "canonical_explanation": "Where some or all of the expenditure required to settle a provision is expected to be reimbursed by another party, such as an insurer or a supplier under a warranty, the reimbursement is recognised when, and only when, it is virtually certain that it will be received if the entity settles the obligation. It is treated as a separate asset, and the amount recognised for it does not exceed the amount of the provision. In the statement of profit and loss, the expense relating to a provision may be presented net of the amount recognised for a reimbursement.",
+      "example": "A company recognises a ₹50 lakh provision for a product-liability claim and, because its insurer has accepted the claim, a separate ₹40 lakh reimbursement asset; the charge in profit or loss may be shown net at ₹10 lakh.",
+      "source_refs": ["IndAS37.para.53-58"]
+    }
+  ]
+}

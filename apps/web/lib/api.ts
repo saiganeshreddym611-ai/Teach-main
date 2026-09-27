@@ -1,18 +1,18 @@
 // Thin client for the tutor service. The /turn endpoint is SSE over POST, so we
 // parse the stream by hand instead of using EventSource (which is GET-only).
 
-import type { DoneEvent, GradeEvent, MasteryEntry, NodeStatus, Passage, Phase, SessionView, SkillDef, Turn, Verdict } from "./contracts";
+import type { ContentInfo, DoneEvent, GradeEvent, MasteryEntry, NodeStatus, Passage, Phase, SessionView, SkillDef, Turn, Verdict } from "./contracts";
 import { dispatch } from "./sse";
 
 export const API_BASE = process.env.NEXT_PUBLIC_TUTOR_API ?? "http://localhost:8000";
 
-export type { DoneEvent, GradeEvent, MasteryEntry, NodeStatus, Passage, Phase, SessionView, SkillDef, Turn, Verdict };
+export type { ContentInfo, DoneEvent, GradeEvent, MasteryEntry, NodeStatus, Passage, Phase, SessionView, SkillDef, Turn, Verdict };
 
-export async function createSession(studentId = "demo_student", topicId = "ind_as_115") {
+export async function createSession(studentId = "demo_student", topicId?: string) {
   const r = await fetch(`${API_BASE}/session`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ student_id: studentId, topic_id: topicId }),
+    body: JSON.stringify({ student_id: studentId, ...(topicId ? { topic_id: topicId } : {}) }),
   });
   if (!r.ok) throw new Error(`createSession ${r.status}: ${await r.text()}`);
   return (await r.json()) as { session_id: string; phase: Phase; opening_prompt: string };
@@ -22,6 +22,12 @@ export async function getSession(sessionId: string): Promise<SessionView> {
   const r = await fetch(`${API_BASE}/session/${sessionId}`);
   if (!r.ok) throw new Error(`getSession ${r.status}`);
   return (await r.json()) as SessionView;
+}
+
+export async function getContent(): Promise<ContentInfo> {
+  const r = await fetch(`${API_BASE}/content`);
+  if (!r.ok) throw new Error(`getContent ${r.status}`);
+  return (await r.json()) as ContentInfo;
 }
 
 export interface TurnHandlers {

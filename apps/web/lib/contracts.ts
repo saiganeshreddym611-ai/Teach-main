@@ -333,6 +333,8 @@ export type ContentInfo = {
   manifest: PackManifest;
   content_hash: Sha256;
   review_counts?: Record<string, Record<string, number>>;
+  topic_id?: string;
+  standard?: string;
 };
 
 export type PassageResponse = {

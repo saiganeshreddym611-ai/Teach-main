@@ -1,0 +1,1234 @@
+{
+  "ind_as_37.contingencies": {
+    "claims": [
+      {
+        "claim": "States that neither contingent liabilities nor contingent assets are recognised in the balance sheet",
+        "passage_id": "IndAS37.para.27",
+        "quote": "An entity shall not recognise a contingent liability",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Explains that they are disclosed in the notes depending on the likelihood of the outflow or inflow",
+        "passage_id": "IndAS37.para.28",
+        "quote": "unless the possibility of an outflow of resources embodying economic benefits is remote",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Contingent liabilities and contingent assets are not recognised.",
+        "passage_id": "IndAS37.para.31",
+        "quote": "An entity shall not recognise a contingent asset",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A contingent liability is disclosed unless the possibility of an outflow is remote; a contingent asset is disclosed only where an inflow of economic benefits is probable.",
+        "passage_id": "IndAS37.para.34",
+        "quote": "A contingent asset is disclosed, as required by paragraph 89, where an inflow of economic benefits is probable",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Both are assessed continually, because a change in circumstances can turn a contingent liability into a provision or a contingent asset into a recognised asset.",
+        "passage_id": "IndAS37.para.30",
+        "quote": "they are assessed continually to determine whether an outflow of resources embodying economic benefits has become probable",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Recognising a contingent liability as a provision because the amount is known",
+        "passage_id": "IndAS37.para.27",
+        "quote": "An entity shall not recognise a contingent liability",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "d5c90f16863ff2475434bf64e516af088549a4eab30c4df147623500617b5749",
+    "notes": "[claude review 20260927-135818-ind_as_37] coverage gap: Paras 30 and 35: contingent liabilities and contingent assets are assessed continually; a provision is recognised in the period in which an outflow becomes probable, and an asset in the period in which an inflow becomes virtually certain. No rubric item covers this.",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "needs_expert"
+  },
+  "ind_as_37.contingencies.contingent_asset": {
+    "claims": [
+      {
+        "claim": "States that a contingent asset is not recognised",
+        "passage_id": "IndAS37.para.31",
+        "quote": "An entity shall not recognise a contingent asset",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "States that when the inflow is virtually certain the related asset is not contingent and is recognised",
+        "passage_id": "IndAS37.para.33",
+        "quote": "when the realisation of income is virtually certain, then the related asset is not a contingent asset and its recognition is appropriate",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "States that a contingent asset is disclosed when the inflow is probable, and not when it is only possible or remote",
+        "passage_id": "IndAS37.para.34",
+        "quote": "A contingent asset is disclosed, as required by paragraph 89, where an inflow of economic benefits is probable",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A contingent asset is a possible asset arising from past events whose existence will be confirmed only by uncertain future events not wholly within the entity's control.",
+        "passage_id": "IndAS37.para.12",
+        "quote": "their existence will be confirmed only by the occurrence or non-occurrence of one or more uncertain future events not wholly within the control of the entity",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "It is not recognised, because that could mean recognising income that may never be realised.",
+        "passage_id": "IndAS37.para.33",
+        "quote": "since this may result in the recognition of income that may never be realised",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "When the realisation of income is virtually certain, the related asset is not a contingent asset and it is appropriate to recognise it.",
+        "passage_id": "IndAS37.para.33",
+        "quote": "when the realisation of income is virtually certain, then the related asset is not a contingent asset and its recognition is appropriate",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Where an inflow of economic benefits is probable, the entity discloses a brief description of the contingent asset and, where practicable, an estimate of its financial effect.",
+        "passage_id": "IndAS37.para.89",
+        "quote": "an entity shall disclose a brief description of the nature of the contingent assets",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A company pursuing a damages claim that its lawyers expect to win discloses a contingent asset; it recognises an asset only once receipt becomes virtually certain.",
+        "passage_id": "IndAS37.para.32",
+        "quote": "An example is a claim that an entity is pursuing through legal processes, where the outcome is uncertain",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Recognising a contingent asset as soon as the inflow is probable",
+        "passage_id": "IndAS37.para.35",
+        "quote": "If an inflow of economic benefits has become probable, an entity discloses the contingent asset",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "f525fc22a9663d46b94751071d12554173e0fa4bc764df1ddeab58c55176d145",
+    "notes": "[claude review 20260927-135818-ind_as_37] all claims passed",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "claude_reviewed"
+  },
+  "ind_as_37.contingencies.contingent_liability": {
+    "claims": [
+      {
+        "claim": "Defines a contingent liability as a possible obligation confirmed only by uncertain future events outside the entity's control, or a present obligation not recognised because the outflow is not probable or cannot be measured reliably",
+        "passage_id": "IndAS37.para.10",
+        "quote": "a possible obligation that arises from past events and whose existence will be confirmed only by the occurrence or non-occurrence of one or more uncertain future events not wholly within the control of the entity",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "States that it is disclosed unless the possibility of an outflow is remote",
+        "passage_id": "IndAS37.para.28",
+        "quote": "A contingent liability is disclosed, as required by paragraph 86, unless the possibility of an outflow of resources embodying economic benefits is remote",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Names the disclosures: its nature, an estimate of the financial effect, the uncertainties about amount or timing, and the possibility of any reimbursement",
+        "passage_id": "IndAS37.para.86",
+        "quote": "a brief description of the nature of the contingent liability and, where practicable",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A contingent liability is either a possible obligation arising from past events whose existence will be confirmed only by uncertain future events not wholly within the entity's control, or a present obligation that is not recognised because an outflow is not probable or the amount cannot be measured reliably.",
+        "passage_id": "IndAS37.para.10",
+        "quote": "a present obligation that arises from past events but is not recognised because",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "It is not recognised.",
+        "passage_id": "IndAS37.para.27",
+        "quote": "An entity shall not recognise a contingent liability",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Unless the possibility of an outflow is remote, the entity discloses a brief description of its nature and, where practicable, an estimate of its financial effect, the uncertainties relating to the amount or timing of any outflow, and the possibility of any reimbursement.",
+        "passage_id": "IndAS37.para.86",
+        "quote": "Unless the possibility of any outflow in settlement is remote, an entity shall disclose for each class of contingent liability",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A company sued by a customer, whose lawyers advise that it is possible but unlikely that the company will be found liable, discloses a contingent liability and recognises no provision.",
+        "passage_id": "IndAS37.para.16",
+        "quote": "where it is more likely that no present obligation exists at the end of the reporting period, the entity discloses a contingent liability",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Disclosing every possible obligation, even when an outflow is remote",
+        "passage_id": "IndAS37.para.28",
+        "quote": "unless the possibility of an outflow of resources embodying economic benefits is remote",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "4ace0a3c6ff385e6b53cabf7ec54c1b61eca18cf4b8ce5757217b4cf73b2a1b7",
+    "notes": "[claude review 20260927-135818-ind_as_37] coverage gap: Para 29: where the entity is jointly and severally liable, the part of the obligation expected to be met by other parties is a contingent liability. No rubric item covers this.",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "needs_expert"
+  },
+  "ind_as_37.measurement": {
+    "claims": [
+      {
+        "claim": "States that a provision is measured at the best estimate of the expenditure required to settle the present obligation at the end of the reporting period",
+        "passage_id": "IndAS37.para.36",
+        "quote": "The amount recognised as a provision shall be the best estimate of the expenditure required to settle the present obligation at the end of the reporting period",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Explains the best estimate as the amount the entity would rationally pay to settle the obligation or to transfer it to a third party at that date",
+        "passage_id": "IndAS37.para.37",
+        "quote": "the amount that an entity would rationally pay to settle the obligation at the end of the reporting period or to transfer it to a third party at that time",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "The amount recognised as a provision is the best estimate of the expenditure required to settle the present obligation at the end of the reporting period: the amount an entity would rationally pay to settle the obligation, or to transfer it to a third party, at that time.",
+        "passage_id": "IndAS37.para.37",
+        "quote": "the amount that an entity would rationally pay to settle the obligation at the end of the reporting period or to transfer it to a third party at that time",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "The estimate takes account of the risks and uncertainties surrounding the events, but uncertainty does not justify excessive provisions.",
+        "passage_id": "IndAS37.para.43",
+        "quote": "uncertainty does not justify the creation of excessive provisions",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "It reflects the time value of money where material, and future events where there is sufficient objective evidence that they will occur.",
+        "passage_id": "IndAS37.para.48",
+        "quote": "where there is sufficient objective evidence that they will occur",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Measuring a provision at the most pessimistic outcome to be prudent",
+        "passage_id": "IndAS37.para.43",
+        "quote": "uncertainty does not justify the creation of excessive provisions or a deliberate overstatement of liabilities",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "d2c75e01de4c22799a0a2ee4ca613c5a3ee3c793559baa1680b752132030cf9a",
+    "notes": "[claude review 20260927-135818-ind_as_37] coverage gap: Para 41: a provision is measured before tax. No rubric item covers this.; coverage gap: Paras 42-44 and 48-50: risks and uncertainties, and future events (including new legislation) where there is sufficient objective evidence, are part of the best estimate. No rubric item covers this.",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "needs_expert"
+  },
+  "ind_as_37.measurement.best_estimate": {
+    "claims": [
+      {
+        "claim": "Explains that for a large population of items the obligation is estimated by weighting all possible outcomes by their probabilities (expected value)",
+        "passage_id": "IndAS37.para.39",
+        "quote": "the obligation is estimated by weighting all possible outcomes by their associated probabilities",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Explains that a single obligation may be measured at the individual most likely outcome, while still considering the other possible outcomes",
+        "passage_id": "IndAS37.para.40",
+        "quote": "Where a single obligation is being measured, the individual most likely outcome may be the best estimate of the liability",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Where the provision involves a large population of items, such as product warranties, the obligation is estimated by weighting all possible outcomes by their associated probabilities; this is the expected value.",
+        "passage_id": "IndAS37.para.39",
+        "quote": "Where the provision being measured involves a large population of items, the obligation is estimated by weighting all possible outcomes by their associated probabilities",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Where a single obligation is being measured, the individual most likely outcome may be the best estimate, but the entity still considers the other possible outcomes: where they are mostly higher or mostly lower than the most likely outcome, the best estimate is a higher or lower amount.",
+        "passage_id": "IndAS37.para.40",
+        "quote": "Where other possible outcomes are either mostly higher or mostly lower than the most likely outcome, the best estimate will be a higher or lower amount",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "If 75% of goods sold have no defects, 20% have minor defects costing ₹1 lakh to repair in total and 5% have major defects costing ₹4 lakh, the warranty provision is 0.20 × ₹1 lakh + 0.05 × ₹4 lakh = ₹0.40 lakh.",
+        "passage_id": "IndAS37.para.39",
+        "quote": "(75% of nil) + (20% of 1m) + (5% of 4m) = Rs 400,000",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Ignoring the other possible outcomes when measuring a single obligation at its most likely outcome",
+        "passage_id": "IndAS37.para.40",
+        "quote": "However, even in such a case, the entity considers other possible outcomes",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "951228e280101c73ede8fedfaa80dfcdad23211822357c3c10280e31c73a88e8",
+    "notes": "[claude review 20260927-135818-ind_as_37] coverage gap: Para 39: where there is a continuous range of equally likely outcomes, the mid-point of the range is used. No rubric item covers this.",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "needs_expert"
+  },
+  "ind_as_37.measurement.changes": {
+    "claims": [
+      {
+        "claim": "States that provisions are reviewed at the end of each reporting period and adjusted to reflect the current best estimate",
+        "passage_id": "IndAS37.para.59",
+        "quote": "Provisions shall be reviewed at the end of each reporting period and adjusted to reflect the current best estimate",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "States that a provision is reversed when an outflow is no longer probable",
+        "passage_id": "IndAS37.para.59",
+        "quote": "If it is no longer probable that an outflow of resources embodying economic benefits will be required to settle the obligation, the provision shall be reversed",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "States that a provision is used only for the expenditures for which it was originally recognised",
+        "passage_id": "IndAS37.para.61",
+        "quote": "A provision shall be used only for expenditures for which the provision was originally recognised",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Provisions are reviewed at the end of each reporting period and adjusted to reflect the current best estimate.",
+        "passage_id": "IndAS37.para.59",
+        "quote": "Provisions shall be reviewed at the end of each reporting period and adjusted to reflect the current best estimate",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "If it is no longer probable that an outflow of resources will be required to settle the obligation, the provision is reversed.",
+        "passage_id": "IndAS37.para.59",
+        "quote": "If it is no longer probable that an outflow of resources embodying economic benefits will be required to settle the obligation, the provision shall be reversed",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A provision is used only for the expenditures for which it was originally recognised; setting expenditures against a provision that was recognised for another purpose would conceal the impact of two different events.",
+        "passage_id": "IndAS37.para.62",
+        "quote": "Setting expenditures against a provision that was originally recognised for another purpose would conceal the impact of two different events",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Using a provision set up for one obligation to absorb unrelated costs",
+        "passage_id": "IndAS37.para.61",
+        "quote": "A provision shall be used only for expenditures for which the provision was originally recognised",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "9acd4433512f7cd71544ab8cc275db265845a81fad5d5fbb7de715692535ea13",
+    "notes": "[claude review 20260927-135818-ind_as_37] all claims passed",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "claude_reviewed"
+  },
+  "ind_as_37.measurement.disposal_gains": {
+    "claims": [
+      {
+        "claim": "States that gains from the expected disposal of assets are not taken into account in measuring a provision, even if the disposal is closely linked to the event giving rise to it",
+        "passage_id": "IndAS37.para.52",
+        "quote": "Gains on the expected disposal of assets are not taken into account in measuring a provision, even if the expected disposal is closely linked to the event giving rise to the provision",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Gains from the expected disposal of assets are not taken into account in measuring a provision, even if the expected disposal is closely linked to the event giving rise to the provision.",
+        "passage_id": "IndAS37.para.52",
+        "quote": "Gains on the expected disposal of assets are not taken into account in measuring a provision, even if the expected disposal is closely linked to the event giving rise to the provision",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Such gains are recognised at the time specified by the Indian Accounting Standard dealing with the assets concerned.",
+        "passage_id": "IndAS37.para.52",
+        "quote": "at the time specified by the Standard dealing with the assets concerned",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Reducing a restructuring provision by the expected profit on selling a closed factory",
+        "passage_id": "IndAS37.para.83",
+        "quote": "gains on the expected disposal of assets are not taken into account in measuring a restructuring provision",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "767afea285d176b9ae7f1ef80c93463ebf003fad72ae2d713bf4f8540f6f8ade",
+    "notes": "[claude review 20260927-135818-ind_as_37] all claims passed",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "claude_reviewed"
+  },
+  "ind_as_37.measurement.present_value": {
+    "claims": [
+      {
+        "claim": "States that where the effect of the time value of money is material, the provision is the present value of the expected expenditure",
+        "passage_id": "IndAS37.para.45",
+        "quote": "the amount of a provision shall be the present value of the expenditures expected to be required to settle the obligation",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "States that the discount rate is a pre-tax rate reflecting current market assessments of the time value of money and the risks specific to the liability",
+        "passage_id": "IndAS37.para.47",
+        "quote": "current market assessments of the time value of money and the risks specific to the liability",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "States that the increase in the provision due to the passage of time is recognised as a borrowing cost",
+        "passage_id": "IndAS37.para.60",
+        "quote": "This increase is recognised as borrowing cost",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Where the effect of the time value of money is material, the amount of a provision is the present value of the expenditures expected to be required to settle the obligation.",
+        "passage_id": "IndAS37.para.45",
+        "quote": "the amount of a provision shall be the present value of the expenditures expected to be required to settle the obligation",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "The discount rate is a pre-tax rate that reflects current market assessments of the time value of money and the risks specific to the liability; it does not reflect risks for which the future cash flow estimates have already been adjusted.",
+        "passage_id": "IndAS37.para.47",
+        "quote": "The discount rate(s) shall not reflect risks for which future cash flow estimates have been adjusted",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Where discounting is used, the carrying amount of the provision increases in each period to reflect the passage of time, and this increase is recognised as a borrowing cost.",
+        "passage_id": "IndAS37.para.60",
+        "quote": "the carrying amount of a provision increases in each period to reflect the passage of time",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A provision of ₹10 lakh payable in two years, discounted at 10%, is recognised at about ₹8.26 lakh; the increase of about ₹0.83 lakh in the first year is a finance cost, not part of the original expense.",
+        "passage_id": "IndAS37.para.60",
+        "quote": "This increase is recognised as borrowing cost",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Discounting at a post-tax rate",
+        "passage_id": "IndAS37.para.47",
+        "quote": "The discount rate (or rates) shall be a pre-tax rate",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      },
+      {
+        "claim": "Treating the unwinding of the discount as part of the original provision expense",
+        "passage_id": "IndAS37.para.60",
+        "quote": "This increase is recognised as borrowing cost",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "8f82aa31c55a9c7d68d466aad11520fe9ade6cce33ef97b644bbcb8f83968289",
+    "notes": "[claude review 20260927-135818-ind_as_37] all claims passed",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "claude_reviewed"
+  },
+  "ind_as_37.onerous": {
+    "claims": [
+      {
+        "claim": "Defines an onerous contract as one in which the unavoidable costs of meeting the obligations exceed the economic benefits expected to be received under it",
+        "passage_id": "IndAS37.para.68",
+        "quote": "a contract in which the unavoidable costs of meeting the obligations under the contract exceed the economic benefits expected to be received under it",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "States that the present obligation under an onerous contract is recognised and measured as a provision",
+        "passage_id": "IndAS37.para.66",
+        "quote": "the present obligation under the contract shall be recognised and measured as a provision",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "If an entity has a contract that is onerous, the present obligation under the contract is recognised and measured as a provision.",
+        "passage_id": "IndAS37.para.66",
+        "quote": "the present obligation under the contract shall be recognised and measured as a provision",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A contract is onerous when the unavoidable costs of meeting the obligations under it exceed the economic benefits expected to be received under it.",
+        "passage_id": "IndAS37.para.68",
+        "quote": "a contract in which the unavoidable costs of meeting the obligations under the contract exceed the economic benefits expected to be received under it",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Contracts that can be cancelled without paying compensation to the other party create no obligation.",
+        "passage_id": "IndAS37.para.67",
+        "quote": "can be cancelled without paying compensation to the other party, and therefore there is no obligation",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Treating every loss-making business activity as an onerous contract",
+        "passage_id": "IndAS37.para.68",
+        "quote": "This Standard defines an onerous contract as a contract in which the unavoidable costs",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "c2a361bcccdb89400970d47dd70cd5a7a30d7a6de3ddef24dc144f4c4c2093ef",
+    "notes": "[claude review 20260927-135818-ind_as_37] all claims passed",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "claude_reviewed"
+  },
+  "ind_as_37.onerous.cost_of_fulfilling": {
+    "claims": [
+      {
+        "claim": "States that the cost of fulfilling a contract comprises the costs that relate directly to the contract",
+        "passage_id": "IndAS37.para.68A",
+        "quote": "The cost of fulfilling a contract comprises the costs that relate directly to the contract",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Names both components: incremental costs such as direct labour and materials, and an allocation of other costs that relate directly to fulfilling contracts",
+        "passage_id": "IndAS37.para.68A",
+        "quote": "an allocation of other costs that relate directly to fulfilling contracts",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "The cost of fulfilling a contract comprises the costs that relate directly to the contract.",
+        "passage_id": "IndAS37.para.68A",
+        "quote": "The cost of fulfilling a contract comprises the costs that relate directly to the contract",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "These are both the incremental costs of fulfilling that contract, for example direct labour and materials, and an allocation of other costs that relate directly to fulfilling contracts, for example an allocation of the depreciation charge for an item of property, plant and equipment used in fulfilling that contract.",
+        "passage_id": "IndAS37.para.68A",
+        "quote": "an allocation of the depreciation charge for an item of property, plant and equipment used in fulfilling that contract",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Counting only incremental costs as the cost of fulfilling a contract",
+        "passage_id": "IndAS37.para.68A",
+        "quote": "Costs that relate directly to a contract consist of both",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "119be3a4a4b6c836dca500735039c72682d32b666d30d3d9381419f6cf7f8468",
+    "notes": "[claude review 20260927-135818-ind_as_37] all claims passed",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "claude_reviewed"
+  },
+  "ind_as_37.onerous.future_losses": {
+    "claims": [
+      {
+        "claim": "States that provisions are not recognised for future operating losses",
+        "passage_id": "IndAS37.para.63",
+        "quote": "Provisions shall not be recognised for future operating losses",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Explains that an expectation of future operating losses indicates that assets of the operation may be impaired and should be tested under Ind AS 36",
+        "passage_id": "IndAS37.para.65",
+        "quote": "An expectation of future operating losses is an indication that certain assets of the operation may be impaired",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Provisions are not recognised for future operating losses: they do not meet the definition of a liability or the general recognition criteria.",
+        "passage_id": "IndAS37.para.64",
+        "quote": "Future operating losses do not meet the definition of a liability in paragraph 10 and the general recognition criteria",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "An expectation of future operating losses is an indication that certain assets of the operation may be impaired, so the entity tests those assets for impairment under Ind AS 36.",
+        "passage_id": "IndAS37.para.65",
+        "quote": "An entity tests these assets for impairment under Ind AS 36",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Providing for next year's expected losses of a loss-making division",
+        "passage_id": "IndAS37.para.63",
+        "quote": "Provisions shall not be recognised for future operating losses",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "a2c3d25af6d7abd46a0f5f14ab6d9ce247fbdacc96d9a8faee2ef350fe60eaac",
+    "notes": "[claude review 20260927-135818-ind_as_37] all claims passed",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "claude_reviewed"
+  },
+  "ind_as_37.onerous.impairment_first": {
+    "claims": [
+      {
+        "claim": "States that before a separate onerous-contract provision is recognised, the entity recognises any impairment loss on assets used in fulfilling the contract",
+        "passage_id": "IndAS37.para.69",
+        "quote": "an entity recognises any impairment loss that has occurred on assets used in fulfilling the contract",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Before a separate provision for an onerous contract is established, an entity recognises any impairment loss that has occurred on assets used in fulfilling the contract, in accordance with Ind AS 36.",
+        "passage_id": "IndAS37.para.69",
+        "quote": "Before a separate provision for an onerous contract is established",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Recognising the full onerous provision without first impairing the assets used in fulfilling the contract",
+        "passage_id": "IndAS37.para.69",
+        "quote": "Before a separate provision for an onerous contract is established, an entity recognises any impairment loss",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "8775f048ebd6d8904df8eb915a4917cbc301157baad83b4140c7b6a2e3ac7a19",
+    "notes": "[claude review 20260927-135818-ind_as_37] all claims passed",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "claude_reviewed"
+  },
+  "ind_as_37.onerous.unavoidable_costs": {
+    "claims": [
+      {
+        "claim": "States that unavoidable costs are the lower of the cost of fulfilling the contract and any compensation or penalties arising from failure to fulfil it",
+        "passage_id": "IndAS37.para.68",
+        "quote": "the lower of the cost of fulfilling it and any compensation or penalties arising from failure to fulfil it",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Explains that this reflects the least net cost of exiting from the contract",
+        "passage_id": "IndAS37.para.68",
+        "quote": "The unavoidable costs under a contract reflect the least net cost of exiting from the contract",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "The unavoidable costs under a contract reflect the least net cost of exiting from the contract, which is the lower of the cost of fulfilling it and any compensation or penalties arising from failure to fulfil it.",
+        "passage_id": "IndAS37.para.68",
+        "quote": "The unavoidable costs under a contract reflect the least net cost of exiting from the contract, which is the lower of the cost of fulfilling it and any compensation or penalties arising from failure to fulfil it",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A company must supply goods under a contract that will cost ₹12 lakh to fulfil against revenue of ₹10 lakh, a loss of ₹2 lakh, while cancelling would cost a penalty of ₹3 lakh.",
+        "passage_id": "IndAS37.para.68",
+        "quote": "the lower of the cost of fulfilling it and any compensation or penalties arising from failure to fulfil it",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Fulfilling is the cheaper way out, so the provision is ₹2 lakh.",
+        "passage_id": "IndAS37.para.68",
+        "quote": "reflect the least net cost of exiting from the contract",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Measuring the provision at the full cost of fulfilling the contract even when exiting it is cheaper",
+        "passage_id": "IndAS37.para.68",
+        "quote": "which is the lower of the cost of fulfilling it and any compensation or penalties",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "53ee299f42f6e896e6a7f1d80859bd1aa10583abfb591fa7406c816383217e82",
+    "notes": "[claude review 20260927-135818-ind_as_37] all claims passed",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "claude_reviewed"
+  },
+  "ind_as_37.recognition": {
+    "claims": [
+      {
+        "claim": "States that a provision is recognised only when all three conditions are met: a present obligation from a past event, a probable outflow of resources, and a reliable estimate",
+        "passage_id": "IndAS37.para.14",
+        "quote": "If these conditions are not met, no provision shall be recognised",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Describes a provision as a liability of uncertain timing or amount",
+        "passage_id": "IndAS37.para.10",
+        "quote": "A provision is a liability of uncertain timing or amount",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A provision is a liability of uncertain timing or amount.",
+        "passage_id": "IndAS37.para.10",
+        "quote": "A provision is a liability of uncertain timing or amount",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "It is recognised only when an entity has a present obligation, legal or constructive, as a result of a past event; it is probable that an outflow of resources embodying economic benefits will be required to settle it; and a reliable estimate can be made of the amount.",
+        "passage_id": "IndAS37.para.14",
+        "quote": "an entity has a present obligation (legal or constructive) as a result of a past event",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "If any condition is not met, no provision is recognised.",
+        "passage_id": "IndAS37.para.14",
+        "quote": "If these conditions are not met, no provision shall be recognised",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A manufacturer that sells goods with a one-year warranty has a present obligation from the sales already made, expects some claims, and can estimate them from past experience, so it recognises a warranty provision.",
+        "passage_id": "IndAS37.para.14",
+        "quote": "A provision shall be recognised when",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Recognising a provision for any expected future cost, without a present obligation",
+        "passage_id": "IndAS37.para.14",
+        "quote": "If these conditions are not met, no provision shall be recognised",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "d416c282fe04968ea28b3344de8bef3b66e766c042d23b6a1ec3bba32f4ca95c",
+    "notes": "[claude review 20260927-135818-ind_as_37] all claims passed",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "claude_reviewed"
+  },
+  "ind_as_37.recognition.present_obligation": {
+    "claims": [
+      {
+        "claim": "Explains that the obligation may be legal or constructive",
+        "passage_id": "IndAS37.para.10",
+        "quote": "An obligating event is an event that creates a legal or constructive obligation",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Explains that a constructive obligation arises when the entity's established practice, published policies or a specific current statement create a valid expectation in others that it will discharge certain responsibilities",
+        "passage_id": "IndAS37.para.10",
+        "quote": "by an established pattern of past practice, published policies or a sufficiently specific current statement, the entity has indicated to other parties that it will accept certain responsibilities",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "States that the obligating past event must leave the entity no realistic alternative to settling the obligation",
+        "passage_id": "IndAS37.para.17",
+        "quote": "it is necessary that the entity has no realistic alternative to settling the obligation created by the event",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "The obligation must exist at the reporting date as a result of a past event.",
+        "passage_id": "IndAS37.para.18",
+        "quote": "are those that exist at the end of the reporting period",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "It can be legal, arising from a contract or legislation, or constructive, arising when an entity's established pattern of past practice, published policies or a sufficiently specific current statement have created a valid expectation in other parties that it will discharge certain responsibilities.",
+        "passage_id": "IndAS37.para.10",
+        "quote": "has created a valid expectation on the part of those other parties that it will discharge those responsibilities",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "An obligating event leaves the entity no realistic alternative to settling the obligation.",
+        "passage_id": "IndAS37.para.10",
+        "quote": "results in an entity having no realistic alternative to settling that obligation",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Costs that the entity can avoid by its future actions, such as changing its method of operation, are not obligations.",
+        "passage_id": "IndAS37.para.19",
+        "quote": "Because the entity can avoid the future expenditure by its future actions, for example by changing its method of operation, it has no present obligation for that future expenditure",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A retailer with a well-known policy of refunding dissatisfied customers, even without a legal duty to do so, has a constructive obligation for expected refunds on goods already sold.",
+        "passage_id": "IndAS37.para.10",
+        "quote": "by an established pattern of past practice, published policies",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Providing for costs the entity can avoid by its future actions",
+        "passage_id": "IndAS37.para.19",
+        "quote": "it has no present obligation for that future expenditure and no provision is recognised",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      },
+      {
+        "claim": "Treating a board decision that has not been communicated to anyone as creating an obligation",
+        "passage_id": "IndAS37.para.20",
+        "quote": "a management or board decision does not give rise to a constructive obligation at the end of the reporting period unless the decision has been communicated",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "7443ffc8a347d5a07bc860c3d6b046a26d5f3e271b5cdaf1c12a4b0c513f9af6",
+    "notes": "[claude review 20260927-135818-ind_as_37] coverage gap: Paras 15-16: where it is unclear whether a present obligation exists (for example in a lawsuit), one is deemed to exist if that is more likely than not on all available evidence; otherwise a contingent liability is disclosed unless remote. No rubric item covers this.; coverage gap: Paras 21-22: an event can become an obligating event later, through a new law or a public statement; a proposed law creates an obligation only when it is virtually certain to be enacted as drafted. No rubric item covers this.",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "needs_expert"
+  },
+  "ind_as_37.recognition.probable_outflow": {
+    "claims": [
+      {
+        "claim": "Defines probable as more likely than not",
+        "passage_id": "IndAS37.para.23",
+        "quote": "is regarded as probable if the event is more likely than not to occur",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Explains that for a number of similar obligations, such as warranties, probability is assessed for the class of obligations as a whole",
+        "passage_id": "IndAS37.para.24",
+        "quote": "is determined by considering the class of obligations as a whole",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "An outflow is probable when it is more likely than not to occur, that is, the probability that it will occur is greater than the probability that it will not.",
+        "passage_id": "IndAS37.para.23",
+        "quote": "the probability that the event will occur is greater than the probability that it will not",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Where there are a number of similar obligations, such as product warranties, the probability of an outflow is determined by considering the class of obligations as a whole.",
+        "passage_id": "IndAS37.para.24",
+        "quote": "the probability that an outflow will be required in settlement is determined by considering the class of obligations as a whole",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Only a small share of individual products may be returned under warranty, but across all products sold some outflow is more likely than not, so a provision is recognised.",
+        "passage_id": "IndAS37.para.24",
+        "quote": "Although the likelihood of outflow for any one item may be small, it may well be probable that some outflow of resources will be needed to settle the class of obligations as a whole",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Reading 'probable' as virtually certain",
+        "passage_id": "IndAS37.para.23",
+        "quote": "more likely than not to occur",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "72fbc54be4ee9e72ac94b65143b8adf6a77a548e74dbd90bb9711fc0962af23c",
+    "notes": "[claude review 20260927-135818-ind_as_37] all claims passed",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "claude_reviewed"
+  },
+  "ind_as_37.recognition.reliable_estimate": {
+    "claims": [
+      {
+        "claim": "States that a reliable estimate can be made in all but extremely rare cases",
+        "passage_id": "IndAS37.para.25",
+        "quote": "Except in extremely rare cases, an entity will be able to determine a range of possible outcomes",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "States that if no reliable estimate can be made, the liability is disclosed as a contingent liability",
+        "passage_id": "IndAS37.para.26",
+        "quote": "That liability is disclosed as a contingent liability",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Using estimates is an essential part of preparing financial statements.",
+        "passage_id": "IndAS37.para.25",
+        "quote": "The use of estimates is an essential part of the preparation of financial statements",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Except in extremely rare cases, an entity can determine a range of possible outcomes and make an estimate of the obligation that is reliable enough to recognise a provision.",
+        "passage_id": "IndAS37.para.25",
+        "quote": "can therefore make an estimate of the obligation that is sufficiently reliable to use in recognising a provision",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "In the extremely rare case where no reliable estimate can be made, the liability cannot be recognised and is disclosed as a contingent liability.",
+        "passage_id": "IndAS37.para.26",
+        "quote": "In the extremely rare case where no reliable estimate can be made, a liability exists that cannot be recognised",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Using uncertainty about the amount as a reason not to recognise a provision",
+        "passage_id": "IndAS37.para.25",
+        "quote": "The use of estimates is an essential part of the preparation of financial statements and does not undermine their reliability",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "641beca6a180c6c2c4db20f61e0b112ab3b39445b8914d538665a7ddf6f846bb",
+    "notes": "[claude review 20260927-135818-ind_as_37] all claims passed",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "claude_reviewed"
+  },
+  "ind_as_37.reimbursements": {
+    "claims": [
+      {
+        "claim": "States that a reimbursement is recognised only when it is virtually certain to be received if the entity settles the obligation",
+        "passage_id": "IndAS37.para.53",
+        "quote": "it is virtually certain that reimbursement will be received if the entity settles the obligation",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "States that the reimbursement is a separate asset, not netted against the provision, and the amount recognised does not exceed the provision",
+        "passage_id": "IndAS37.para.53",
+        "quote": "The amount recognised for the reimbursement shall not exceed the amount of the provision",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "States that in profit or loss the expense may be presented net of the reimbursement",
+        "passage_id": "IndAS37.para.54",
+        "quote": "the expense relating to a provision may be presented net of the amount recognised for a reimbursement",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Where some or all of the expenditure required to settle a provision is expected to be reimbursed by another party, such as an insurer or a supplier under a warranty, the reimbursement is recognised when, and only when, it is virtually certain that it will be received if the entity settles the obligation.",
+        "passage_id": "IndAS37.para.53",
+        "quote": "the reimbursement shall be recognised when, and only when, it is virtually certain",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "It is treated as a separate asset, and the amount recognised for it does not exceed the amount of the provision.",
+        "passage_id": "IndAS37.para.53",
+        "quote": "The reimbursement shall be treated as a separate asset",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "In the statement of profit and loss, the expense relating to a provision may be presented net of the amount recognised for a reimbursement.",
+        "passage_id": "IndAS37.para.54",
+        "quote": "the expense relating to a provision may be presented net of the amount recognised for a reimbursement",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A company recognises a ₹50 lakh provision for a product-liability claim and, because its insurer has accepted the claim, a separate ₹40 lakh reimbursement asset; the charge in profit or loss may be shown net at ₹10 lakh.",
+        "passage_id": "IndAS37.para.56",
+        "quote": "a provision is recognised for the full amount of the liability, and a separate asset for the expected reimbursement is recognised when it is virtually certain",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Deducting an expected insurance recovery from the provision in the balance sheet",
+        "passage_id": "IndAS37.para.53",
+        "quote": "The reimbursement shall be treated as a separate asset",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "9735b072757c335d15a2556d0dee2fe659328fba6ba68bd7e12775017383a0ed",
+    "notes": "[claude review 20260927-135818-ind_as_37] coverage gap: Para 57: where the entity will not be liable if the third party fails to pay, those costs are not included in the provision. No rubric item covers this.",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "needs_expert"
+  },
+  "ind_as_37.restructuring": {
+    "claims": [
+      {
+        "claim": "Explains that a restructuring provision is recognised only when the general recognition criteria for provisions are met",
+        "passage_id": "IndAS37.para.71",
+        "quote": "A provision for restructuring costs is recognised only when the general recognition criteria for provisions set out in paragraph 14 are met",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Names examples of restructuring: sale or termination of a line of business, closure of business locations, changes in management structure, or fundamental reorganisations",
+        "passage_id": "IndAS37.para.70",
+        "quote": "sale or termination of a line of business",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A restructuring is a programme planned and controlled by management that materially changes either the scope of a business undertaken by an entity or the manner in which that business is conducted, for example the sale or termination of a line of business, the closure of business locations, changes in management structure, or fundamental reorganisations.",
+        "passage_id": "IndAS37.para.10",
+        "quote": "A restructuring is a programme that is planned and controlled by management, and materially changes either",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A provision for restructuring costs is recognised only when the general recognition criteria for provisions are met.",
+        "passage_id": "IndAS37.para.71",
+        "quote": "A provision for restructuring costs is recognised only when the general recognition criteria for provisions set out in paragraph 14 are met",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Recognising a restructuring provision because the board has decided to restructure",
+        "passage_id": "IndAS37.para.75",
+        "quote": "does not give rise to a constructive obligation at the end of the reporting period",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "3e993b60561e6292221578841d5e4fec2e05cc62fd46191e4924eb20f49271f3",
+    "notes": "[claude review 20260927-135818-ind_as_37] all claims passed",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "claude_reviewed"
+  },
+  "ind_as_37.restructuring.constructive_obligation": {
+    "claims": [
+      {
+        "claim": "States that a constructive obligation to restructure needs a detailed formal plan",
+        "passage_id": "IndAS37.para.72",
+        "quote": "has a detailed formal plan for the restructuring identifying at least",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "States that the entity must also have raised a valid expectation in those affected, by starting to implement the plan or announcing its main features to them",
+        "passage_id": "IndAS37.para.72",
+        "quote": "has raised a valid expectation in those affected that it will carry out the restructuring by starting to implement that plan or announcing its main features to those affected by it",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "States that a management or board decision before the reporting date does not by itself create a constructive obligation",
+        "passage_id": "IndAS37.para.75",
+        "quote": "A management or board decision to restructure taken before the end of the reporting period does not give rise to a constructive obligation at the end of the reporting period unless",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A constructive obligation to restructure arises only when an entity has a detailed formal plan, identifying at least the business concerned, the principal locations affected, the employees who will be compensated for termination, the expenditures that will be undertaken and when the plan will be implemented; and has raised a valid expectation in those affected that it will carry out the restructuring, by starting to implement the plan or announcing its main features to those affected by it.",
+        "passage_id": "IndAS37.para.72",
+        "quote": "the location, function, and approximate number of employees who will be compensated for terminating their services",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A management or board decision to restructure taken before the end of the reporting period does not give rise to a constructive obligation unless one of those events has also occurred by then.",
+        "passage_id": "IndAS37.para.75",
+        "quote": "does not give rise to a constructive obligation at the end of the reporting period unless the entity has",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Treating an approved but unannounced plan as an obligation",
+        "passage_id": "IndAS37.para.75",
+        "quote": "does not give rise to a constructive obligation at the end of the reporting period",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "8ed46bd78d6aefbb5ef28c3475c8b518f42ee5008ff38fd4b3359c66a3fe7b97",
+    "notes": "[claude review 20260927-135818-ind_as_37] coverage gap: Para 74: the plan's implementation must be due to begin as soon as possible and be completed in a timeframe that makes significant changes unlikely; a long delay means no valid expectation arises. No rubric item covers this.",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "needs_expert"
+  },
+  "ind_as_37.restructuring.direct_costs": {
+    "claims": [
+      {
+        "claim": "States that the provision includes only direct expenditures that are necessarily entailed by the restructuring and not associated with the ongoing activities",
+        "passage_id": "IndAS37.para.80",
+        "quote": "A restructuring provision shall include only the direct expenditures arising from the restructuring",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Names excluded costs: retraining or relocating continuing staff, marketing, and investment in new systems and distribution networks",
+        "passage_id": "IndAS37.para.81",
+        "quote": "retraining or relocating continuing staff",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "A restructuring provision includes only the direct expenditures arising from the restructuring, which are both necessarily entailed by the restructuring and not associated with the ongoing activities of the entity.",
+        "passage_id": "IndAS37.para.80",
+        "quote": "not associated with the ongoing activities of the entity",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "It does not include costs such as retraining or relocating continuing staff, marketing, or investment in new systems and distribution networks, because these relate to the future conduct of the business.",
+        "passage_id": "IndAS37.para.81",
+        "quote": "These expenditures relate to the future conduct of the business",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Identifiable future operating losses up to the date of a restructuring are not included either, unless they relate to an onerous contract.",
+        "passage_id": "IndAS37.para.82",
+        "quote": "Identifiable future operating losses up to the date of a restructuring are not included in a provision, unless they relate to an onerous contract",
+        "quote_verified": true,
+        "verdict": "supported"
+      },
+      {
+        "claim": "Including the cost of retraining staff who will stay in the business",
+        "passage_id": "IndAS37.para.81",
+        "quote": "retraining or relocating continuing staff",
+        "quote_verified": true,
+        "verdict": "contradicted"
+      }
+    ],
+    "content_sha256": "96c511f6601c5786d440bc9a6561ce9ef8c89ae15f3d9c24e2e7eed351045668",
+    "notes": "[claude review 20260927-135818-ind_as_37] all claims passed",
+    "report_id": "20260927-135818-ind_as_37",
+    "reviewer": {
+      "mode": "session",
+      "model": "claude-code-session"
+    },
+    "signed_off_at": null,
+    "signed_off_by": null,
+    "status": "claude_reviewed"
+  }
+}

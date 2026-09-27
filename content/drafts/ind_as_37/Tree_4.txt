@@ -1,0 +1,9 @@
+Let's walk through how to handle reimbursements and contingent assets. 
+
+First, we need to determine if there is a right to reimbursement from a third party, such as an insurance company or a supplier indemnity, for an existing provision obligation. If the answer is yes, your next step is to evaluate whether it is virtually certain that the reimbursement will actually be received.
+
+In the case where it is virtually certain, you will recognize the reimbursement as a separate asset on the balance sheet. It is important to remember that you must not net this asset against the provision itself. However, when it comes to the profit and loss statement, you are allowed to net the expense from the provision against the income from the reimbursement to show the net impact.
+
+Now, if the reimbursement is not virtually certain, you cannot recognize it as an asset. Instead, you should check if the inflow of benefits is probable, in which case you would disclose it as a contingent asset in the notes.
+
+This leads us to the general treatment of contingent assets. To decide how to record these, we look at the probability of the economic benefit flowing in. If it is virtually certain—meaning there is a very high level of confidence—it is no longer considered contingent, and you should recognize it as both an asset and income on the balance sheet. If the inflow is simply probable, you don't recognize it on the balance sheet, but you must disclose it as a contingent asset in the notes, including the nature of the asset and an estimate of its financial effect. Finally, if the benefit is only possible or remote, no recognition or disclosure is required.

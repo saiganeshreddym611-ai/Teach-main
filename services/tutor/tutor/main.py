@@ -64,6 +64,8 @@ async def content() -> ContentInfo:
         manifest=pack.manifest,
         content_hash=pack.content_hash,
         review_counts=review_counts(pack),
+        topic_id=pack.curriculum.tree.topic_id,
+        standard=pack.curriculum.tree.standard,
     )
 
 
@@ -139,11 +141,12 @@ async def tts(req: TTSRequest) -> Response:
 
 @app.post("/session", response_model=CreateSessionResponse)
 async def create_session(req: CreateSessionRequest) -> CreateSessionResponse:
+    pack = load_pack()
+    topic_id = req.topic_id or pack.curriculum.tree.topic_id
     try:
-        curriculum = load_curriculum(req.topic_id)
+        curriculum = load_curriculum(topic_id)
     except FileNotFoundError as e:
         raise HTTPException(404, str(e))
-    pack = load_pack()
     if settings.require_reviewed_content:
         problems = strict_problems(pack)
         if problems:
@@ -151,7 +154,7 @@ async def create_session(req: CreateSessionRequest) -> CreateSessionResponse:
                 409,
                 detail={"message": "Content is not approved for use.", "problems": problems},
             )
-    session = Session(student_id=req.student_id, topic_id=req.topic_id)
+    session = Session(student_id=req.student_id, topic_id=topic_id)
     session.turns.append(Turn(role="tutor", text=curriculum.tree.opening_prompt, phase=Phase.DIAGNOSTIC))
     await store.save(session)
     return CreateSessionResponse(

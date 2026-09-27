@@ -1,0 +1,11 @@
+Now, let's walk through how we handle Onerous Contracts and Restructuring Provisions. 
+
+First, we need to determine if the contract under review is considered onerous. This happens when the unavoidable costs of meeting your obligations actually exceed the expected benefits you'll get from the contract. If that's the case, we need to calculate an Onerous Provision. To do this, take the lower of two amounts: the cost to fulfill the contract, or the penalties and costs associated with exiting it. Before you recognize this as a liability on the balance sheet, remember to first test any assets used in that contract for impairment under Ind AS 36.
+
+Next, we should check if there is a restructuring taking place. For this to qualify, there must be a formal, detailed plan that has been announced to the affected parties. If a restructuring provision is required, be careful about what you include. It should only consist of redundancy costs, lease termination penalties, and non-cancellable contracts directly resulting from the restructuring. These costs are then recorded as an expense in the profit and loss statement during the period the provision is recognized.
+
+It is equally important to know what to leave out. Do not include costs for retraining or relocating staff, marketing expenses, investments in new systems, or general ongoing business costs in your restructuring provision.
+
+If you find that there is no onerous contract and no restructuring taking place, then no provision is needed, and you can simply continue to monitor the situation.
+
+Once we've settled the provisions, the next logical step is to see if we can recover any of those costs. Let's move on to how we handle reimbursements and contingent assets.

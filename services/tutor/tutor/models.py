@@ -117,7 +117,8 @@ class Session(BaseModel):
 # --------------------------------------------------------------------------- #
 class CreateSessionRequest(BaseModel):
     student_id: str = "demo_student"
-    topic_id: str = "ind_as_115"
+    # None: the active content pack's topic (CONTENT_PACK).
+    topic_id: str | None = None
 
 
 class CreateSessionResponse(BaseModel):

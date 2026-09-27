@@ -5,7 +5,7 @@ import MasteryGrid from "@/components/MasteryGrid";
 import TalkButton from "@/components/TalkButton";
 import Transcript, { type LocalTurn } from "@/components/Transcript";
 import Waveform, { type VoiceState } from "@/components/Waveform";
-import { API_BASE, createSession, getSession, streamTurn, type MasteryEntry, type Phase } from "@/lib/api";
+import { API_BASE, createSession, getContent, getSession, streamTurn, type MasteryEntry, type Phase } from "@/lib/api";
 import { probeServerTTS, ServerSpeaker, WebSpeechListener, WebSpeechSpeaker, type Speaker } from "@/lib/speech";
 
 const PHASE_LABEL: Record<Phase, string> = {
@@ -30,6 +30,8 @@ export default function Kiosk() {
   const [typed, setTyped] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  const [topicLabel, setTopicLabel] = useState("");
+  const [paperLabel, setPaperLabel] = useState("");
 
   const speakingRef = useRef(false);
   const streamDoneRef = useRef(false);
@@ -64,6 +66,15 @@ export default function Kiosk() {
       speakerRef.current = null;
     };
   }, [maybeIdle]);
+
+  useEffect(() => {
+    getContent()
+      .then((c) => {
+        setTopicLabel((c.standard ?? "").split("—")[0].trim() || c.manifest.pack_id);
+        setPaperLabel(`${c.manifest.exam} · ${c.manifest.paper}`);
+      })
+      .catch(() => {});
+  }, []);
 
   const refreshMastery = useCallback(async (sid: string) => {
     const view = await getSession(sid);
@@ -210,8 +221,8 @@ export default function Kiosk() {
     return (
       <main className="flex-1 flex flex-col items-center justify-center gap-8 px-6 text-center">
         <div>
-          <div className="text-xs uppercase tracking-[0.3em] text-zinc-500">CA Final · Financial Reporting</div>
-          <h1 className="mt-3 text-4xl md:text-5xl font-semibold tracking-tight">Ind AS 115</h1>
+          <div className="text-xs uppercase tracking-[0.3em] text-zinc-500">{paperLabel || "CA Final · Financial Reporting"}</div>
+          <h1 className="mt-3 text-4xl md:text-5xl font-semibold tracking-tight">{topicLabel || "…"}</h1>
           <p className="mt-3 text-zinc-400 max-w-md">
             Tell the tutor what you know. It maps your words to the syllabus, teaches only what is missing, and
             records mastery as you explain it back.
@@ -234,7 +245,7 @@ export default function Kiosk() {
       {/* header */}
       <header className="md:col-span-2 flex items-center justify-between text-xs">
         <div className="flex items-center gap-3">
-          <span className="uppercase tracking-[0.25em] text-zinc-500">Ind AS 115</span>
+          <span className="uppercase tracking-[0.25em] text-zinc-500">{topicLabel || "…"}</span>
           <span className="rounded-full border border-zinc-700 px-2 py-0.5 text-zinc-300">{PHASE_LABEL[phase]}</span>
           {targetTitle && <span className="text-zinc-500 hidden sm:inline">→ {targetTitle}</span>}
         </div>

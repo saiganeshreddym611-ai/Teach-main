@@ -49,6 +49,7 @@ export type SessionView = {
   phase: Phase;
   target_node: string | null;
   student_level_summary: string;
+  study_mode?: "learn" | "revision" | null;
   mastery: MasteryEntry[];
   turns: Turn[];
   ledger: LedgerEvent[];

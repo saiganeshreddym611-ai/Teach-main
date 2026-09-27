@@ -48,6 +48,9 @@ class Settings:
     # Tutor pacing knobs (code-enforced, not prompt-enforced)
     max_instruct_turns_per_node: int = int(os.getenv("MAX_INSTRUCT_TURNS", "3"))
     max_teach_back_attempts: int = int(os.getenv("MAX_TEACH_BACK_ATTEMPTS", "2"))
+    # Study mode after the diagnostic: revision when at most this many main headings (level-1
+    # nodes) got no evidence at all, otherwise learning, one heading at a time in depth.
+    revision_max_missing_heads: int = int(os.getenv("REVISION_MAX_MISSING_HEADS", "0"))
     # Content review (T23): "session" (the Claude Code session answers packets) or "claude-api".
     # Ollama models are refused (D6).
     reviewer: str = os.getenv("REVIEWER", "session").lower()

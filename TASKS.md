@@ -300,7 +300,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T41 | Tutor grounding and spoken citations | C | T40, T21 | todo |
 | T42 | Syllabus boundary and confidence guard | C | T41, T22 | todo |
 | T43 | Tutor bench update | C | T42 | todo |
-| T44 | Study modes: learning (depth) and revision (headings) | C | T30 | todo |
+| T44 | Study modes: learning (depth) and revision (headings) | C | T30 | review (Claude, 2026-09-27, log .task-runs/T44/20260927-221347) |
 | T50 | Skill and task schema, validator, draft templates | D | T10, T21 | todo |
 | T51 | Deterministic calculators and variant generator | D | T50 | todo |
 | T52 | Task grader | D | T51, T30, T32 | todo |

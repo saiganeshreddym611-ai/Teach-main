@@ -47,11 +47,14 @@ async def test_diagnostic_grades_writes_ledger_and_targets_deepest_missing(sessi
     student_turn_id = events[-1].payload["student_turn_id"]
     assert [e.evidence_turn_id for e in session.ledger] == [student_turn_id] * 3
     assert project_status(session)["ind_as_115.step_3"] == NodeStatus.PARTIAL
-    # Node selector (code) picked step_3 - first non-VERIFIED L1 - not the LLM.
+    # Steps 4, 5 and cross-cutting were never touched, so this is LEARN mode: the node selector
+    # (code, not the LLM) goes depth-first into step 1's details before the next heading.
+    assert session.study_mode == "learn"
+    assert "STUDY_MODE=LEARN" in tutor.directives[0]
     assert session.phase == Phase.INSTRUCT
-    assert session.target_node == "ind_as_115.step_3"
+    assert session.target_node == "ind_as_115.step_1.criteria"
     assert "ACTION=INTRODUCE_NODE" in tutor.directives[0]
-    assert "ind_as_115.step_3" in tutor.directives[0]
+    assert "ind_as_115.step_1.criteria" in tutor.directives[0]
     assert session.student_level_summary == "Knows steps 1-2, shaky on 3."
     assert events[-1].payload["phase"] == "INSTRUCT"
     assert len(events[-1].payload["ledger_delta"]) == 3
@@ -109,6 +112,7 @@ async def test_teach_back_is_forced_after_max_instruct_turns(session, curriculum
 # TEACH_BACK: verified -> ledger + next node; failed -> retry; twice -> park
 # --------------------------------------------------------------------------- #
 async def test_teach_back_verified_writes_ledger_and_advances(session, curriculum):
+    session.study_mode = "revision"  # heading by heading
     session.phase = Phase.TEACH_BACK
     session.target_node = "ind_as_115.step_1"
     session.turns.append(__import__("tutor.models", fromlist=["Turn"]).Turn(role="tutor", text="Explain step 1 back.", phase=Phase.INSTRUCT))
@@ -129,6 +133,7 @@ async def test_teach_back_verified_writes_ledger_and_advances(session, curriculu
 
 async def test_teach_back_failed_retries_then_parks(session, curriculum, monkeypatch):
     monkeypatch.setattr(settings, "max_teach_back_attempts", 2)
+    session.study_mode = "learn"  # a parked heading's subtopics wait too
     session.phase = Phase.TEACH_BACK
     session.target_node = "ind_as_115.step_1"
     grader = ScriptedGrader([
@@ -179,3 +184,23 @@ async def test_complete_phase_keeps_chatting_without_grading(session, curriculum
     events = await drive(session, curriculum, ScriptedGrader([]), tutor, "what next?")
     assert "grade" not in kinds(events)
     assert session.phase == Phase.COMPLETE
+
+
+async def test_diagnostic_touching_every_heading_chooses_revision(session, curriculum):
+    heads = [n.id for n in curriculum.tree.nodes if n.level == 1]
+    grader = ScriptedGrader([result(*[verdict(h, "VERIFIED") for h in heads[:-1]], verdict(heads[-1], "PARTIAL"))])
+    tutor = ScriptedTutor(["You know the outline. Let's check each heading."])
+    await drive(session, curriculum, grader, tutor, "everything, briefly")
+    assert session.study_mode == "revision"
+    assert "STUDY_MODE=REVISION" in tutor.directives[0]
+    assert session.target_node == heads[-1]  # breadth-first: the one heading not yet verified
+
+
+async def test_learn_mode_details_a_heading_before_the_next(session, curriculum):
+    session.study_mode = "learn"
+    session.phase = Phase.TEACH_BACK
+    session.target_node = "ind_as_115.step_1"
+    grader = ScriptedGrader([result(verdict("ind_as_115.step_1", "VERIFIED"))])
+    tutor = ScriptedTutor(["Good. Now the criteria in detail."])
+    await drive(session, curriculum, grader, tutor, "a contract creates enforceable rights and obligations")
+    assert session.target_node == curriculum.children("ind_as_115.step_1")[0].id

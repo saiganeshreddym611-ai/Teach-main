@@ -106,6 +106,9 @@ class Session(BaseModel):
     instruct_turns_on_node: int = 0
     teach_back_attempts: dict[str, int] = {}
     parked_nodes: list[str] = []          # gave up after max attempts; revisit later
+    # Set after the diagnostic: "revision" when the student touched every main heading (checked
+    # heading by heading), otherwise "learn" (one heading at a time, in full detail).
+    study_mode: Literal["learn", "revision"] | None = None
     turns: list[Turn] = []
     ledger: list[LedgerEvent] = []
     student_level_summary: str = ""
@@ -153,6 +156,7 @@ class SessionView(BaseModel):
     phase: Phase
     target_node: str | None
     student_level_summary: str
+    study_mode: Literal["learn", "revision"] | None = None
     mastery: list[MasteryEntry]
     turns: list[Turn]
     ledger: list[LedgerEvent]

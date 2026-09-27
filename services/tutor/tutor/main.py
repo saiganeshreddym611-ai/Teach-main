@@ -171,6 +171,7 @@ async def get_session(session_id: str) -> SessionView:
         phase=session.phase,
         target_node=session.target_node,
         student_level_summary=session.student_level_summary,
+        study_mode=session.study_mode,
         mastery=mastery_view(session, curriculum),
         turns=session.turns,
         ledger=session.ledger,

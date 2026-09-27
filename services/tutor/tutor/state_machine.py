@@ -174,7 +174,8 @@ async def run_turn(
         session.student_level_summary = result.summary
         missing = omissions(curriculum, result, node_links(curriculum))
         yield TurnEvent("grade", _grade_payload(result, missing))
-        directive = _advance_to_next_node(curriculum, session, preface="")
+        session.study_mode = "revision" if len(missing) <= settings.revision_max_missing_heads else "learn"
+        directive = _advance_to_next_node(curriculum, session, preface=_mode_preface(curriculum, session, missing))
 
     elif session.phase == Phase.INSTRUCT:
         session.instruct_turns_on_node += 1
@@ -248,8 +249,19 @@ async def run_turn(
     )
 
 
+def _mode_preface(curriculum: Curriculum, session: Session, missing: list) -> str:
+    """Tell the tutor, once, which study mode the diagnostic chose, so it can say so in a sentence."""
+    if session.study_mode == "revision":
+        return ("STUDY_MODE=REVISION: the student touched every main heading, so this is revision. "
+                "Say in one sentence that you will go through the headings one at a time and check each.\n")
+    titles = ", ".join(curriculum.node(m.node_id).title for m in missing)
+    return (f"STUDY_MODE=LEARN: the student did not touch these main headings: {titles}. "
+            "Say in one sentence that you will go step by step, one topic at a time in detail, starting here.\n")
+
+
 def _advance_to_next_node(curriculum: Curriculum, session: Session, preface: str) -> str:
-    nxt = select_next_node(curriculum, project_status(session), session.parked_nodes)
+    nxt = select_next_node(curriculum, project_status(session), session.parked_nodes,
+                           depth_first=session.study_mode != "revision")
     if nxt is None:
         session.phase = Phase.COMPLETE
         session.target_node = None

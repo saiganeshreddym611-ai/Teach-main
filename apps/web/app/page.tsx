@@ -32,6 +32,7 @@ export default function Kiosk() {
   const [starting, setStarting] = useState(false);
   const [topicLabel, setTopicLabel] = useState("");
   const [paperLabel, setPaperLabel] = useState("");
+  const [studyMode, setStudyMode] = useState<"learn" | "revision" | null>(null);
 
   const speakingRef = useRef(false);
   const streamDoneRef = useRef(false);
@@ -82,6 +83,7 @@ export default function Kiosk() {
     setMastery(view.mastery);
     setPhase(view.phase);
     setTargetNode(view.target_node);
+    setStudyMode(view.study_mode ?? null);
     if (view.student_level_summary) setSummary(view.student_level_summary);
   }, []);
 
@@ -253,6 +255,11 @@ export default function Kiosk() {
         <div className="flex items-center gap-3">
           <span className="uppercase tracking-[0.25em] text-zinc-500">{topicLabel || "…"}</span>
           <span className="rounded-full border border-zinc-700 px-2 py-0.5 text-zinc-300">{PHASE_LABEL[phase]}</span>
+          {studyMode && (
+            <span className="rounded-full border border-zinc-700 px-2 py-0.5 text-zinc-400">
+              {studyMode === "revision" ? "Revision" : "Step by step"}
+            </span>
+          )}
           {targetTitle && <span className="text-zinc-500 hidden sm:inline">→ {targetTitle}</span>}
         </div>
         <span className="flex items-center gap-2 text-zinc-600 tabular-nums">

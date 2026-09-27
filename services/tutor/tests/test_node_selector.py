@@ -36,3 +36,17 @@ def test_parked_nodes_skipped_until_everything_else_verified(curriculum):
 def test_none_when_all_verified(curriculum):
     status = {n.id: NodeStatus.VERIFIED for n in curriculum.tree.nodes}
     assert select_next_node(curriculum, status, []) is None
+
+
+def test_depth_first_details_a_heading_before_the_next(curriculum):
+    status = {"ind_as_115.step_1": NodeStatus.VERIFIED}
+    assert select_next_node(curriculum, status, [], depth_first=True) == "ind_as_115.step_1.criteria"
+    done = {nid: NodeStatus.VERIFIED for nid in curriculum.subtree_ids("ind_as_115.step_1")}
+    assert select_next_node(curriculum, done, [], depth_first=True) == "ind_as_115.step_2"
+
+
+def test_depth_first_defers_a_parked_headings_subtopics(curriculum):
+    assert select_next_node(curriculum, {}, ["ind_as_115.step_1"], depth_first=True) == "ind_as_115.step_2"
+    rest = {n.id: NodeStatus.VERIFIED for n in curriculum.tree.nodes
+            if n.id not in curriculum.subtree_ids("ind_as_115.step_1")}
+    assert select_next_node(curriculum, rest, ["ind_as_115.step_1"], depth_first=True) == "ind_as_115.step_1"

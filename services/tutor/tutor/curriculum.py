@@ -23,6 +23,7 @@ class Curriculum:
     def __init__(self, tree: Tree):
         self.tree = tree
         self.by_id: dict[str, Node] = {n.id: n for n in tree.nodes}
+        # Document order is the priority order within a level.
         self.order: dict[str, int] = {n.id: i for i, n in enumerate(tree.nodes)}
 
     def node(self, node_id: str) -> Node:

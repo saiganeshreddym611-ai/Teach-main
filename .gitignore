@@ -29,3 +29,4 @@ services/tutor/models/
 # Runtime data and unlicensed source documents
 services/tutor/data/
 content/packs/*/sources/raw/
+.claude/scheduled_tasks.lock

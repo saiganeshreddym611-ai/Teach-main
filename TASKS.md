@@ -287,7 +287,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T20 | Ingestion pipeline | A | T10 | done (6c9e42a, reviewed by Claude) |
 | T21 | Source-ref resolver and passage API | A | T20 | done (48e5feb, reviewed by Claude) |
 | T22 | Retriever (node-linked + BM25) | A | T21 | done (3813709, reviewed by Claude) |
-| T23 | Grounded Claude review pipeline | A | T22, T11 | review (Claude, 2026-09-27, log .task-runs/T23/20260927-182839) |
+| T23 | Grounded Claude review pipeline | A | T22, T11 | done (cfb4df7, reviewed by Claude + owner) |
 | T24 | Grounded review of tasks and answer keys (T23b) | A | T23, T50, T51 | todo |
 | T30 | Grader v2: claims and citations | B | T22 | done (9c236a2, reviewed by Claude + owner) |
 | T31 | Ledger v2: student-scoped, cited, exportable | B | T30 | todo |

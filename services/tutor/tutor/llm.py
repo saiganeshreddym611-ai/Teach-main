@@ -21,7 +21,7 @@ def describe_grader() -> str:
     if settings.mock_llm:
         return "mock"
     if settings.grader_provider == "ollama":
-        return f"ollama:{settings.ollama_tutor_model}"
+        return f"ollama:{settings.ollama_grader_model}"
     return f"claude:{settings.model}"
 
 

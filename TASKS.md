@@ -274,7 +274,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | ID | Title | Lane | Depends on | Status |
 |---|---|---|---|---|
 | T00 | Initialise git and baseline commit | A | — | done (638b803) |
-| T01 | Baseline green and housekeeping | A | T00 | todo |
+| T01 | Baseline green and housekeeping | A | T00 | review (Copilot + Claude review fixes, 2026-09-27, log .task-runs/T01/20260927-122351) |
 | T02 | Shared contracts module | A | T01 | todo |
 | T10 | Content pack layout and loader | A | T02 | todo |
 | T11 | Review gate | A | T10 | todo |

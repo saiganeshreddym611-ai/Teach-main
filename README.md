@@ -60,7 +60,7 @@ From the Claude desktop app, `.claude/launch.json` defines both servers (`tutor-
 
 ```bash
 cd services/tutor
-.venv/Scripts/python -m pytest              # 26 tests: selector, ledger, sentinel filter, state machine, HTTP loop (mocked LLM)
+.venv/Scripts/python -m pytest              # 38 tests: selector, ledger, sentinel filter, state machine, HTTP loop, health reporting (mocked LLM)
 .venv/Scripts/python tests/evals/grader/run_evals.py --repeat 3   # grader eval set against the configured grader
 OLLAMA_MODEL=nemotron-3-super:cloud .venv/Scripts/python tests/evals/grader/run_evals.py   # ...or any other model
 .venv/Scripts/python tests/evals/tutor/bench_tutor.py --models gemma4:31b-cloud nemotron-3-super:cloud

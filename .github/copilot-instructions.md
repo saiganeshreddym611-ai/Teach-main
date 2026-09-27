@@ -63,6 +63,10 @@ cd apps/web && npm run lint && npm run build  # only if you touched apps/web
 
 - Do not run `git commit`, `git push`, `git reset`, `git checkout -- <file>` or `git clean`.
   The owner submits your work to review with `python tools/task_runner.py submit <ID>`.
+- Never submit, approve or reject a task, and never mark one done, even if asked. Approval is the
+  reviewer's job (`task_runner.py approve`, run by Claude with the owner).
+- Never rewrite files with PowerShell `Set-Content`, `Out-File` or `>`. They change the encoding
+  and corrupt characters such as `—` and `→`. All text files are UTF-8 without a BOM.
 - Do not edit `TASKS.md` (not even the status board), `REQUIREMENTS.md`, `HUMAN-DECISIONS.md`, `QUALITY-AND-REVIEW.md`,
   `specs/`, `tools/` or `.github/`. They are owned by the owner and the reviewer.
 - Do not commit secrets, `.env` files, licensed source documents or personal data.

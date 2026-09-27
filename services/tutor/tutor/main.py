@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import json
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
@@ -12,8 +13,9 @@ from fastapi.responses import Response, StreamingResponse
 
 from .config import settings
 from .content import load_pack
-from .contracts.api import ContentInfo, PassageResponse
+from .contracts.api import ContentInfo, PassageResponse, VerifyRequest, VerifyResponse
 from .curriculum import load_curriculum
+from .integrity import UnknownVerifierError, describe_verifier, get_verifier
 from .ledger import mastery_view
 from .llm import describe_grader, describe_tutor, get_grader, get_tutor
 from .models import (
@@ -83,6 +85,7 @@ async def health() -> dict:
         "grader": describe_grader(),
         "tutor": describe_tutor(),
         "tts": describe_tts(),
+        "verifier": describe_verifier(),
         "content": {
             "pack_id": pack.pack_id,
             "version": pack.manifest.version,
@@ -92,6 +95,23 @@ async def health() -> dict:
             "strict": settings.require_reviewed_content,
         },
     }
+
+
+@app.post("/verify", response_model=VerifyResponse)
+async def verify(req: VerifyRequest) -> VerifyResponse:
+    try:
+        audio = base64.b64decode(req.audio_b64, validate=True)
+    except (ValueError, TypeError):
+        raise HTTPException(422, "audio_b64 is not valid base64")
+    if not audio:
+        raise HTTPException(422, "audio_b64 decodes to empty audio")
+    try:
+        result = await get_verifier().verify(req.student_id, audio)
+    except UnknownVerifierError as exc:
+        raise HTTPException(500, str(exc)) from exc
+    finally:
+        del audio
+    return VerifyResponse(match=result.match, score=result.score, method=result.method)
 
 
 @app.get("/tts/info")

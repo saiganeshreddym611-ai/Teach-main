@@ -40,6 +40,7 @@ Optional — local text-to-speech (recommended; the browser voice is the fallbac
 | `OLLAMA_MODEL` | Default for both roles: `gemma4:31b-cloud`. Override per role with `OLLAMA_GRADER_MODEL` / `OLLAMA_TUTOR_MODEL`. Models must be pulled; `:cloud` models need `ollama signin`. |
 | `OLLAMA_GRADER_THINK` | Unset = model default. Nemotron needs thinking to grade reliably (22 s/grade); Gemma does not (0.8 s). |
 | `ANTHROPIC_API_KEY`, `TUTOR_MODEL` | For the Claude backends (`claude-opus-5`; effort tuned per route in code). |
+| `SPEAKER_VERIFIER` | Voice verification backend; currently only `stub` (always matches). |
 | `MOCK_LLM=1` | Deterministic keyword grader + template tutor. No models, no cost — for UI work and demos. |
 | `CONTENT_PACK` | Active versioned content pack under `content/packs/`; defaults to `ind_as_115`. |
 | `REQUIRE_REVIEWED_CONTENT` | `1` refuses to teach unless every content item is reviewed and the release is signed off; defaults to `0`. |

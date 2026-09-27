@@ -35,6 +35,7 @@ class Settings:
     cors_origins: list[str] = field(
         default_factory=lambda: [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",") if o.strip()]
     )
+    speaker_verifier: str = os.getenv("SPEAKER_VERIFIER", "stub").lower()
     # Server-side TTS: browser (client Web Speech API) | piper | kokoro
     tts_engine: str = os.getenv("TTS_ENGINE", "browser").lower()
     tts_models_dir: Path = Path(os.getenv("TTS_MODELS_DIR", str(Path(__file__).resolve().parents[1] / "models")))

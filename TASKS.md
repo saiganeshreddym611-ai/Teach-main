@@ -290,6 +290,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T23 | Grounded Claude review pipeline | A | T22, T11 | done (cfb4df7, reviewed by Claude + owner) |
 | T24 | Grounded review of tasks and answer keys (T23b) | A | T23, T50, T51 | todo |
 | T25 | Second topic pack: Ind AS 37 from the FR trees | A | T23 | review (Claude, 2026-09-27, log .task-runs/T25/20260927-193652) |
+| T26 | Hybrid retrieval: vector search that keeps passage IDs | A | T22 | todo |
 | T30 | Grader v2: claims and citations | B | T22 | done (9c236a2, reviewed by Claude + owner) |
 | T31 | Ledger v2: student-scoped, cited, exportable | B | T30 | todo |
 | T32 | Grader audit log and determinism | B | T30 | todo |
@@ -434,6 +435,18 @@ marked *(new)* do not exist yet.
   `draft`; the T23 review runs once the MCA Ind AS 37 text is ingested. Proves the "any topic"
   goal alongside T83. The other 12 FR topics are drafted by a cheaper model (Copilot or a Haiku
   agent) with this pack as the pattern; Claude reviews each one with T23 (owner, 2026-09-27).
+
+#### T26 — Hybrid retrieval: vector search that keeps passage IDs (D9)
+- **Coder:** Claude (D8: retrieval core, determinism).
+- **Why:** students speak in paraphrase. T42 calibration found reworded questions scoring only
+  0.39–0.57 on BM25. The owner wants a vector database in future (D9).
+- **Summary:** embed every passage with a local embedding model served by Ollama, chosen by
+  measurement on the calibration questions; store the vectors per passage ID next to the corpus
+  (`corpus/vectors.*`), rebuilt by `scripts/ingest.py`, with the model name and version in the
+  corpus manifest. Search combines the vector and BM25 scores. Every match is still a passage ID,
+  so citations, the T23 quote check and the ledger's trace to source do not change.
+- **Acceptance:** calibration recall on reworded questions improves over BM25 alone; identical
+  results across runs; the fixture and Ind AS 37 tests still pass.
 
 ### M3 — Cited, claim-level grading
 

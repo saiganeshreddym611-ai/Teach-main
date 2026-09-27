@@ -64,6 +64,16 @@ or a slim spec (about 5,000 characters or less). Claude never approves its own w
 approves the output of tasks Claude wrote, from a demo, not a read of the code. This saves Claude's
 tokens and saves rework rounds. It refines D5 (`specs/README.md`).
 
+**D9. The point is authentic knowledge, tracked at source (2026-09-27).** Decided by the owner:
+"showing citations is not the point, neither is the exams; it is the authenticity of knowledge
+gained and understood we want to track at source." Citations and exams are means, not the goal.
+Every judgement about what a student knows must trace back to what the student actually said and
+to the source passage it was judged against, so the record can be trusted without re-testing.
+Consequences: the student-scoped ledger (T31) and the grader audit log (T32) come before new
+features; retrieval may move to a vector database (T26) as long as every match keeps its passage
+ID; and for stable subjects, open textbooks can be the source layer (the product is not a document
+chat tool).
+
 ---
 
 ## 2. How grounded review works (the safeguards behind D1 and D6)
@@ -401,6 +411,7 @@ Status: Confirm / Change ______________________  Date: __________
 | D6 Reviewer | Claude and humans review code and content; Ollama models never review; professional sign-off per release | Owner | 2026-09-27 | `TASKS.md` T11, T23 |
 | D7 Student flags | 10 unique flags open a community check; confirmed items go to professional review | Owner | 2026-09-27 | `TASKS.md` T85, T86, T66; thresholds in section 12 |
 | D8 Who writes which code | Claude writes complex code; Copilot gets easy tasks with a specific prompt or slim spec; the owner approves the output of Claude's tasks from a demo | Owner | 2026-09-27 | `specs/README.md`; `TASKS.md` section 1 |
+| D9 Authentic knowledge, tracked at source | Judgements trace to the student's words and the source passage; ledger and audit (T31, T32) before new features; vector search allowed if passage IDs are kept (T26) | Owner | 2026-09-27 | `TASKS.md` T26, T31, T32 |
 | 5.1 Attempt (Q1) | CA Final May 2027; reuse May/Nov 2026 practice items after AI review | Owner | 2026-09-27 | `TASKS.md` T10 manifest |
 | 5.2, 5.5 Scope | Ind AS 115 only, plus Ind AS 37 paras 66–69 for the onerous node; exclude Ind AS 109 and 116 | Owner | 2026-09-27 | — |
 | 5.3, 5.4 Sources and storage (Q2) | Official sources listed in 5.3; ICAI material kept out of git; MCA text may be committed; ICAI licence conversation before any pilot | Owner | 2026-09-27 | Licence owner to be named |

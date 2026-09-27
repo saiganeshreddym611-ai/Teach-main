@@ -38,8 +38,10 @@ grader, tutor voice, ledger, kiosk). Nothing in this plan has been implemented y
   into a prompt, you bumped `PROMPT_VERSION` and re-ran the grader evals (or wrote in the commit
   message that no model was available and the evals were not run).
 - New environment variables are added to `services/tutor/.env.example` and the README table.
-- No review status was set by hand. Only the AI review pipeline (T23) or a recorded human audit
+- No review status was set by hand. Only the review pipeline (T23) or a recorded human sign-off
   sets it (see rule 7 below).
+- The task passed the review checkpoint: Claude and the owner reviewed it and ran
+  `task_runner.py approve` (owner decision D5). An agent never approves its own work.
 - Commit message starts with the task ID, for example `T21: resolve node source_refs to passages`.
 - Never push to a remote or open a PR unless a human asked for it.
 
@@ -64,16 +66,22 @@ changes, so read the relevant guide in `apps/web/node_modules/next/dist/docs/` f
 
 ### Automated runner
 
-`tools/task_runner.py` feeds eligible tasks from the status board to a coding agent (Claude Code in
-headless mode, pointed at the local Ollama model, by default). It sets statuses, runs pytest, and
-commits each passing task. Logs go to `.task-runs/` (gitignored).
+`tools/task_runner.py` gives the next eligible task to a coding agent (Claude Code in headless
+mode, pointed at the local Ollama model, by default), runs pytest, commits the result as
+`[awaiting review]`, and stops at the **review checkpoint** (D5). No other task starts until Claude
+and the owner approve or reject it. Ollama models never review (D6). Logs go to `.task-runs/`
+(gitignored).
 
 ```bash
-python tools/task_runner.py status        # what is eligible
-python tools/task_runner.py smoke         # check agent + model in about a minute
-python tools/task_runner.py run           # next eligible task; it lands in `review`
-python tools/task_runner.py run --max 5 --auto-done   # chain tasks without human review
+python tools/task_runner.py status              # what is eligible or waiting for review
+python tools/task_runner.py smoke               # check agent + model in about a minute
+python tools/task_runner.py run                 # one task, then stop at the checkpoint
+python tools/task_runner.py review T01          # review packet: diff, tests, agent report, checklist
+python tools/task_runner.py approve T01 --by "Claude + owner" --note "..."
+python tools/task_runner.py reject T01 --reason "what must change" [--revert]
 ```
+
+A rejection reason is added to the agent's next prompt for that task.
 
 ---
 
@@ -98,11 +106,11 @@ if its tests pass.
    reviewed `source_refs`. Similarity search is only for student questions and practice lookup.
 7. **Agents never author ground truth, and never set review status by hand.** Do not write
    syllabus text, and never invent answer keys or solutions. You may draft concept nodes, task
-   narratives, rubrics and model answers; drafts carry `review.status = "draft"`. Only the grounded
-   AI review pipeline (T23) moves an item to `ai_reviewed`, from logged, quote-checked evidence
-   against official sources; only a recorded human audit sets `expert_audited`. Answer keys are
-   always computed by calculator code from template parameters (owner decision D1 in
-   `HUMAN-DECISIONS.md`).
+   narratives, rubrics and model answers; drafts carry `review.status = "draft"`. Only the review
+   pipeline (T23) moves an item to `claude_reviewed`, from Claude's logged, quote-checked evidence
+   against official sources; only a recorded human sign-off sets `signed_off`. Ollama models never
+   review. Answer keys are always computed by calculator code from template parameters (owner
+   decisions D1 and D6 in `HUMAN-DECISIONS.md`).
 8. **The answer key never reaches the tutor LLM.** Task directives carry the brief, never the
    solution.
 9. **Content is data.** Exam content, concept maps, task templates and application logic stay
@@ -142,9 +150,10 @@ The active pack is chosen by `CONTENT_PACK` (default `ind_as_115`). Test fixture
 ### 3.2 Content models
 
 ```text
-ReviewMeta   {status: "draft"|"ai_reviewed"|"needs_expert"|"expert_audited", content_sha256,
-              reviewers[{model, verdict}], claims[{claim, passage_id, quote, supported}],
-              report_id, auditor, audited_at, notes}
+ReviewMeta   {status: "draft"|"claude_reviewed"|"needs_expert"|"signed_off", content_sha256,
+              reviewer{mode: "session"|"claude-api", model}, claims[{claim, verdict, passage_id,
+              quote, quote_verified}], report_id, signed_off_by, signed_off_at, notes}
+ReleaseSignoff {pack_id, version, content_hash, signed_off_by, signed_off_at, scope_note}
 SourceDoc    {doc_id, doc_code, title, doc_type, issuer, authority_rank, attempt, version, path,
               sha256, license_note}
              doc_type: standard | study_material | rtp | mtp | past_paper | amendment
@@ -228,7 +237,12 @@ TaskVariant    {task_id, seed, params{}, narrative, documents[], answer_key{}, a
 | `REVIEW_INTERVALS_DAYS` | T70 | `1,3,7,21` | Spaced-repetition intervals. |
 | `STORE` | T81 | `memory` | `sqlite` for the optional persistent store. |
 | `SPEAKER_VERIFIER` | T82 | `stub` | Voice verification backend. |
-| `REVIEW_MODELS` | T23 | `qwen3.5:cloud,kimi-k2.5:cloud` | Comma-separated reviewer models for grounded AI review. |
+| `REVIEWER` | T23 | `session` | `session`: Claude reviews packets in a Claude Code session. `claude-api`: Anthropic API. Ollama is refused. |
+| `REVIEWER_MODEL` | T23 | the Claude model in `TUTOR_MODEL` | Claude model used when `REVIEWER=claude-api`. |
+| `FLAG_THRESHOLD` | T85 | `10` | Unique student flags that open a community check (D7). |
+| `COMMUNITY_CONFIRMATIONS` | T85 | `10` | "It is wrong" votes from non-flaggers needed to escalate. |
+| `COMMUNITY_MAJORITY` | T85 | `0.6` | Share of decisive votes that must say "wrong" to escalate. |
+| `COMMUNITY_CLOSE_VOTES` / `COMMUNITY_MAX_DAYS` | T85 | `30` / `60` | When a community check closes without escalation. |
 
 ---
 
@@ -247,7 +261,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T20 | Ingestion pipeline | A | T10 | todo |
 | T21 | Source-ref resolver and passage API | A | T20 | todo |
 | T22 | Retriever (node-linked + BM25) | A | T21 | todo |
-| T23 | Grounded AI review pipeline | A | T22, T11 | todo |
+| T23 | Grounded Claude review pipeline | A | T22, T11 | todo |
 | T30 | Grader v2: claims and citations | B | T22 | todo |
 | T31 | Ledger v2: student-scoped, cited, exportable | B | T30 | todo |
 | T32 | Grader audit log and determinism | B | T30 | todo |
@@ -267,6 +281,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T63 | Task workspace | E | T60, T53 | todo |
 | T64 | Skills panel | E | T60, T54 | todo |
 | T65 | UI smoke test | E | T61, T62, T63, T64, T42 | todo |
+| T66 | Flag and community-check screens | E | T60, T61, T85 | todo |
 | T70 | Spaced repetition and REVIEW phase | F | T53 | todo |
 | T71 | Exam-style practice from RTP/MTP/past papers | F | T70, T52, T20 | todo |
 | T80 | Student data deletion and retention | F | T31, T32, T42 | todo |
@@ -274,6 +289,8 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T82 | Voice verification mock endpoint | F | T01 | todo |
 | T83 | Content swap proof | A | T22, T50 | todo |
 | T84 | Optional seeded job profile | F | T31 | todo |
+| T85 | Student flags and community check | F | T31, T41, T80 | todo |
+| T86 | Professional review queue and development report | F | T85, T11 | todo |
 | T90 | Demo-script acceptance test | G | T54, T42 | todo |
 | T91 | Live demo runbook and latency benchmark | G | T90, T65 | todo |
 | T92 | README architecture update | G | T42, T83 | todo |
@@ -283,9 +300,9 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T103 | Goals and next-topic recommender | L | T100, T101, T70, T84 | todo |
 | T104 | Signed portable ledger export | L | T31, T80, H6 | todo |
 | H1 | Supply source documents and confirm licensing | human | — | todo |
-| H2 | Triage AI review of the concept map | human | T23 | todo |
+| H2 | Sign off Claude's concept-map review | human | T23 | todo |
 | H3 | Supply official worked illustrations; triage task review | human | T50, T23 | todo |
-| H4 | Spot-check AI-reviewed evals and practice mapping | human | T33, T71, T23 | todo |
+| H4 | Spot-check Claude-reviewed evals and practice mapping | human | T33, T71, T23 | todo |
 | H5 | Sign off the retrieval threshold | human | T22 | todo |
 | H6 | Owner acceptance of the MVP | human | T90, T91 | todo |
 
@@ -379,21 +396,23 @@ marked *(new)* do not exist yet.
     the concept-map hash stays clean. Each entry is a `ReviewMeta` with the SHA-256 of the item's
     canonical JSON. A review is valid only while that hash matches, so editing an item sends it
     back to `draft`.
-  - Usable statuses are `ai_reviewed` and `expert_audited`. `draft` and `needs_expert` are not.
+  - Usable statuses are `claude_reviewed` and `signed_off`. `draft` and `needs_expert` are not.
+    Strict mode also needs a `ReleaseSignoff` for the pack's current content hash (D6).
   - `REQUIRE_REVIEWED_CONTENT=1` makes `POST /session` return 409 listing unusable items in
     scope. With `0` (dev default) the service runs and `/health` and `/content` report counts per
     status for nodes, tasks and practice items.
   - `services/tutor/scripts/review_sheet.py` *(new)*: writes a Markdown report per pack with each
     item's status, reviewer verdicts, claims and quoted evidence. It lists `needs_expert` items
-    first, then a random audit sample of `ai_reviewed` items (10% of changed items, at least 10,
-    seeded so the sample is reproducible).
-  - `services/tutor/scripts/record_audit.py` *(new)*: records a human audit result (auditor, date,
-    pass or error with note) for given item IDs. `pass` sets `expert_audited`; `error` sets
-    `draft` and adds the item to the reviewer's regression set. Only a human runs it against a
-    real pack.
+    first, then a random sample of `claude_reviewed` items (10% of changed items, at least 10,
+    seeded so the sample is reproducible) for the human sign-off.
+  - `services/tutor/scripts/record_audit.py` *(new)*: records a human check (who, date, pass or
+    error with note) for given item IDs. `pass` sets `signed_off`; `error` sets `draft` and adds
+    the item to the reviewer's regression set. `--release` records the `ReleaseSignoff` for the
+    pack version after the owner or subject expert has read the report. Only a human runs it
+    against a real pack.
 - **Acceptance:** tests on a fixture pack show that an edit invalidates a review, strict mode
-  refuses `draft` and `needs_expert`, the audit sample is reproducible, and a recorded audit error
-  returns the item to `draft`.
+  refuses `draft` and `needs_expert` and any pack without a current release sign-off, the sample is
+  reproducible, and a recorded error returns the item to `draft`.
 - **Human gate:** H2 and H3 use the report and `record_audit.py`.
 
 ### M2 — Corpus and retrieval
@@ -462,42 +481,50 @@ marked *(new)* do not exist yet.
   queries; fixture out-of-syllabus queries score below the suggested threshold.
 - **Human gate:** H5 signs off the threshold for the real pack.
 
-#### T23 — Grounded AI review pipeline
-- **Requirements:** FR-2, FR-12, NFR accuracy and review, owner decision D1 and its safeguards in
-  `HUMAN-DECISIONS.md` section 2.
-- **Read first:** `HUMAN-DECISIONS.md` sections 1 and 2, T11 and T22 output, `tutor/grader.py`
-  (the Ollama structured-output and corrective-retry pattern to reuse).
+#### T23 — Grounded Claude review pipeline
+- **Requirements:** FR-2, FR-12, NFR accuracy and review, owner decisions D1 and D6 and the
+  safeguards in `HUMAN-DECISIONS.md` section 2.
+- **Read first:** `HUMAN-DECISIONS.md` sections 1 and 2, `QUALITY-AND-REVIEW.md` section 3, T11 and
+  T22 output, `tutor/grader.py` (the Claude structured-output pattern in `ClaudeGrader`).
 - **Build:**
-  - `services/tutor/scripts/ai_review.py --pack <id> [--items ...]` *(new)* reviews every item
+  - `services/tutor/scripts/content_review.py --pack <id> [--items ...]` *(new)* reviews every item
     whose status is `draft` or whose hash changed: concept nodes now, task templates after T50,
     practice items after T71, eval expectations after T33.
   - Claim split: code splits each item into claims (each rubric item, each sentence of the
     explanation and example, each misconception, each task answer step). Misconceptions are
     checked as "the source contradicts this".
-  - Evidence: for each claim, candidate passages come from the item's `source_refs` first, then
-    `search()` restricted to sources of equal or higher `authority_rank`. The reviewer model returns
-    per claim: `supported | contradicted | not_found`, the passage ID and a verbatim quote.
-  - Quote check in code: the quote must appear word for word, after whitespace normalisation, in
-    that passage. A failed quote check makes the claim `not_found`.
-  - Two reviewers: `REVIEW_MODELS` (comma-separated Ollama models, default two families different
-    from the drafting model). Both run at temperature 0 with structured output. The item becomes
-    `ai_reviewed` only if both support every claim. Any disagreement or unsupported claim makes it
-    `needs_expert`, with the reasons in the report.
-  - Coverage check for concept nodes: each node's cited passages must not contain a rule that the
-    node's rubric omits and a student would need. The reviewer lists such gaps; any gap makes the
-    node `needs_expert`.
+  - Evidence: for each claim, code collects candidate passages from the item's `source_refs`
+    first, then `search()` restricted to sources of equal or higher `authority_rank`, and writes an
+    evidence packet (claims plus passages with IDs).
+  - **The reviewer is Claude only (D6).** `REVIEWER` selects how:
+    - `session` (default, development): packets are written to
+      `services/tutor/data/reviews/pending/` as Markdown plus a JSON answer file. Claude fills the
+      answers in a Claude Code session with the owner; `content_review.py --ingest` validates and
+      applies them.
+    - `claude-api` (scale): the same packets go to the Anthropic API (`REVIEWER_MODEL`) with
+      structured output at temperature 0.
+    - Any Ollama model or provider is refused with an error. There is no Ollama code path.
+  - Per claim the answer is `supported | contradicted | not_found`, a passage ID and a verbatim
+    quote. Code checks the quote appears word for word, after whitespace normalisation, in that
+    passage; a failed check makes the claim `not_found`.
+  - An item becomes `claude_reviewed` only if every claim is supported with a verified quote.
+    Otherwise it becomes `needs_expert`, with the reasons in the report.
+  - Coverage check for concept nodes: the reviewer lists any rule in the node's cited passages that
+    the rubric omits and a student would need; any gap makes the node `needs_expert`.
   - Answer keys: for each calculator, run the official worked illustrations in
     `tests/skills/reference_cases/`; a mismatch makes the task `needs_expert`.
-  - Every run writes a report under `services/tutor/data/reviews/` with inputs, models, prompts
-    hash and outputs, and updates `reviews.json` through T11's code path only.
-  - Reviewer test set `tests/evals/review/` *(new)*: copies of fixture nodes with planted errors
-    (wrong paragraph, reversed rule, invented exception, missing rubric item). A reviewer model
-    may be used only if it catches at least 95% of them; `ai_review.py --self-test` reports this.
-- **Acceptance:** on the fixture pack, clean items become `ai_reviewed`, planted-error items become
-  `needs_expert`, a fabricated quote fails the quote check, and the self-test reports the catch
-  rate. Mock reviewers make the whole path runnable with `MOCK_LLM=1`.
+  - Every run writes a report under `services/tutor/data/reviews/` and updates `reviews.json`
+    through T11's code path only.
+  - Reviewer test set `tests/evals/review/` *(new)*: fixture nodes with planted errors (wrong
+    paragraph, reversed rule, invented exception, missing rubric item). `--self-test` produces
+    packets (session) or runs them (API); Claude must catch at least 95% before its reviews count.
+- **Acceptance:** on the fixture pack with a scripted reviewer: clean items become
+  `claude_reviewed`, planted-error items become `needs_expert`, a fabricated quote fails the quote
+  check, the session round trip (packet, filled answers, `--ingest`) works, and configuring an
+  Ollama reviewer fails. A mock reviewer keeps the path runnable with `MOCK_LLM=1`.
 - **Out of scope:** changing content to fix what the reviewer finds; that is a drafting step.
-- **Human gate:** H2 triages `needs_expert` items and the audit sample.
+- **Human gate:** H2: the owner reads the report, checks the sample and every `needs_expert` item,
+  and records the release sign-off.
 
 ### M3 — Cited, claim-level grading
 
@@ -824,6 +851,18 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
   the demo only and must not add visible navigation.
 - **Acceptance:** `npm run e2e` passes locally.
 
+#### T66 — Flag and community-check screens
+- **Requirements:** FR-14, NFR distraction-free, D7, `QUALITY-AND-REVIEW.md` section 4.
+- **Build:**
+  - A small "I think this is wrong" control on tutor turns, on the evidence panel (T61) and on task
+    results (T63). It asks for a short reason (typed or spoken) and confirms the flag.
+  - An end-of-session card for community checks: the item, its cited passage, the anonymous reasons
+    so far, a caution line ("check the source before you vote"), and three choices ("It is wrong",
+    "It is correct", "Not sure") with a reason for the first two. Never shown mid-lesson.
+  - The student's own flags and their outcomes, inside the rail.
+- **Acceptance:** lint and build pass; the T65 Playwright test is extended with a flag and a vote
+  against the mock backend.
+
 ### M7 — Revision and practice
 
 #### T70 — Spaced repetition and REVIEW phase
@@ -898,6 +937,50 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
   "qualified" projection (every required node VERIFIED); an optional job-profile filter on the
   node selector that walks core nodes before adjacent ones.
 - **Acceptance:** projection and selector filter tests.
+
+#### T85 — Student flags and community check
+- **Requirements:** FR-14, D7, NFR privacy, `QUALITY-AND-REVIEW.md` section 4,
+  `HUMAN-DECISIONS.md` section 12.
+- **Build:**
+  - Models: `Flag {id, student_id, item_ref{kind: node|rubric_item|task_item|passage_link|
+    practice_item, id, content_sha256}, context{session_id, turn_id, ledger_event_id}, reason, ts}`;
+    `Vote {id, student_id, item_ref, choice: wrong|correct|not_sure, reason, ts}`;
+    `Case {item_ref, state: collecting|community_check|professional_review|confirmed_error|rejected|
+    closed_no_consensus, counts, opened_at}`. Case transitions are code, driven by the thresholds in
+    section 3.7.
+  - Store behind an interface (in memory; SQLite with T81).
+  - Endpoints: `POST /flags`, `GET /students/{id}/flags` (with outcomes),
+    `GET /students/{id}/community-checks` (open checks the student may vote on), `POST /votes`.
+  - Eligibility: the student has ledger events on the item's node, or an attempt on the task. One
+    flag and one vote per student per item (409 on a repeat). A reason is required for flags and
+    for "wrong" or "correct" votes.
+  - Turn, grade and task payloads carry the `item_ref` of everything a student can flag.
+  - When a case enters professional review, append a `disputed` annotation event for every
+    ledger event that used the item. Nothing is edited.
+  - `DELETE /students/{id}` (T80) also removes that student's flags and votes and recomputes counts.
+- **Acceptance:** fake-clock tests: nine flags change nothing and the tenth opens a community check;
+  a repeat flag and an ineligible voter are refused; the confirmation threshold escalates; a
+  minority result closes the case; disputed events are appended with no edits; deleting a student
+  recomputes counts.
+
+#### T86 — Professional review queue and development report
+- **Requirements:** FR-14, AC9, D6, D7.
+- **Build:**
+  - Admin API, localhost only until authentication exists: `GET /admin/review-queue`,
+    `GET /admin/cases/{id}` (item, source passages, flag reasons, votes, affected ledger events),
+    `POST /admin/cases/{id}/decision {decision: confirmed_error|rejected, explanation, reviewer,
+    pause}`.
+  - `confirmed_error`: the item returns to `draft` through T11 (so it is fixed and reviewed again),
+    is excluded from use if `pause` is set, affected ledger events receive explicit corrective
+    events linked to the case, and flaggers and voters see the outcome.
+  - `rejected`: the case closes and the explanation is shown to flaggers and voters.
+  - `services/tutor/scripts/flags_report.py` *(new)*: a Markdown report of cases in professional
+    review, for the development session with Claude and the owner. `decide_case.py` records a
+    decision through the same code as the admin API.
+  - A minimal admin page at a separate `/admin` route in `apps/web`, outside the kiosk flow.
+- **Acceptance:** tests show a confirmed error sets the item to `draft`, appends corrective events
+  and publishes the outcome; a rejection publishes its explanation; the report lists open cases;
+  admin endpoints refuse non-localhost requests.
 
 ### M9 — Acceptance and docs
 
@@ -988,9 +1071,9 @@ has been recorded.
 | ID | Task | Delivers to | Blocks |
 |---|---|---|---|
 | H1 | Choose the exam attempt and the one or two chapters. Supply the official sources: Ind AS 115 text, Ind AS 37 onerous-contract paragraphs, ICAI study material chapter(s), RTPs, MTPs and past papers. Confirm what may be committed and start the ICAI licence conversation. | `content/packs/ind_as_115/sources/` | Real corpus (T20 onward runs on the fixture until then) |
-| H2 | Triage the AI review of the concept map: resolve `needs_expert` items and audit the random sample with `record_audit.py`. No node-by-node review (D1). | `reviews.json` | Strict mode; final eval expectations |
+| H2 | Read Claude's review report for the concept map, resolve `needs_expert` items, check the random sample, and record the release sign-off with `record_audit.py` (D1, D6). | `reviews.json` | Strict mode; final eval expectations |
 | H3 | Supply official worked illustrations with published solutions for each calculator; triage `needs_expert` task items; confirm the task set and grading defaults. | `tests/skills/reference_cases/`, `HUMAN-DECISIONS.md` section 7 | T51 reference tests, strict mode |
-| H4 | Spot-check the AI-reviewed eval cases and practice mapping. | eval case files, `practice_map.json` | T33 and T71 sign-off |
+| H4 | Spot-check the Claude-reviewed eval cases and practice mapping. | eval case files, `practice_map.json` | T33 and T71 sign-off |
 | H5 | Sign off the retrieval threshold from the calibration output. | `.env` / manifest | Strict boundary guard |
 | H6 | Owner acceptance of the MVP: run the checklist in `HUMAN-DECISIONS.md` section 3. | `HUMAN-DECISIONS.md` | Milestone M10, any pilot |
 
@@ -1014,8 +1097,8 @@ done.
 | 9 | T41, T52 |
 | 10 | T42, T62 |
 | 11 | T43, T53, T80 |
-| 12 | T54, T63, T70, T81, T92 |
-| 13 | T64, T71, T90 |
+| 12 | T54, T63, T70, T81, T92, T85 |
+| 13 | T64, T71, T90, T86, T66 |
 | 14 | T65, then T91 |
 | 15 (post-MVP, after H6) | T100, T101, T104, then T102, T103 |
 
@@ -1044,6 +1127,7 @@ dependencies already force them into that order. Do not start one of them in par
 | FR-11 Syllabus boundary guard | T42, T43, H5 |
 | FR-12 Skills | T50, T51, T52, T53, T54, T63, T64, T23, H3 |
 | FR-13 Mastery, revision, practice | T53, T61, T64, T70, T71 |
+| FR-14 Student flags and community review | T85, T86, T66 |
 | NFR Flow owned by code | T40, T42, T53 (rules 1–2) |
 | NFR Auditability | T31, T32 |
 | NFR Determinism | T30, T32, T51 |
@@ -1062,8 +1146,12 @@ dependencies already force them into that order. Do not start one of them in par
 | AC6 Skill unlock and remaining tasks | T54, T64, T90 |
 | AC7 Repeatable grading and answer keys | T32, T51, T90 |
 | AC8 Out-of-syllabus question | T42, T90 |
+| AC9 Flag escalation and correction | T85, T86 |
 | D1 Grounded AI review | T11, T23, H2, H3, H4, H6 |
 | D2 Personalised learning beyond exams | T100, T101, T102, T103, T104 |
+| D5 Code review checkpoint | `tools/task_runner.py` (built) |
+| D6 Claude and humans review, never Ollama | T11, T23, H2, H4 |
+| D7 Student flags | T85, T86, T66 |
 
 ---
 
@@ -1097,7 +1185,8 @@ Agents append rows here. Humans answer them. Do not delete answered rows; mark t
 | Q3 | planning | T53 | Should a failed task downgrade the concept to PARTIAL (the planned default) or only schedule a review? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` 7.4): no automatic downgrade; review plus teach-back; arithmetic slips retry only |
 | Q4 | planning | T80 | Authentication is needed before any non-local deployment, since student data endpoints are open. Who owns it and when? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` 11.1): localhost only until auth; OIDC provider such as Supabase Auth before any pilot; implementer to be named |
 | Q5 | planning | H3 | Keep the default four tasks, or swap in time-and-materials billing or an onerous contract? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` 7.1): keep four tasks in one fictional IT services company |
-| Q6 | owner | T11, T23 | Who reviews content? | answered 2026-09-27 (D1): grounded AI review against official sources, two independent reviewer models, sampled expert audit; the owner does MVP acceptance |
+| Q6 | owner | T11, T23 | Who reviews content? | answered 2026-09-27 (D1): grounded AI review against official sources, sampled expert audit; the owner does MVP acceptance. Refined by D6: the reviewer is Claude, never Ollama, with professional sign-off per release |
 | Q7 | owner | M10 | Is Teach limited to exams? | answered 2026-09-27 (D2): no; personalised by interests and graduation knowledge, recommends next and weak topics |
-| Q8 | planning | T23 | Which reviewer models go in `REVIEW_MODELS`? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` section 2): `qwen3.5:cloud` and `kimi-k2.5:cloud`, subject to passing the T23 self-test |
+| Q8 | planning | T23 | Which reviewer models go in `REVIEW_MODELS`? | superseded 2026-09-27 by D6: the reviewer is Claude (session or API); `REVIEW_MODELS` is replaced by `REVIEWER` |
 | Q9 | planning | T100 | Which course comes second: Advanced Auditing or a graduation-level bridge course? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` section 10): Advanced Auditing is the second course |
+| Q10 | owner | T85 | Confirm the community-check thresholds after the first 10 flags (confirmations, majority, closing rules). | recommended in `HUMAN-DECISIONS.md` section 12; awaiting owner |

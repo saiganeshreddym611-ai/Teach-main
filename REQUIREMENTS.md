@@ -9,7 +9,10 @@ the code-owned learning loop or mastery ledger described below.
 Owner decisions of 2026-09-27 (recorded in `HUMAN-DECISIONS.md`): **D1** content is reviewed by a
 grounded AI reviewer against official sources, with sampled expert audits, instead of a CA reviewing
 each concept; **D2** Teach is not limited to exams, and learning is personalised by the student's
-interests and graduation knowledge (section 9).
+interests and graduation knowledge (section 9); **D5** every task written by a coding agent stops at
+a review checkpoint; **D6** Ollama models never review code or content, Claude and qualified people
+do; **D7** students can flag errors, which reach professional review through a community check
+(FR-14). How these fit together: `QUALITY-AND-REVIEW.md`.
 
 ## 1. Vision (one paragraph)
 
@@ -89,8 +92,9 @@ Each node needs: id, level, parent, title, a grading rubric (what must be said t
 known misconceptions, a canonical explanation, an example, and source references to the exact
 reviewed material passage. Atomic nodes make teach-back gap detection, mastery tracking and task
 mapping consistent. An LLM may draft a map. Before it is used for grading or teaching, every node
-must pass grounded AI review for accuracy and coverage against the official sources, with sampled
-audits by a qualified expert (owner decision D1; safeguards in `HUMAN-DECISIONS.md` section 2).
+must pass grounded review by Claude for accuracy and coverage against the official sources, and a
+qualified professional signs off each release (D1, D6; safeguards in `HUMAN-DECISIONS.md` section 2).
+Ollama models may draft content but never review it.
 
 ### FR-3 Grading (extract and map)
 - Map every concept the student mentions to tree nodes.
@@ -186,8 +190,9 @@ audits by a qualified expert (owner decision D1; safeguards in `HUMAN-DECISIONS.
   underlying concept.
 - A skill unlocks only when every task in its set is cleared. Show skill state and remaining tasks.
 - Tasks originate from authored case templates. Solutions are computed by deterministic code,
-  tested against official worked illustrations, and pass grounded AI review against official
-  sources (D1). AI may vary names, amounts and dates only within template constraints. Calculations must be deterministic code or
+  tested against official worked illustrations, and pass grounded review by Claude against
+  official sources with professional sign-off (D1, D6). AI may vary names, amounts and dates only
+  within template constraints. Calculations must be deterministic code or
   checked against the answer key; the AI must never invent a solution or answer key.
 - The MVP revenue-recognition skill should cover a representative mix such as fixed-price
   cost-to-cost recognition, time-and-materials billing, a contract modification, variable
@@ -203,6 +208,22 @@ audits by a qualified expert (owner decision D1; safeguards in `HUMAN-DECISIONS.
 - The dashboard shows concept mastery by chapter and skills as locked, in progress or unlocked,
   including tasks remaining.
 
+### FR-14 Student flags, community check and professional review (D7)
+- A student can mark a grading verdict, tutor explanation, citation, task feedback or practice
+  answer as "I think this is wrong", with a short reason. Each flag points at the content item
+  behind it, so flags from different sessions add up. One flag per student per item.
+- When 10 different students flag the same item, it enters a community check inside Teach
+  (never on the open internet, never showing identities). Students who have worked on that concept
+  are asked, at the end of a session and with a caution prompt showing the cited source, whether it
+  is wrong. "Not sure" does not count.
+- When enough students confirm it (thresholds in `HUMAN-DECISIONS.md` section 12), the item goes to
+  professional review on the admin side. During development it comes to the Claude Code session.
+- Students never change content or grades. Only professional review does. While an item is under
+  professional review, verdicts that used it receive a `disputed` ledger event. A confirmed error
+  is fixed through normal review, affected ledger entries receive explicit corrective events, and
+  flaggers see the outcome. A rejected flag is closed with a short explanation.
+- All thresholds are configuration. Flags and votes are student data and are deleted with it.
+
 ## 6. Non-functional requirements
 
 - **Flow is owned by code.** A state machine (DIAGNOSTIC → INSTRUCT ⇄ TEACH_BACK → COMPLETE)
@@ -212,9 +233,13 @@ audits by a qualified expert (owner decision D1; safeguards in `HUMAN-DECISIONS.
 - **Determinism where it matters.** Grader runs at temperature 0 with structured output; the tutor
   voice may be creative.
 - **Accuracy and review.** Correctness of teaching and grading takes priority over latency.
-  Concept maps, task templates, rubrics and solutions require grounded AI review against official
-  sources before use: claim-level evidence, two independent reviewer models, verbatim quote
-  checks, and sampled audits by a qualified expert (D1).
+  Concept maps, task templates, rubrics and solutions require grounded review against official
+  sources before use: claim-level evidence judged by Claude, verbatim quote checks in code, and
+  sign-off by a qualified professional for every release (D1, D6). Ollama models never review.
+- **Review checkpoint for code.** Code written by coding agents counts as done only after Claude
+  and the owner review it at the runner's checkpoint (D5).
+- **Community correction.** Students can flag errors; confirmed flags reach professional review
+  (FR-14, D7).
 - **Traceability.** Every verdict is auditable to its retrieved source passage and the student's
   evidence; every task result is traceable to its authored case, rubric and verified solution.
 - **Latency and efficiency.** Stream responses; target grade + first spoken sentence within a few
@@ -324,16 +349,24 @@ Not in the MVP. One seeded job profile is acceptable for a demo if it costs noth
    case variants match the verified answer key.
 8. A question without sufficiently confident in-syllabus evidence is identified as outside the
    available syllabus material instead of receiving an uncited general-knowledge answer.
+9. Ten students flag the same explanation; it enters the community check; enough students confirm
+   it; it appears in the professional review queue (or the development report). The reviewer
+   confirms the error, and affected ledger entries receive corrective events without anything
+   being deleted.
 
 ## 11. Domain and delivery roles
 
 - **Owner and domain expert (Swetha):** selects the official sources; sets grading policy;
   accepts the MVP end to end as a CA; audits sampled and `needs_expert` items for accounting and
-  audit courses; owns the pitch. Concept-by-concept review is done by grounded AI (D1). Her FDD
+  audit courses; signs off releases; decides escalated student flags; owns the pitch.
+  Concept-by-concept checking is done by Claude with evidence (D1, D6). Her FDD
   experience in revenue quality, cut-off testing and anomaly detection informs the task and
   discrepancy-hunt design.
-- **Subject experts for other courses:** audit samples of AI-reviewed content for courses outside
-  the owner's field.
+- **Claude (reviewer):** reviews every coding-agent change at the checkpoint and checks content
+  claim by claim against official sources, in the Claude Code session during development and
+  through the Anthropic API at scale (D5, D6).
+- **Subject experts for other courses:** sign off releases and decide escalated flags for courses
+  outside the owner's field.
 - **Developer (if on a team):** implements application plumbing, retrieval and versioned content
   pipeline, voice integration, task calculation safeguards and UI. Solo or team delivery remains
   undecided.
@@ -347,7 +380,8 @@ Not in the MVP. One seeded job profile is acceptable for a demo if it costs noth
 - Fairness across learner levels: the same opening prompt must work for a beginner and a finalist
   with several attempts behind them (motivates the three-level tree and adaptive tone).
 - Review must scale beyond the owner's field: later courses will have no reviewer on the team, so
-  content quality rests on grounded AI review with sampled expert audits (D1).
+  content quality rests on Claude's grounded review, professional sign-off and student flags
+  (D1, D6, D7).
 
 ## 13. Repository context
 

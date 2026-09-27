@@ -35,9 +35,26 @@ topics the student must strengthen. Exams become one possible goal among others 
 
 **D4. Git identity is configured locally for this repository.** Decided earlier.
 
+**D5. Code review checkpoint (2026-09-27).** Decided. Every task the coding agent completes stops
+at a checkpoint. Claude, in a Claude Code session with the owner, reviews the change before it
+counts as done. No new task starts while one waits for review. Built into `tools/task_runner.py`.
+
+**D6. Ollama models never review (2026-09-27).** Decided. Concepts must be right, so review of
+code and content is done by Claude and by us, never by the Ollama models that write code and
+drafts. This refines D1: the grounded reviewer is Claude (in the development session now, through
+the Anthropic API when more courses are added), and a qualified professional signs off each
+release. It replaces the earlier reviewer-model choice in section 2.
+
+**D7. Students can flag errors (2026-09-27).** Decided. A student can mark any verdict, explanation,
+citation or task answer as "I think this is wrong". When 10 different students flag the same item,
+it opens to a community check inside Teach, where students who studied that concept are asked,
+with a caution prompt, to confirm or reject it. If enough confirm it, the item goes to professional
+review on the admin side; during development, it comes to us in the Claude Code session. Full
+design in `QUALITY-AND-REVIEW.md` section 4; open thresholds in section 12 below.
+
 ---
 
-## 2. How grounded AI review works (the safeguards behind D1)
+## 2. How grounded review works (the safeguards behind D1 and D6)
 
 An AI reviewer can share the blind spots of the model that drafted the content. Because the ledger
 is meant to replace exams, such errors would repeat for every student. These safeguards are part
@@ -51,32 +68,32 @@ of the decision; agents build them in `TASKS.md` T11 and T23.
    explanation sentence, example, misconception, task answer step). Each claim needs a quote from a
    cited passage. Code confirms the quote appears word for word in that passage. A claim with no
    verbatim support fails.
-3. **Two independent reviewers.** Two reviewer models from different families, and different from
-   the drafting model, review each item. Both must pass it. If they disagree, the item goes to the
-   `needs_expert` queue.
+3. **Claude reviews, a professional signs off (D6).** Claude judges every claim against the
+   evidence; code refuses Ollama models as reviewers. A qualified professional signs off each
+   release. Anything Claude marks unsure or wrong goes to the `needs_expert` queue.
 4. **Answer keys stay deterministic.** Calculations are code. The reviewer checks each calculator
    against official worked illustrations with published solutions, which become the reference test
    cases. No model invents an answer key.
-5. **Review statuses.** `draft` → `ai_reviewed` → `expert_audited` (optional). `needs_expert`
-   blocks use. Every review is tied to the item's content hash, so editing an item sends it back
-   through review.
+5. **Review statuses.** `draft` → `claude_reviewed` → `signed_off`. `needs_expert` blocks use.
+   Strict mode also needs a recorded release sign-off. Every review is tied to the item's content
+   hash, so editing an item sends it back through review.
 6. **Sampled expert audit.** For each content release, a qualified expert audits a random sample
    plus every `needs_expert` item. For accounting and audit courses this can be the owner; for other
    courses, a subject expert engaged for that course.
-7. **Student disputes.** A student can flag a verdict or explanation. Flagged items are re-reviewed,
-   and confirmed errors become regression cases for the reviewer.
-8. **The reviewer is tested too.** Before a reviewer model is used, it must catch deliberately
+7. **Student flags (D7).** Students flag doubts; ten flags open a community check; confirmed items
+   go to professional review. Confirmed errors become regression cases for the reviewer.
+8. **The reviewer is tested too.** Before the pipeline is trusted, Claude must catch deliberately
    planted errors (wrong paragraph, reversed rule, invented exception) in a test set.
 
 | Setting | Decided | Alternatives and why not |
 |---|---|---|
-| Reviewer models | Two Ollama cloud models from different families than the drafter `gemma4:31b-cloud`, for example `qwen3.5:cloud` and `kimi-k2.5:cloud`. Confirm with the reviewer test in point 8. | One reviewer: cheaper, but no cross-check. The same model as the drafter: shares its blind spots. A Claude model: stronger, but needs API credits. |
+| Reviewer | Claude only (D6): in the Claude Code session during development; through the Anthropic API at scale. Never Ollama models. | Ollama reviewer models (earlier choice, withdrawn): cheaper, but the owner does not trust them to judge concepts. |
 | Sample size per release | 10% of changed items, at least 10, plus all `needs_expert` items | Smaller samples miss systematic errors. Full review defeats D1. |
 | Audit failure rule | Any substantive error found in the sample sends the whole release back through review, and the error becomes a test case | A percentage threshold such as 2% sounds precise but lets known errors ship. |
 | Planted-error catch rate before a reviewer is trusted | At least 95% | Lower lets real errors through. |
 
-Status: **Confirmed** by the owner, 2026-09-27. The reviewer models must still pass the T23 self-test
-before use; if one fails, pick another model from a different family and record it here.
+Status: **Confirmed** by the owner, 2026-09-27; reviewer changed to Claude by D6 the same day.
+Claude must pass the T23 planted-error test before its reviews count.
 
 ---
 
@@ -338,6 +355,26 @@ Status: **Confirmed** by the owner, 2026-09-27.
 
 ---
 
+## 12. Student flag thresholds (D7)
+
+The design is in `QUALITY-AND-REVIEW.md` section 4. The first number is the owner's; the rest are
+recommendations to confirm.
+
+| Setting | Value | Status |
+|---|---|---|
+| Flags that open a community check | 10 unique students | **Decided** (D7) |
+| Confirmations that trigger professional review | 10 "It is wrong" votes from students other than the flaggers, and at least 60% of decisive votes | Recommended |
+| Who can flag or vote | Only students who have worked on that concept; one flag and one vote per item | Recommended |
+| When students are asked to vote | End of session only, never mid-lesson | Recommended |
+| Community check closes without escalation | After 30 decisive votes below 60%, or 60 days | Recommended |
+| While under professional review | Item keeps working; affected verdicts get a `disputed` ledger event; the reviewer can pause it | Recommended |
+| Professional review target time | 7 days | Recommended |
+| During development | Escalations come to the Claude Code session through `scripts/flags_report.py`; the owner decides | Recommended |
+
+Status: Confirm / Change ______________________  Date: __________
+
+---
+
 ## Decision log
 
 | Question/task | Decision | Decider | Date | Evidence or follow-up |
@@ -347,7 +384,10 @@ Status: **Confirmed** by the owner, 2026-09-27.
 | D3 Phase 2 interfaces, Git hooks | Preserve interfaces; no hooks | Owner | earlier | — |
 | D4 Git identity | Configured locally | Owner | earlier | — |
 | T00 baseline commit | Approve `638b803`; T00 done | Owner | 2026-09-27 | `TASKS.md` status board |
-| 2 AI review settings | Two reviewer models of different families; 10% sample (min 10); any audit error returns the release; 95% planted-error catch rate | Owner | 2026-09-27 | T23 self-test confirms models |
+| 2 AI review settings | Two reviewer models of different families (withdrawn by D6); 10% sample (min 10); any audit error returns the release; 95% planted-error catch rate | Owner | 2026-09-27 | — |
+| D5 Code review checkpoint | Every runner task stops at review; Claude and the owner approve or reject | Owner | 2026-09-27 | `tools/task_runner.py`; `QUALITY-AND-REVIEW.md` section 2 |
+| D6 Reviewer | Claude and humans review code and content; Ollama models never review; professional sign-off per release | Owner | 2026-09-27 | `TASKS.md` T11, T23 |
+| D7 Student flags | 10 unique flags open a community check; confirmed items go to professional review | Owner | 2026-09-27 | `TASKS.md` T85, T86, T66; thresholds in section 12 |
 | 5.1 Attempt (Q1) | CA Final May 2027; reuse May/Nov 2026 practice items after AI review | Owner | 2026-09-27 | `TASKS.md` T10 manifest |
 | 5.2, 5.5 Scope | Ind AS 115 only, plus Ind AS 37 paras 66–69 for the onerous node; exclude Ind AS 109 and 116 | Owner | 2026-09-27 | — |
 | 5.3, 5.4 Sources and storage (Q2) | Official sources listed in 5.3; ICAI material kept out of git; MCA text may be committed; ICAI licence conversation before any pilot | Owner | 2026-09-27 | Licence owner to be named |

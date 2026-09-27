@@ -7,22 +7,28 @@ Agents:
             model call goes to Ollama and counts against your Ollama plan only.
   openclaw  OpenClaw's embedded agent (`openclaw agent --local`), if installed.
 
-For each eligible task (status `todo`, not a human task, every dependency `done`) the runner:
-  1. marks it `in progress` on the TASKS.md status board,
-  2. writes a prompt (TASKS.md sections 1-3 + the task section) to .task-runs/<ID>/<time>/,
+Review checkpoint (owner decision D5): the runner never marks its own work done. Each run does
+one task and stops:
+  1. marks the task `in progress` on the TASKS.md status board,
+  2. writes a prompt (TASKS.md sections 1-3, the task section, and any earlier review feedback)
+     to .task-runs/<ID>/<time>/,
   3. runs the agent with that prompt, in the repository root,
   4. runs the test suite (pytest in services/tutor) if its venv exists,
-  5. sets the status to `review` (or `done` with --auto-done) or `blocked (...)`,
-  6. commits the result.
-It stops at the first task that does not finish cleanly and leaves that work uncommitted.
+  5. sets the status to `review (...)` and commits the work, or `blocked (...)` and leaves the work
+     uncommitted for inspection.
+Then Claude (in a Claude Code session with the owner) and the owner review the change:
+  `review <ID>` builds the review packet, and `approve <ID>` or `reject <ID>` closes the
+checkpoint. No new task starts while a task is waiting for review. Ollama models never review.
 
 Usage:
     python tools/task_runner.py status                 # board summary + eligible tasks
     python tools/task_runner.py smoke                  # 1-minute check that agent + model work
     python tools/task_runner.py run --dry-run          # write the next prompt, print the command
-    python tools/task_runner.py run                    # run the next eligible task
-    python tools/task_runner.py run --max 5 --auto-done   # chain tasks without human review
+    python tools/task_runner.py run                    # run the next eligible task, then stop
     python tools/task_runner.py run --task T10         # one specific task
+    python tools/task_runner.py review T10             # build the review packet (diff, tests, reply)
+    python tools/task_runner.py approve T10 --by "Claude + owner" --note "..."
+    python tools/task_runner.py reject T10 --reason "what must change" [--revert]
 
 Permissions (claude): file edits are allowed; shell commands only from an allowlist (git without
 push/commit/reset, python, pip, pytest, npm, node, basic file inspection). Anything else is
@@ -172,11 +178,20 @@ Rules for this run:
 """
 
 
+def feedback_file(task_id: str) -> Path:
+    return RUNS_DIR / task_id / "feedback.md"
+
+
 def build_prompt(text: str, row: dict, result_file: Path) -> str:
-    return PROMPT_TEMPLATE.format(
+    prompt = PROMPT_TEMPLATE.format(
         repo=REPO, id=row["id"], title=row["title"], result_file=result_file,
         shared=shared_sections(text), section=task_section(text, row["id"]),
     )
+    fb = feedback_file(row["id"])
+    if fb.exists():
+        prompt += ("\n===== Review feedback on earlier attempts (fix every point) =====\n"
+                   + fb.read_text(encoding="utf-8"))
+    return prompt
 
 
 # --------------------------------------------------------------------------- #
@@ -301,15 +316,26 @@ def dirty() -> bool:
     return bool(git("status", "--porcelain").stdout.strip())
 
 
-def commit(row: dict, args) -> str:
-    if not is_git() or not dirty():
-        return "nothing to commit"
-    git("add", "-A")
-    msg = f"{row['id']}: {row['title']}\n\nAutomated run: {args.agent} with {args.model} via Ollama."
+def git_commit(msg: str, paths: list[str] | None = None) -> str:
+    """Commit `paths` (or everything) and return the short SHA, or a message starting 'no '."""
+    if not is_git():
+        return "no git repository"
+    git("add", *(paths or ["-A"]))
+    if not git("diff", "--cached", "--name-only").stdout.strip():
+        return "no changes"
     proc = git("commit", "-m", msg)
     if proc.returncode != 0:
-        return f"commit failed: {proc.stderr.strip() or proc.stdout.strip()}"
+        return f"no commit: {proc.stderr.strip() or proc.stdout.strip()}"
     return git("rev-parse", "--short", "HEAD").stdout.strip()
+
+
+def latest_run(task_id: str) -> Path | None:
+    runs = sorted(p for p in (RUNS_DIR / task_id).glob("2*") if p.is_dir())
+    return runs[-1] if runs else None
+
+
+def pending_reviews(rows: list[dict]) -> list[dict]:
+    return [r for r in rows if r["status"].startswith("review") and r["lane"] != "human"]
 
 
 def ollama_models() -> list[str] | None:
@@ -422,47 +448,144 @@ def run_one(args, row: dict) -> bool:
             ok, reason = False, f"tests failed after agent reported DONE: {tail}"
 
     rel = log_dir.relative_to(REPO).as_posix()
-    if ok:
-        status = f"done ({args.agent}, {today})" if args.auto_done else f"review ({args.agent} {args.model}, {today}, log {rel})"
-    else:
-        status = f"blocked ({reason}; log {rel})"
-    set_status(row["id"], status)
-    print(f"    status: {status}")
-    if ok and not args.no_commit:
-        print(f"    commit: {commit(row, args)}")
-    elif not ok:
+    if not ok:
+        set_status(row["id"], f"blocked ({reason}; log {rel})")
+        print(f"    status: blocked ({reason})")
         print("    left uncommitted for inspection")
-    return ok
+        return False
+
+    set_status(row["id"], f"review ({args.agent} {args.model}, {today}, log {rel})")
+    sha = git_commit(f"{row['id']}: {row['title']} [awaiting review]\n\n"
+                     f"Automated run: {args.agent} with {args.model} via Ollama. Not reviewed yet.")
+    (log_dir / "commit.txt").write_text(sha, encoding="utf-8")
+    print(f"    status: review  commit: {sha}")
+    print(f"    CHECKPOINT: review before anything else runs:  python tools/task_runner.py review {row['id']}")
+    return True
 
 
 def cmd_run(args) -> int:
+    rows = parse_board(read_tasks_md())
+    waiting = pending_reviews(rows)
+    if waiting and not args.dry_run:
+        ids = ", ".join(r["id"] for r in waiting)
+        sys.exit(f"Checkpoint: {ids} waiting for review. Run `review <ID>`, then `approve <ID>` or "
+                 "`reject <ID> --reason ...` before starting another task.")
     if not args.dry_run:
         preflight(args)
         if is_git() and dirty() and not args.allow_dirty:
             sys.exit("Working tree has uncommitted changes. Commit or stash them, or pass --allow-dirty.")
-    count = 0
-    while count < args.max:
-        rows = parse_board(read_tasks_md())
-        if args.task:
-            row = next((r for r in rows if r["id"] == args.task), None)
-            if row is None:
-                sys.exit(f"{args.task} is not on the status board")
-            if row["lane"] == "human":
-                sys.exit(f"{args.task} is a human task")
-        else:
-            el = eligible(rows)
-            if not el:
-                print("Nothing eligible. Run `status` to see what is blocked or waiting for review.")
-                break
-            row = el[0]
-        if not run_one(args, row):
-            return 1
-        count += 1
-        if args.task or args.dry_run:
-            break
-        if not args.auto_done and not eligible(parse_board(read_tasks_md())):
-            print("Stopping: next tasks wait for review. Mark reviewed tasks `done (...)` or use --auto-done.")
-            break
+    if args.task:
+        row = next((r for r in rows if r["id"] == args.task), None)
+        if row is None:
+            sys.exit(f"{args.task} is not on the status board")
+        if row["lane"] == "human":
+            sys.exit(f"{args.task} is a human task")
+    else:
+        el = eligible(rows)
+        if not el:
+            print("Nothing eligible. Run `status` to see what is blocked or waiting.")
+            return 0
+        row = el[0]
+    return 0 if run_one(args, row) else 1
+
+
+# --------------------------------------------------------------------------- #
+# Review checkpoint
+# --------------------------------------------------------------------------- #
+REVIEW_CHECKLIST = """## Reviewer checklist (Claude + owner; Ollama models never review)
+
+- [ ] The change does exactly this task: nothing missing, nothing from other tasks.
+- [ ] Every acceptance check in the task section was run, and the output below proves it.
+- [ ] The invariants in TASKS.md section 2 hold: code owns the flow, deterministic selection,
+      temperature-0 structured grading, append-only ledger, cite or refuse, no similarity search in
+      grading, no invented ground truth, answer key never reaches the tutor, content is data,
+      distraction-free kiosk, stable node IDs.
+- [ ] Domain content (rubrics, explanations, examples, calculations) is correct against the official
+      sources. Any doubt goes to the owner.
+- [ ] Tests are meaningful: they would fail if the feature broke.
+- [ ] No secrets, licensed source text or personal data were committed.
+
+Decision: `approve <ID> --by ... --note ...` or `reject <ID> --reason ...` (add `--revert` to undo
+the commit).
+"""
+
+
+def _review_row(task_id: str) -> tuple[dict, Path, str]:
+    rows = parse_board(read_tasks_md())
+    row = next((r for r in rows if r["id"] == task_id), None)
+    if row is None:
+        sys.exit(f"{task_id} is not on the status board")
+    if not row["status"].startswith("review"):
+        sys.exit(f"{task_id} is not waiting for review (status: {row['status']})")
+    run_dir = latest_run(task_id)
+    if run_dir is None or not (run_dir / "commit.txt").exists():
+        sys.exit(f"No runner commit recorded for {task_id} under {RUNS_DIR / task_id}")
+    return row, run_dir, (run_dir / "commit.txt").read_text(encoding="utf-8").strip()
+
+
+def _tail(path: Path, n: int) -> str:
+    if not path.exists():
+        return "(missing)"
+    lines = path.read_text(encoding="utf-8", errors="replace").strip().splitlines()
+    return "\n".join(lines[-n:]) or "(empty)"
+
+
+def cmd_review(args) -> int:
+    row, run_dir, sha = _review_row(args.task_id)
+    stat = git("show", "--stat", "--format=%H%n%s%n", sha).stdout if is_git() else "(no git)"
+    diff = git("show", "--format=", sha).stdout if is_git() else ""
+    (run_dir / "diff.patch").write_text(diff, encoding="utf-8")
+    rel = run_dir.relative_to(REPO).as_posix()
+    packet = (
+        f"# Review packet: {row['id']} - {row['title']}\n\n"
+        f"- Status: {row['status']}\n- Commit: `{sha}`\n- Run folder: `{rel}`\n"
+        f"- Full diff: `{rel}/diff.patch` ({len(diff.splitlines())} lines)\n\n"
+        f"## Agent result\n\n```\n{_tail(run_dir / 'result.txt', 3)}\n```\n\n"
+        f"## Agent reply (last 40 lines)\n\n```\n{_tail(run_dir / 'reply.md', 40)}\n```\n\n"
+        f"## Runner test run (last 15 lines)\n\n```\n{_tail(run_dir / 'verify.txt', 15)}\n```\n\n"
+        f"## Files changed\n\n```\n{stat.strip()}\n```\n\n"
+        f"## Task as specified\n\n{task_section(read_tasks_md(), row['id'])}\n\n"
+        f"{REVIEW_CHECKLIST}"
+    )
+    out = run_dir / "review.md"
+    out.write_text(packet, encoding="utf-8")
+    print(f"Review packet: {out}")
+    print(f"Diff:          {run_dir / 'diff.patch'}")
+    print(stat.strip())
+    return 0
+
+
+def cmd_approve(args) -> int:
+    row, run_dir, sha = _review_row(args.task_id)
+    stamp = dt.datetime.now().isoformat(timespec="seconds")
+    (run_dir / "approval.md").write_text(
+        f"Approved {stamp} by {args.by}\nCommit: {sha}\nNote: {args.note or '-'}\n", encoding="utf-8")
+    set_status(row["id"], f"done ({sha}, reviewed by {args.by})")
+    msg = f"{row['id']}: approved at review checkpoint\n\nReviewed by {args.by}. {args.note or ''}".strip()
+    res = git_commit(msg, ["TASKS.md"])
+    print(f"{row['id']} approved. Status: done ({sha}). Commit: {res}")
+    return 0
+
+
+def cmd_reject(args) -> int:
+    row, run_dir, sha = _review_row(args.task_id)
+    stamp = dt.datetime.now().isoformat(timespec="seconds")
+    fb = feedback_file(row["id"])
+    fb.parent.mkdir(parents=True, exist_ok=True)
+    with fb.open("a", encoding="utf-8") as fh:
+        fh.write(f"\n### Review of commit {sha} ({stamp}, {args.by})\n{args.reason.strip()}\n"
+                 + ("The commit was reverted; start again from the current code.\n" if args.revert
+                    else "The commit was kept; fix it in place.\n"))
+    paths = ["TASKS.md"]
+    if args.revert and is_git():
+        proc = git("revert", "--no-edit", sha)
+        if proc.returncode != 0:
+            sys.exit(f"git revert failed: {proc.stderr.strip()}")
+        paths = None
+    set_status(row["id"], "todo")
+    res = git_commit(f"{row['id']}: rejected at review checkpoint\n\n{args.reason.strip()}", paths)
+    print(f"{row['id']} rejected and set back to todo. Feedback saved to {fb} "
+          f"and added to the next prompt. Commit: {res}")
     return 0
 
 
@@ -482,17 +605,26 @@ def main() -> int:
         p.add_argument("--yolo", action="store_true", help="claude: allow every command (disposable checkouts only)")
 
     agent_opts(sub.add_parser("smoke", help="check that the agent and model can edit a file"))
-    r = sub.add_parser("run", help="run eligible tasks")
+    r = sub.add_parser("run", help="run the next eligible task, then stop at the review checkpoint")
     agent_opts(r)
     r.add_argument("--task", help="run this task ID only (ignores eligibility)")
-    r.add_argument("--max", type=int, default=1, help="maximum tasks to run (default 1)")
     r.add_argument("--verify", help="custom verification shell command (default: pytest in services/tutor)")
-    r.add_argument("--auto-done", action="store_true", help="mark passing tasks done instead of review")
-    r.add_argument("--no-commit", action="store_true", help="do not git commit after a task")
     r.add_argument("--allow-dirty", action="store_true", help="allow starting with uncommitted changes")
     r.add_argument("--dry-run", action="store_true", help="write the prompt and print the command only")
+    rv = sub.add_parser("review", help="build the review packet for a task waiting at the checkpoint")
+    rv.add_argument("task_id")
+    apv = sub.add_parser("approve", help="close the checkpoint: mark the task done")
+    apv.add_argument("task_id")
+    apv.add_argument("--by", default="Claude + owner", help="who reviewed (default 'Claude + owner')")
+    apv.add_argument("--note", help="short review note")
+    rj = sub.add_parser("reject", help="close the checkpoint: send the task back with feedback")
+    rj.add_argument("task_id")
+    rj.add_argument("--reason", required=True, help="what must change; added to the next prompt")
+    rj.add_argument("--by", default="Claude + owner")
+    rj.add_argument("--revert", action="store_true", help="also git-revert the task commit")
     args = ap.parse_args()
-    return {"status": cmd_status, "smoke": cmd_smoke, "run": cmd_run}[args.cmd](args)
+    return {"status": cmd_status, "smoke": cmd_smoke, "run": cmd_run, "review": cmd_review,
+            "approve": cmd_approve, "reject": cmd_reject}[args.cmd](args)
 
 
 if __name__ == "__main__":

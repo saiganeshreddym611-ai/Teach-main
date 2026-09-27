@@ -220,11 +220,30 @@ def test_fixture_corpus_up_to_date():
     assert manifest.corpus_sha256 == committed["corpus_sha256"]
 
 
+def test_fixture_sources_are_lf():
+    raw_dir = FIXTURE_ROOT / "sources" / "raw"
+    assert all(b"\r" not in path.read_bytes() for path in raw_dir.glob("*"))
+
+
 def test_fixture_marker_everywhere():
     chunks_path = FIXTURE_ROOT / "corpus" / "chunks.jsonl"
     passages = [json.loads(line) for line in chunks_path.read_text(encoding="utf-8").splitlines()]
     assert passages
     assert all(MARKER in passage["text"] for passage in passages)
+
+
+def test_fixture_exact_refs_exist():
+    pack = load_pack("fixture_115", packs_dir=FIXTURE_PACKS)
+    passages, _, _ = build_corpus(pack)
+    passage_ids = {passage.passage_id for passage in passages}
+    concept_map = json.loads((FIXTURE_ROOT / "concept_map.json").read_text(encoding="utf-8"))
+    exact_refs = [
+        ref
+        for node in concept_map["nodes"]
+        for ref in node["source_refs"]
+        if "-" not in ref and "(" not in ref
+    ]
+    assert set(exact_refs) <= passage_ids
 
 
 def test_passage_ids_unique_and_prefixed():

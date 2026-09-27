@@ -89,7 +89,7 @@ def _split_standard(
     if skipped_blocks:
         kind = "amendment" if amendment else "standard"
         context.warnings.append(
-            f"{doc.doc_id}: skipped {skipped_blocks} preamble block(s) before the first paragraph ({kind})."
+            f"{doc.doc_id}: skipped {skipped_blocks} unnumbered block(s) outside a paragraph ({kind})."
         )
     return passages
 

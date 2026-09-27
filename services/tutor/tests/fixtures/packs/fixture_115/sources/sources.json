@@ -9,7 +9,7 @@
     "authority_rank": 1,
     "version": "0.0.1",
     "path": "sources/raw/ind_as_115.txt",
-    "sha256": "5823e21f102d6fef28304d4ff442b824aaf6f6b1e8e05fdf8987c47089770afa"
+    "sha256": "0f76e1bc6409dc8d8273902a1b9a151ecdf99ae79eb175ac8cf3967733a26f9c"
   },
   {
     "doc_id": "fx_std37",
@@ -21,7 +21,7 @@
     "authority_rank": 1,
     "version": "0.0.1",
     "path": "sources/raw/ind_as_37.txt",
-    "sha256": "f9c2206e532f25cc852b9f0cf04457d533add6195ad9009d7749e82590ff1abb"
+    "sha256": "cbd16f148ac7d892aa7bfa35f8fc371f00c60b2117110f180f9401c35841ed17"
   },
   {
     "doc_id": "fx_sm",
@@ -33,7 +33,7 @@
     "authority_rank": 2,
     "version": "0.0.1",
     "path": "sources/raw/study_material.txt",
-    "sha256": "e2725f97eb4a0a9bd0351395818c22072557aada114ed3b108e3d41d8d1043d0"
+    "sha256": "e5edf6e33a8736319fc075a8ae59b3a16cfe60df0685b9376de9877d0dc4ea4e"
   },
   {
     "doc_id": "fx_rtp",
@@ -46,7 +46,7 @@
     "attempt": "2099-01",
     "version": "0.0.1",
     "path": "sources/raw/rtp.txt",
-    "sha256": "4da2fb76d86b7459f42cec9e506c0c1b248c936fbf8daa8fe1d9420dddb26dcf"
+    "sha256": "c0ba013dad1d791a45b65c92128175e3ad52c8786688145c8acaae7bade4c6ef"
   },
   {
     "doc_id": "fx_amd",
@@ -59,6 +59,6 @@
     "attempt": "2099-01",
     "version": "0.0.1",
     "path": "sources/raw/amendment.txt",
-    "sha256": "02b5b772446a126cc063fe6f713e8f44336a3cabec95cc24a9eabc5f385f64c6"
+    "sha256": "c57e92ca810a5447be9c0e3714537c0f4fb2fd49d0a73d06ee48da4e30124a61"
   }
 ]

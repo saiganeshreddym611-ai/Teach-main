@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections import Counter
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable
@@ -75,10 +76,7 @@ def build_corpus(
             raise IngestError(
                 f"{path}: sha256 mismatch for {doc.doc_id}; update sources.json to match the source file."
             )
-        try:
-            text = read_source(path)
-        except IngestError:
-            raise
+        text = read_source(path)
         splitter = SPLITTERS.get(doc.doc_type)
         if splitter is None:
             raise IngestError(f"{doc.doc_id}: no splitter for document type '{doc.doc_type}'")
@@ -89,8 +87,8 @@ def build_corpus(
                 f"{doc.doc_id}: doc_code '{doc.doc_code}' is missing from manifest.doc_codes."
             )
 
-    passage_ids = [passage.passage_id for passage in passages]
-    duplicates = sorted({passage_id for passage_id in passage_ids if passage_ids.count(passage_id) > 1})
+    counts = Counter(passage.passage_id for passage in passages)
+    duplicates = sorted(passage_id for passage_id, count in counts.items() if count > 1)
     if duplicates:
         raise IngestError(f"Duplicate passage_ids: {', '.join(duplicates)}")
 

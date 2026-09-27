@@ -43,6 +43,10 @@ ledger. A Next.js kiosk (`apps/web`) talks to it over SSE.
   `asyncio_mode = "auto"` (async tests need no decorator).
 - Write JSON files with `ensure_ascii=False`, UTF-8, and a trailing newline. Keep output
   deterministic: no timestamps or random values in generated files unless the spec says so.
+- Every text file you create or generate uses LF line endings, never CRLF (`.gitattributes` stores
+  LF). Compute any committed hash (for example `sha256` in `sources.json`) over the LF bytes git
+  stores, and check with a clean export: `git archive HEAD services/tutor | tar -x -C <tmp>`, then
+  run the tests there.
 - Paths are built from `Path(__file__)`, never from the current working directory.
 - Next.js: this version has breaking changes. Before writing Next.js code, read the relevant guide
   in `apps/web/node_modules/next/dist/docs/` (see `apps/web/AGENTS.md`).

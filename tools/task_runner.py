@@ -208,7 +208,8 @@ COPILOT_TEMPLATE = """You are GitHub Copilot working in the repository at:
 
 Your task: {id} - {title}
 Implement specs/{id}.md exactly. Its "Prompt for Copilot" block is your instruction, and the spec
-is binding. Follow .github/copilot-instructions.md.
+is binding. Follow .github/copilot-instructions.md. Files from an earlier, unfinished attempt may
+already exist: check them against the spec, keep what fits and finish the rest.
 
 Rules for this run:
 - Do only this task. Do not edit TASKS.md, specs/ or .github/.

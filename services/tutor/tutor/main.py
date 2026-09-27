@@ -29,6 +29,7 @@ from .models import (
 from .state_machine import TurnEvent, run_turn
 from .store import store
 from .tts import describe_tts, get_tts, wav_bytes
+from .review import current_release, review_counts, strict_problems
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -55,17 +56,30 @@ app.add_middleware(
 @app.get("/content", response_model=ContentInfo)
 async def content() -> ContentInfo:
     pack = load_pack()
-    return ContentInfo(manifest=pack.manifest, content_hash=pack.content_hash)
+    return ContentInfo(
+        manifest=pack.manifest,
+        content_hash=pack.content_hash,
+        review_counts=review_counts(pack),
+    )
 
 
 @app.get("/health")
 async def health() -> dict:
+    pack = load_pack()
     return {
         "ok": True,
         "mock_llm": settings.mock_llm,
         "grader": describe_grader(),
         "tutor": describe_tutor(),
         "tts": describe_tts(),
+        "content": {
+            "pack_id": pack.pack_id,
+            "version": pack.manifest.version,
+            "content_hash": pack.content_hash,
+            "review_counts": review_counts(pack),
+            "release_signed_off": current_release(pack) is not None,
+            "strict": settings.require_reviewed_content,
+        },
     }
 
 
@@ -98,6 +112,14 @@ async def create_session(req: CreateSessionRequest) -> CreateSessionResponse:
         curriculum = load_curriculum(req.topic_id)
     except FileNotFoundError as e:
         raise HTTPException(404, str(e))
+    pack = load_pack()
+    if settings.require_reviewed_content:
+        problems = strict_problems(pack)
+        if problems:
+            raise HTTPException(
+                409,
+                detail={"message": "Content is not approved for use.", "problems": problems},
+            )
     session = Session(student_id=req.student_id, topic_id=req.topic_id)
     session.turns.append(Turn(role="tutor", text=curriculum.tree.opening_prompt, phase=Phase.DIAGNOSTIC))
     await store.save(session)

@@ -14,6 +14,9 @@ CPU-bound and synchronous - call it via asyncio.to_thread from the API.
 from __future__ import annotations
 
 import io
+import logging
+import subprocess
+import sys
 import threading
 import wave
 from functools import lru_cache
@@ -157,6 +160,37 @@ def get_tts() -> TTSEngine | None:
     if engine == "kokoro":
         return KokoroEngine(models_dir, settings.kokoro_voice, settings.kokoro_model_file)
     raise ValueError(f"unknown TTS_ENGINE '{engine}' (expected browser | piper | kokoro)")
+
+
+def ensure_piper_voice(models_dir: Path, voice: str) -> bool:
+    """Fetch a Piper voice (about 60 MB) with piper's own downloader if it is missing.
+    Returns True when the voice is present. Failure is logged, not raised: the kiosk then keeps
+    the browser voice."""
+    if (models_dir / f"{voice}.onnx").exists():
+        return True
+    models_dir.mkdir(parents=True, exist_ok=True)
+    logging.info("Downloading Piper voice %s into %s", voice, models_dir)
+    try:
+        subprocess.run([sys.executable, "-m", "piper.download_voices", "--download-dir", str(models_dir), voice],
+                       check=True, capture_output=True, timeout=900)
+    except (OSError, subprocess.SubprocessError) as e:
+        logging.warning("Piper voice download failed (%s); the kiosk uses the browser voice", e)
+        return False
+    return (models_dir / f"{voice}.onnx").exists()
+
+
+def prepare_tts() -> None:
+    """Startup work, off the event loop: download the default Piper voice when needed, then load
+    and warm the engine so the first sentence of a session is fast."""
+    if settings.tts_engine == "piper" and settings.tts_auto_download:
+        ensure_piper_voice(settings.tts_models_dir, settings.piper_voice)
+    try:
+        engine = get_tts()
+    except Exception as e:  # piper not installed, voice missing: report through describe_tts
+        logging.warning("Server TTS not ready: %s", e)
+        return
+    if engine is not None:
+        engine.warm()
 
 
 def describe_tts() -> dict:

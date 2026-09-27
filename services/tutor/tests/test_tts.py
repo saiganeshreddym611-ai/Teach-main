@@ -31,3 +31,28 @@ def test_piper_engine_synthesises_and_switches_voice():
         assert len(b) > 0
     with pytest.raises(FileNotFoundError):
         eng.synth("x", voice="en_XX-nope-medium")
+
+
+def test_prepare_tts_downloads_missing_piper_voice_once(tmp_path, monkeypatch):
+    from tutor import tts
+
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        (tmp_path / "v.onnx").write_bytes(b"x")
+
+    monkeypatch.setattr(tts.subprocess, "run", fake_run)
+    assert tts.ensure_piper_voice(tmp_path, "v") is True
+    assert tts.ensure_piper_voice(tmp_path, "v") is True  # present now: no second download
+    assert len(calls) == 1 and calls[0][1:4] == ["-m", "piper.download_voices", "--download-dir"]
+
+
+def test_prepare_tts_respects_opt_out(tmp_path, monkeypatch):
+    from tutor import tts
+
+    monkeypatch.setattr(settings, "tts_engine", "piper")
+    monkeypatch.setattr(settings, "tts_auto_download", False)
+    monkeypatch.setattr(tts, "ensure_piper_voice", lambda *a: (_ for _ in ()).throw(AssertionError("downloaded")))
+    monkeypatch.setattr(tts, "get_tts", lambda: None)
+    tts.prepare_tts()  # no download, no crash

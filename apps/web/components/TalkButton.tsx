@@ -2,8 +2,7 @@
 
 import type { VoiceState } from "./Waveform";
 
-// One affordance: tap to start listening, tap again to send. Disabled while
-// the tutor is thinking or speaking (no barge-in in the MVP).
+// One affordance: tap to start listening, tap again to send. Tapping while the tutor speaks interrupts it; disabled only while the tutor is thinking.
 export default function TalkButton({
   state,
   sttSupported,
@@ -24,14 +23,14 @@ export default function TalkButton({
       : busy
         ? state === "thinking"
           ? "Thinking…"
-          : "Speaking…"
+          : "Speaking… tap to interrupt"
         : "Tap to talk";
 
   return (
     <div className="flex flex-col items-center gap-3">
       <button
         type="button"
-        disabled={busy || !sttSupported}
+        disabled={state === "thinking" || !sttSupported}
         onClick={listening ? onStop : onStart}
         aria-pressed={listening}
         className={[
@@ -40,7 +39,7 @@ export default function TalkButton({
           "shadow-[0_0_0_8px_rgba(255,255,255,0.04)]",
           listening
             ? "bg-emerald-500 text-black scale-105 shadow-[0_0_60px_rgba(52,211,153,0.5)]"
-            : busy
+            : state === "thinking"
               ? "bg-zinc-800 text-zinc-500 cursor-not-allowed"
               : "bg-zinc-100 text-black hover:scale-105 active:scale-95",
         ].join(" ")}

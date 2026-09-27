@@ -36,8 +36,10 @@ class Settings:
         default_factory=lambda: [o.strip() for o in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",") if o.strip()]
     )
     speaker_verifier: str = os.getenv("SPEAKER_VERIFIER", "stub").lower()
-    # Server-side TTS: browser (client Web Speech API) | piper | kokoro
-    tts_engine: str = os.getenv("TTS_ENGINE", "browser").lower()
+    # Server-side TTS: piper (default) | kokoro | browser (client Web Speech API)
+    tts_engine: str = os.getenv("TTS_ENGINE", "piper").lower()
+    # Download the default Piper voice on first start, so a fresh clone speaks with Piper.
+    tts_auto_download: bool = os.getenv("TTS_AUTO_DOWNLOAD", "1") in {"1", "true", "yes"}
     tts_models_dir: Path = Path(os.getenv("TTS_MODELS_DIR", str(Path(__file__).resolve().parents[1] / "models")))
     piper_voice: str = os.getenv("PIPER_VOICE", "en_GB-jenny_dioco-medium")
     kokoro_voice: str = os.getenv("KOKORO_VOICE", "af_heart")

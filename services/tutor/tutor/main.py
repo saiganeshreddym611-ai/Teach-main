@@ -30,7 +30,7 @@ from .models import (
 )
 from .state_machine import TurnEvent, run_turn
 from .store import store
-from .tts import describe_tts, get_tts, wav_bytes
+from .tts import describe_tts, get_tts, prepare_tts, wav_bytes
 from .review import current_release, review_counts, strict_problems
 from .retrieval.corpus import load_corpus
 from .retrieval.refs import cite_passage
@@ -38,13 +38,9 @@ from .retrieval.refs import cite_passage
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     load_pack()
-    # Load TTS voices off the event loop so the first sentence of a session is fast.
-    try:
-        engine = get_tts()
-    except Exception:
-        engine = None
-    if engine is not None:
-        asyncio.get_running_loop().run_in_executor(None, engine.warm)
+    # Off the event loop: fetch the Piper voice on a fresh clone, then warm it, so the API is up at
+    # once and the kiosk uses the browser voice until Piper is ready.
+    asyncio.get_running_loop().run_in_executor(None, prepare_tts)
     yield
 
 

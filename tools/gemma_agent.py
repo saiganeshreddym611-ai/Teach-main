@@ -38,6 +38,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--model", default=tr.DEFAULT_MODEL)
     p.add_argument("--timeout", type=int, default=1500)
     args = p.parse_args(argv)
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # replies contain ✓, → and similar
 
     if not tr.find_claude():
         sys.exit("Claude Code binary not found (PATH or the VS Code extension).")

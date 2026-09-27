@@ -6,7 +6,7 @@ import TalkButton from "@/components/TalkButton";
 import Transcript, { type LocalTurn } from "@/components/Transcript";
 import Waveform, { type VoiceState } from "@/components/Waveform";
 import { API_BASE, createSession, getContent, getSession, streamTurn, type MasteryEntry, type Phase } from "@/lib/api";
-import { probeServerTTS, ServerSpeaker, WebSpeechListener, WebSpeechSpeaker, type Speaker } from "@/lib/speech";
+import { probeServerTTS, ServerSpeaker, WebSpeechListener, WebSpeechSpeaker, type Speaker, micErrorMessage } from "@/lib/speech";
 
 const PHASE_LABEL: Record<Phase, string> = {
   DIAGNOSTIC: "Baseline diagnostic",
@@ -37,7 +37,8 @@ export default function Kiosk() {
   const streamDoneRef = useRef(false);
 
   const maybeIdle = useCallback(() => {
-    if (streamDoneRef.current && !speakingRef.current) setVoice("idle");
+    // Never override "listening": a speaker interrupted by the student reports "stopped" late.
+    if (streamDoneRef.current && !speakingRef.current) setVoice((v) => (v === "listening" ? v : "idle"));
   }, []);
 
   // Speech objects live in refs (browser-only, mutable); only their
@@ -188,6 +189,7 @@ export default function Kiosk() {
     const listener = listenerRef.current;
     if (!listener?.supported) return;
     speakerRef.current?.cancel();
+    setError(null);
     setVoice("listening");
     listener.start(
       (t) => setInterim(t),
@@ -196,6 +198,10 @@ export default function Kiosk() {
         else setVoice("idle");
       },
       () => setInterim(""),
+      (code) => {
+        setError(micErrorMessage(code));
+        setVoice("idle");
+      },
     );
   }, [submit]);
 
@@ -287,6 +293,7 @@ export default function Kiosk() {
       <footer className="flex flex-col items-center gap-3 pb-2">
         <Waveform state={voice} />
         <TalkButton state={voice} sttSupported={sttSupported} onStart={startListening} onStop={stopListening} />
+        {error && <p className="text-rose-300 text-sm text-center">{error}</p>}
         <form
           className="flex w-full max-w-xl gap-2"
           onSubmit={(e) => {

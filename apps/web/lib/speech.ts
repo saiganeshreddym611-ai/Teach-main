@@ -8,7 +8,12 @@
 
 export interface Listener {
   readonly supported: boolean;
-  start(onInterim: (text: string) => void, onFinal: (text: string) => void, onEnd: () => void): void;
+  start(
+    onInterim: (text: string) => void,
+    onFinal: (text: string) => void,
+    onEnd: () => void,
+    onError?: (code: string) => void,
+  ): void;
   stop(): void;
 }
 
@@ -28,6 +33,7 @@ export interface Speaker {
 export class WebSpeechListener implements Listener {
   private rec: any = null;
   private finalText = "";
+  private lastError = "";
   readonly supported: boolean;
 
   constructor() {
@@ -35,7 +41,13 @@ export class WebSpeechListener implements Listener {
     this.supported = !!(w && (w.SpeechRecognition || w.webkitSpeechRecognition));
   }
 
-  start(onInterim: (t: string) => void, onFinal: (t: string) => void, onEnd: () => void) {
+  start(
+    onInterim: (t: string) => void,
+    onFinal: (t: string) => void,
+    onEnd: () => void,
+    onError?: (code: string) => void,
+  ) {
+    this.lastError = "";
     const w = window as any;
     const Ctor = w.SpeechRecognition || w.webkitSpeechRecognition;
     const rec = new Ctor();
@@ -52,15 +64,21 @@ export class WebSpeechListener implements Listener {
       }
       onInterim((this.finalText + interim).trim());
     };
-    rec.onerror = () => {
-      /* surfaced via onend with whatever we have */
+    rec.onerror = (e: any) => {
+      this.lastError = String(e?.error ?? "unknown");
     };
     rec.onend = () => {
+      if (this.lastError && !this.finalText.trim() && onError) onError(this.lastError);
       onFinal(this.finalText.trim());
       onEnd();
     };
     this.rec = rec;
-    rec.start();
+    try {
+      rec.start();
+    } catch (e) {
+      onError?.(String((e as Error)?.message ?? "start-failed"));
+      onEnd();
+    }
   }
 
   stop() {
@@ -290,7 +308,9 @@ export class ServerSpeaker implements Speaker {
     }
     this.playing = true;
     this.onStateChange?.(true);
+    const signal = this.abort.signal;
     void next.audio.then((buffer) => {
+      if (signal.aborted) return; // cancel() ran while this sentence was loading
       this.queue.shift();
       if (!buffer) {
         this.playing = false;
@@ -302,7 +322,8 @@ export class ServerSpeaker implements Speaker {
       src.buffer = buffer;
       src.connect(ctx.destination);
       src.onended = () => {
-        if (this.current === src) this.current = null;
+        if (this.current !== src) return; // stopped by cancel(), which already reported the state
+        this.current = null;
         this.playing = false;
         this.pump();
       };
@@ -344,4 +365,13 @@ function pickVoice(): SpeechSynthesisVoice | null {
     voices.find((v) => v.lang.startsWith("en")) ??
     null
   );
+}
+
+export function micErrorMessage(code: string): string {
+  if (code === "not-allowed" || code === "service-not-allowed")
+    return "Microphone is blocked. Allow microphone access for this site in the browser's address bar, then tap again.";
+  if (code === "audio-capture") return "No microphone found. Plug one in or type your answer below.";
+  if (code === "network") return "Speech recognition needs an internet connection in Chrome or Edge. You can type your answer below.";
+  if (code === "no-speech") return "I didn't hear anything. Tap and speak, then tap again when you're done.";
+  return `Speech recognition stopped (${code}). You can type your answer below.`;
 }

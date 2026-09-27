@@ -24,11 +24,14 @@ cp .env.example .env                        # then edit
 .venv/Scripts/python -m uvicorn tutor.main:app --port 8000 --reload
 ```
 
-Optional — local text-to-speech (recommended; the browser voice is the fallback):
+Text-to-speech: Piper is the default voice and installs with the service. On the first start the
+API downloads the default voice (`PIPER_VOICE`, about 60 MB) into `models/` in the background; the
+kiosk uses the browser voice until it is ready. `TTS_AUTO_DOWNLOAD=0` turns the download off, and
+`TTS_ENGINE=browser` keeps the browser voice. More voices and the optional Kokoro engine:
 
 ```bash
-.venv/Scripts/pip install -e ".[tts]"
-.venv/Scripts/python scripts/download_tts_models.py            # Piper voices (~60 MB each)
+.venv/Scripts/python scripts/download_tts_models.py            # more Piper voices (~60 MB each)
+.venv/Scripts/pip install -e ".[tts]"                           # Kokoro engine
 .venv/Scripts/python scripts/download_tts_models.py --kokoro   # + Kokoro-82M (~340 MB)
 ```
 
@@ -45,7 +48,7 @@ Optional — local text-to-speech (recommended; the browser voice is the fallbac
 | `CONTENT_PACK` | Active versioned content pack under `content/packs/`; defaults to `ind_as_115`. |
 | `REQUIRE_REVIEWED_CONTENT` | `1` refuses to teach unless every content item is reviewed and the release is signed off; defaults to `0`. |
 | `RETRIEVAL_MIN_CONFIDENCE` | Placeholder for the future out-of-syllabus gate; defaults to `0.5` until H5 signs off a calibrated value. |
-| `TTS_ENGINE` | `browser` (Web Speech API in the kiosk), `piper` or `kokoro` (server-side, `POST /tts`). |
+| `TTS_ENGINE` | `piper` (default, server-side `POST /tts`), `kokoro`, or `browser` (Web Speech API in the kiosk). `TTS_AUTO_DOWNLOAD=0` stops the first-start voice download. |
 | `PIPER_VOICE`, `KOKORO_VOICE`, `TTS_SPEED` | Default voice and rate. The kiosk header has a voice picker for any voice in `models/`. |
 
 **2. Kiosk UI (Node 20+)**

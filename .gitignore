@@ -1,0 +1,31 @@
+# python
+services/tutor/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+services/tutor/.env
+services/tutor/tests/evals/grader/captured/*.json
+
+# node / next
+apps/web/node_modules/
+apps/web/.next/
+apps/web/out/
+apps/web/.env*.local
+apps/web/next-env.d.ts
+
+# os / editor
+.DS_Store
+Thumbs.db
+
+# local tooling state
+.claude/settings.local.json
+.openclaw-runs/
+apps/web/tsconfig.tsbuildinfo
+
+# TTS model files (fetch with services/tutor/scripts/download_tts_models.py)
+services/tutor/models/
+
+# Runtime data and unlicensed source documents
+services/tutor/data/
+content/packs/*/sources/raw/

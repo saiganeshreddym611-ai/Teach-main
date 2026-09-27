@@ -26,9 +26,9 @@ export type Verdict = {
 };
 
 export type GradeEvent = {
-  verdicts: Verdict[];
+  verdicts: Array<Verdict & Partial<NodeVerdictV2>>;
   summary: string;
-  claims?: ReviewClaim[];
+  claims?: Claim[];
   omissions?: Omission[];
 };
 

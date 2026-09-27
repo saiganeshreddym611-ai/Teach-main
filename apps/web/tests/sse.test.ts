@@ -53,7 +53,7 @@ test("dispatch handles grade claims/omissions and done citations/grounding", () 
   });
   assert.ok(gradePayload);
   assert.equal((gradePayload as { summary: string }).summary, "Needs a clearer link to the contract asset.");
-  assert.equal(((gradePayload as { claims: Array<{ verdict: string }> }).claims[0]?.verdict), "supported");
+  assert.equal(((gradePayload as { claims: Array<{ judgment: string }> }).claims[0]?.judgment), "ACCURATE");
   assert.equal(((gradePayload as { omissions: Array<{ node_id: string }> }).omissions[0]?.node_id), "ind_as_115.step_3");
 
   dispatch(blocks[1], {

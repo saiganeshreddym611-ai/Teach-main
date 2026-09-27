@@ -20,7 +20,6 @@ import re
 import sys
 from pathlib import Path
 
-from pypdf import PdfReader
 
 HEADER = re.compile(r"^\s*Ind AS \d+[A-Z]?,")
 NUM = r"(?:IE|B|C)?\d{1,3}[A-Z]{0,2}"
@@ -85,6 +84,8 @@ def _paragraph(raw: str, marks: set[str]) -> tuple[str, str] | None:
 
 
 def convert(pdf: Path) -> str:
+    from pypdf import PdfReader  # the ingest extra; the layout rules are testable without it
+
     out: list[str] = []
     item: list[str] | None = None  # the paragraph or sub-item being built
     heading: list[str] = []

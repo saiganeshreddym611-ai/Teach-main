@@ -24,7 +24,8 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE.parents[2]))
 
 from tutor.curriculum import load_curriculum  # noqa: E402
-from tutor.models import GraderResult, NodeStatus, NodeVerdict, Phase, Session, Turn  # noqa: E402
+from tutor.contracts.grading import GraderOutput, NodeVerdictV2  # noqa: E402
+from tutor.models import NodeStatus, Phase, Session, Turn  # noqa: E402
 from tutor.prompts import TEACH_BACK_SENTINEL  # noqa: E402
 from tutor.state_machine import SentinelFilter, _complete, _continue, _introduce, _teach_back_failed  # noqa: E402
 from tutor.tutor_voice import OllamaTutor  # noqa: E402
@@ -66,7 +67,7 @@ def scripted_turns(curriculum):
     s4 = make_session()
     s4.turns.append(Turn(role="tutor", text="Explain step 4 back to me with an example.", phase=Phase.INSTRUCT))
     s4.turns.append(Turn(role="student", text="You split the price by what each item cost to make.", phase=Phase.TEACH_BACK))
-    res = GraderResult(verdicts=[NodeVerdict(node_id="ind_as_115.step_4", status=NodeStatus.GAP, confidence=0.9, evidence="by what each item cost to make")], summary="wrong basis")
+    res = GraderOutput(verdicts=[NodeVerdictV2(node_id="ind_as_115.step_4", status=NodeStatus.GAP, confidence=0.9, evidence="by what each item cost to make")], summary="wrong basis")
     d4 = _teach_back_failed(curriculum, s4, res, attempt=1)
 
     s5 = make_session()

@@ -288,7 +288,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T21 | Source-ref resolver and passage API | A | T20 | done (48e5feb, reviewed by Claude) |
 | T22 | Retriever (node-linked + BM25) | A | T21 | done (3813709, reviewed by Claude) |
 | T23 | Grounded Claude review pipeline | A | T22, T11 | todo |
-| T30 | Grader v2: claims and citations | B | T22 | todo |
+| T30 | Grader v2: claims and citations | B | T22 | review (Claude, 2026-09-27, log .task-runs/T30/20260927-161333) |
 | T31 | Ledger v2: student-scoped, cited, exportable | B | T30 | todo |
 | T32 | Grader audit log and determinism | B | T30 | todo |
 | T33 | Grader eval expansion | B | T30, T32 | todo |
@@ -1035,3 +1035,4 @@ Agents append rows here. Humans answer them. Do not delete answered rows; mark t
 | Q8 | planning | T23 | Which reviewer models go in `REVIEW_MODELS`? | superseded 2026-09-27 by D6: the reviewer is Claude (session or API); `REVIEW_MODELS` is replaced by `REVIEWER` |
 | Q9 | planning | T100 | Which course comes second: Advanced Auditing or a graduation-level bridge course? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` section 10): Advanced Auditing is the second course |
 | Q10 | owner | T85 | Confirm the community-check thresholds after the first 10 flags (confirmations, majority, closing rules). | recommended in `HUMAN-DECISIONS.md` section 12; awaiting owner |
+| Q11 | planning | T30 | Does the cached passages block fit? Every linked passage goes in the grader's system prompt; above about 30k tokens, teach-back calls send only the focus node's passages. | open: the fixture pack is about 1.1k tokens; measure the real pack after H1 with `tutor.grading_links.estimate_tokens` |

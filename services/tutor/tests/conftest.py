@@ -1,7 +1,8 @@
 import pytest
 
 from tutor.curriculum import load_curriculum
-from tutor.models import GraderResult, NodeStatus, NodeVerdict, Session
+from tutor.contracts.grading import GraderOutput, NodeVerdictV2
+from tutor.models import NodeStatus, Session
 from tutor.prompts import TEACH_BACK_SENTINEL
 
 
@@ -16,7 +17,7 @@ def session():
 
 
 class ScriptedGrader:
-    """Returns the next scripted GraderResult on each call and records calls."""
+    """Returns the next scripted GraderOutput on each call and records calls."""
 
     def __init__(self, results):
         self.results = list(results)
@@ -42,11 +43,11 @@ class ScriptedTutor:
 
 
 def verdict(node_id, status, conf=0.9, evidence="said it"):
-    return NodeVerdict(node_id=node_id, status=NodeStatus(status), confidence=conf, evidence=evidence)
+    return NodeVerdictV2(node_id=node_id, status=NodeStatus(status), confidence=conf, evidence=evidence)
 
 
 def result(*verdicts, summary="ok"):
-    return GraderResult(verdicts=list(verdicts), summary=summary)
+    return GraderOutput(verdicts=list(verdicts), summary=summary)
 
 
 SENT = TEACH_BACK_SENTINEL

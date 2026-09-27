@@ -18,7 +18,10 @@ from .config import settings
 from .curriculum import Curriculum
 from .grader import Grader
 from .ledger import append_verdicts, project_status
-from .models import GraderResult, LedgerEvent, NodeStatus, Phase, Session, Turn
+from .contracts.grading import GraderOutput
+from .grader import omissions
+from .grading_links import node_links
+from .models import LedgerEvent, NodeStatus, Phase, Session, Turn
 from .node_selector import select_next_node
 from .prompts import TEACH_BACK_SENTINEL
 from .tutor_voice import TutorVoice
@@ -107,7 +110,7 @@ def _continue(curriculum: Curriculum, session: Session, force_teach_back: bool) 
     )
 
 
-def _teach_back_failed(curriculum: Curriculum, session: Session, result: GraderResult, attempt: int) -> str:
+def _teach_back_failed(curriculum: Curriculum, session: Session, result: GraderOutput, attempt: int) -> str:
     node = curriculum.node(session.target_node)
     verdict = next((v for v in result.verdicts if v.node_id == node.id), None)
     vtext = f"{verdict.status.value} (evidence: \"{verdict.evidence}\")" if verdict else "no evidence"
@@ -140,6 +143,16 @@ def _delta_payload(events: list[LedgerEvent]) -> list[dict]:
     return [e.model_dump(mode="json") for e in events]
 
 
+def _grade_payload(result: GraderOutput, missing: list) -> dict:
+    """The `grade` SSE event: verdicts, claims, and (after a diagnostic) omitted L1 concepts."""
+    return {
+        "verdicts": [v.model_dump(mode="json") for v in result.verdicts],
+        "summary": result.summary,
+        "claims": [c.model_dump(mode="json") for c in result.claims],
+        "omissions": [o.model_dump(mode="json") for o in missing],
+    }
+
+
 async def run_turn(
     session: Session,
     transcript: str,
@@ -159,7 +172,8 @@ async def run_turn(
         )
         ledger_delta = append_verdicts(session, result.verdicts, student_turn.id, Phase.DIAGNOSTIC)
         session.student_level_summary = result.summary
-        yield TurnEvent("grade", {"verdicts": [v.model_dump() for v in result.verdicts], "summary": result.summary})
+        missing = omissions(curriculum, result, node_links(curriculum))
+        yield TurnEvent("grade", _grade_payload(result, missing))
         directive = _advance_to_next_node(curriculum, session, preface="")
 
     elif session.phase == Phase.INSTRUCT:
@@ -176,7 +190,7 @@ async def run_turn(
         ledger_delta = append_verdicts(
             session, result.verdicts, student_turn.id, Phase.TEACH_BACK, focus_node_ids={target}
         )
-        yield TurnEvent("grade", {"verdicts": [v.model_dump() for v in result.verdicts], "summary": result.summary})
+        yield TurnEvent("grade", _grade_payload(result, []))
         verdict = next((v for v in result.verdicts if v.node_id == target), None)
         if verdict and verdict.status == NodeStatus.VERIFIED:
             title = curriculum.node(target).title

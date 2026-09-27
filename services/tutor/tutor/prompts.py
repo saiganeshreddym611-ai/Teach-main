@@ -13,7 +13,7 @@ from .curriculum import Curriculum
 TEACH_BACK_SENTINEL = "<<TEACH_BACK>>"
 
 # Bump when prompt text, the grader output schema, or the tree serialisation changes.
-PROMPT_VERSION = "1"
+PROMPT_VERSION = "2"
 
 def tree_block(curriculum: Curriculum) -> dict:
     text = (
@@ -37,6 +37,13 @@ Rules
 - `evidence` is a quote or close paraphrase of at most 25 of the student's words that supports the verdict.
 - `confidence` is your certainty in the verdict itself (0-1), not the student's confidence.
 - `summary` is one sentence describing the student's level for the tutor (e.g. "Knows the five steps by name but only step 1 in any detail.").
+
+Claims and citations
+- First split what the student said into claims: each distinct statement of fact, rule or judgement is one claim. `quote` is the student's own words for that claim, at most 25 words.
+- Judge each claim only against the `rubric`, `misconceptions` and `canonical_explanation` of the nodes above and the `<source_passages>`, if any. `judgment` is ACCURATE (correct and on the syllabus), INACCURATE (wrong), MISCONCEPTION (matches one of a node's listed misconceptions), UNSUPPORTED (on the topic but the sources above neither confirm nor contradict it) or OFF_SYLLABUS (outside this topic: flag it with `node_id` null and do not grade it).
+- `node_id` is the node the claim bears on, or null. `passage_ids` are ids of `<passage>` elements that support or contradict the claim; use only ids that appear above, and leave the list empty when there are no passages.
+- For every verdict also give `rubric_items_met` (0-based positions in that node's `rubric` list that the student evidenced), `misconception_ids` (0-based positions in its `misconceptions` list that the student stated) and `passage_ids` (the passages that support the verdict, from that node's sources only).
+- Verdicts come from the claims: never grade a node from something the student did not say.
 """
 
 

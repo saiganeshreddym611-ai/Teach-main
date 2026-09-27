@@ -5,7 +5,8 @@ from types import SimpleNamespace
 import pytest
 
 from tutor.grader import OLLAMA_OUTPUT_CONTRACT, OllamaGrader, _inline_schema
-from tutor.models import GraderResult, NodeStatus
+from tutor.contracts.grading import GraderOutput
+from tutor.models import NodeStatus
 
 
 GOOD = json.dumps({
@@ -33,7 +34,7 @@ class FakeOllama:
 
 
 def test_inline_schema_has_no_refs_and_forbids_extra_keys():
-    s = _inline_schema(GraderResult.model_json_schema())
+    s = _inline_schema(GraderOutput.model_json_schema())
     dumped = json.dumps(s)
     assert "$ref" not in dumped and "$defs" not in dumped
     assert s["additionalProperties"] is False

@@ -55,20 +55,7 @@ class NodeStatus(str, Enum):
     VERIFIED = "VERIFIED"            # every rubric item evidenced accurately
 
 
-class NodeVerdict(BaseModel):
-    node_id: str
-    status: NodeStatus
-    confidence: float = Field(ge=0.0, le=1.0)
-    evidence: str = Field(
-        description="Short quote or paraphrase from the student's words that supports the verdict; empty if NOT_MENTIONED."
-    )
-
-
-class GraderResult(BaseModel):
-    """Structured output of the grader call. Deepest missing node is NOT here on
-    purpose - the node selector (pure code) decides that."""
-    verdicts: list[NodeVerdict]
-    summary: str = Field(description="One sentence on the student's overall level, for the tutor.")
+# Grader output lives in tutor/contracts/grading.py (GraderOutput, T30).
 
 
 # --------------------------------------------------------------------------- #

@@ -7,12 +7,13 @@ the student turn that produced it, which is the audit trail the pitch needs.
 from __future__ import annotations
 
 from .curriculum import Curriculum
-from .models import LedgerEvent, MasteryEntry, NodeStatus, NodeVerdict, Phase, Session
+from .contracts.grading import NodeVerdictV2
+from .models import LedgerEvent, MasteryEntry, NodeStatus, Phase, Session
 
 
 def append_verdicts(
     session: Session,
-    verdicts: list[NodeVerdict],
+    verdicts: list[NodeVerdictV2],
     evidence_turn_id: str,
     phase: Phase,
     *,
@@ -40,6 +41,9 @@ def append_verdicts(
             confidence=v.confidence,
             evidence_turn_id=evidence_turn_id,
             phase=phase,
+            session_id=session.id,
+            evidence=v.evidence,
+            passage_ids=list(v.passage_ids),
         )
         session.ledger.append(ev)
         written.append(ev)

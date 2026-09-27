@@ -96,3 +96,21 @@ async def test_unknown_session_404():
         assert (await client.get("/session/nope")).status_code == 404
         assert (await client.post("/session/nope/turn", json={"transcript": "x"})).status_code == 404
         assert (await client.post("/session", json={"topic_id": "nope"})).status_code == 404
+
+
+async def test_grade_event_has_claims_and_omissions():
+    transport = ASGITransport(app=main.app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        r = await client.post("/session", json={"student_id": "s2", "topic_id": "ind_as_115"})
+        sid = r.json()["session_id"]
+        events = await post_turn(
+            client, sid,
+            "the first step of the five step model is identifying the contract with the customer, "
+            "an agreement creating enforceable rights and obligations, written oral or implied",
+        )
+        grade = events[0][1]
+        assert grade["claims"] and all(c["claim_id"].startswith("c") for c in grade["claims"])
+        assert {c["node_id"] for c in grade["claims"]} >= {v["node_id"] for v in grade["verdicts"]}
+        omitted = [o["node_id"] for o in grade["omissions"]]
+        assert omitted, "a one-step diagnostic leaves level-1 concepts omitted"
+        assert "ind_as_115.step_1" not in omitted

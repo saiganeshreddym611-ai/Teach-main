@@ -86,9 +86,12 @@ A rejection reason is added to the agent's next prompt for that task.
 
 ### Writing code with GitHub Copilot
 
-`specs/` holds a code-level spec per task (files, signatures, behaviour, tests) written for
-GitHub Copilot's agent mode, which also reads `.github/copilot-instructions.md`. The spec is
-binding where it is more precise than this file. Copilot's work enters the same checkpoint:
+Owner decision D8: Claude writes the complex code (architecture, contracts between modules, core
+algorithms, anything where determinism, security, privacy or domain correctness is at stake).
+GitHub Copilot's agent mode gets only easy tasks, each with a specific prompt or a slim spec in
+`specs/`; it also reads `.github/copilot-instructions.md`. The spec is binding, and it is the only
+detailed description of its task: this file keeps a summary line and a link. Both coders' work
+enters the same checkpoint, and the owner approves code Claude wrote:
 
 ```bash
 python tools/task_runner.py submit T01 --by "Copilot (<model>)" --notes "<Copilot's report>"
@@ -354,154 +357,55 @@ marked *(new)* do not exist yet.
 - **Out of scope:** adding a remote, pushing, CI.
 
 #### T01 — Baseline green and housekeeping
-- **Requirements:** NFR auditability (health must report the right models).
-- **Read first:** `README.md` (Run it, Test it), `services/tutor/tutor/llm.py`.
-- **Build:**
-  - Create the venv per README if missing and run the full test suite with mocks.
-  - Fix `describe_grader()` in `tutor/llm.py`: for Ollama it reports `ollama_tutor_model`; it
-    must report `ollama_grader_model`.
-  - Replace the hard-coded test count in `README.md` with the real number.
-- **Acceptance:** `pytest` passes. A new test asserts `describe_grader()` returns the grader model
-  when grader and tutor models differ.
-- **Out of scope:** any behaviour change.
+- **Requirements:** NFR auditability. **Spec:** [specs/T01.md](specs/T01.md) (binding; the detail
+  lives there).
+- **Summary:** The test suite passes with mocks, `describe_grader()` reports the grader model, and
+  `README.md` states the real test count.
 
 #### T02 — Shared contracts module
-- **Requirements:** enables lanes A–G to work in parallel.
-- **Read first:** section 3 of this file, `tutor/models.py`, `apps/web/lib/api.ts`.
-- **Build:**
-  - `services/tutor/tutor/contracts/` *(new)* with `content.py`, `grading.py`, `ledger.py`,
-    `skills.py`, `api.py` holding the section 3 shapes as Pydantic models. Schemas only.
-  - Add the new `LedgerEvent` fields to `tutor/models.py` with safe defaults so existing code keeps
-    working.
-  - Do **not** change `GraderResult`, `NodeVerdict` or `Node` yet. Their JSON schema is sent to
-    Ollama and `Node` is serialised into the cached prompt; changing them now would change grader
-    behaviour. `GraderOutput` lives in `contracts/grading.py` until T30 switches to it.
-  - Add `PROMPT_VERSION = "1"` to `tutor/prompts.py`.
-  - `apps/web/lib/contracts.ts` *(new)* mirroring the models as TypeScript types. Not imported yet.
-- **Acceptance:**
-  - `tests/test_contracts.py` *(new)* validates one example JSON document per model.
-  - All existing tests pass unchanged. `git diff` shows no change to `grader.py`,
-    `state_machine.py` or `tutor_voice.py`.
-- **Out of scope:** using the new models anywhere.
+- **Requirements:** enables lanes A–G to work in parallel. **Spec:** [specs/T02.md](specs/T02.md)
+  (binding; the detail lives there).
+- **Summary:** Section 3 shapes as Pydantic models in `tutor/contracts/` and TypeScript types in
+  `apps/web/lib/contracts.ts`. Schemas only; grader, state machine and tutor behaviour unchanged.
 
 ### M1 — Content packs and review gate
 
 #### T10 — Content pack layout and loader
-- **Requirements:** FR-2, FR-10, NFR maintainability.
-- **Read first:** `tutor/curriculum.py`, `tutor/prompts.py` (`tree_block`), `tests/conftest.py`.
-- **Build:**
-  - Before any change, save the output of `Curriculum.stable_json()` as a golden file under
-    `tests/fixtures/` *(new)*.
-  - Create `content/packs/ind_as_115/` *(new)* per section 3.1. Move
-    `curriculum/ind_as_115.json` to `concept_map.json` with `git mv`. Node IDs stay identical.
-  - `manifest.json`: `exam: "CA Final"`, `paper: "Financial Reporting"`, `attempt: "2027-05"` (CA Final May 2027,
-    owner decision), `version: "0.1.0"`, `doc_codes: {"IndAS115": ..., "IndAS37": ...}`.
-  - Add optional `chapter` to `Node`. Set it to the standard's name for every node as a draft;
-    T23 checks it against the sources; the owner can change it.
-  - `tutor/content.py` *(new)*: `load_pack(pack_id=None)` returning a `ContentPack` (manifest,
-    curriculum, paths, `content_hash`). `load_curriculum(topic_id)` keeps its signature and
-    delegates to the active pack. An unknown topic still raises `FileNotFoundError` (the 404 test).
-  - `stable_json()` serialises only prompt-relevant node fields (id, level, parent, title,
-    rubric, misconceptions, canonical_explanation, example, source_refs). Review and chapter
-    metadata never enter the prompt.
-  - `GET /content` returns the manifest and `content_hash`.
-- **Acceptance:**
-  - The golden test proves `stable_json()` output is byte-identical to before the move.
-  - Existing tests pass. An unknown `CONTENT_PACK` fails with a clear error.
-- **Out of scope:** corpus, reviews, new content.
+- **Requirements:** FR-2, FR-10, NFR maintainability. **Spec:** [specs/T10.md](specs/T10.md)
+  (binding; the detail lives there).
+- **Summary:** `content/packs/ind_as_115/` with manifest and concept map (node IDs unchanged,
+  `stable_json()` byte-identical to a golden file), `tutor/content.py` `load_pack`, and `GET
+  /content`.
 
 #### T11 — Review gate
-- **Requirements:** FR-2 (grounded review before use), NFR accuracy and review, owner decision D1
-  in `HUMAN-DECISIONS.md`.
-- **Read first:** T10 output, section 2 rule 7, `HUMAN-DECISIONS.md` section 2.
-- **Build:**
-  - Reviews live in `reviews.json` keyed by item ID (node, task, practice item), not inline, so
-    the concept-map hash stays clean. Each entry is a `ReviewMeta` with the SHA-256 of the item's
-    canonical JSON. A review is valid only while that hash matches, so editing an item sends it
-    back to `draft`.
-  - Usable statuses are `claude_reviewed` and `signed_off`. `draft` and `needs_expert` are not.
-    Strict mode also needs a `ReleaseSignoff` for the pack's current content hash (D6).
-  - `REQUIRE_REVIEWED_CONTENT=1` makes `POST /session` return 409 listing unusable items in
-    scope. With `0` (dev default) the service runs and `/health` and `/content` report counts per
-    status for nodes, tasks and practice items.
-  - `services/tutor/scripts/review_sheet.py` *(new)*: writes a Markdown report per pack with each
-    item's status, reviewer verdicts, claims and quoted evidence. It lists `needs_expert` items
-    first, then a random sample of `claude_reviewed` items (10% of changed items, at least 10,
-    seeded so the sample is reproducible) for the human sign-off.
-  - `services/tutor/scripts/record_audit.py` *(new)*: records a human check (who, date, pass or
-    error with note) for given item IDs. `pass` sets `signed_off`; `error` sets `draft` and adds
-    the item to the reviewer's regression set. `--release` records the `ReleaseSignoff` for the
-    pack version after the owner or subject expert has read the report. Only a human runs it
-    against a real pack.
-- **Acceptance:** tests on a fixture pack show that an edit invalidates a review, strict mode
-  refuses `draft` and `needs_expert` and any pack without a current release sign-off, the sample is
-  reproducible, and a recorded error returns the item to `draft`.
+- **Requirements:** FR-2, NFR accuracy and review, owner decisions D1 and D6. **Spec:**
+  [specs/T11.md](specs/T11.md) (binding; the detail lives there).
+- **Summary:** Reviews in `reviews.json` bound to each item's content hash, strict mode
+  (`REQUIRE_REVIEWED_CONTENT=1`) with a release sign-off, `review_sheet.py` and `record_audit.py`.
 - **Human gate:** H2 and H3 use the report and `record_audit.py`.
 
 ### M2 — Corpus and retrieval
 
 #### T20 — Ingestion pipeline
-- **Requirements:** FR-10.
-- **Read first:** section 3.1 and 3.2, `Node.source_refs` values in the concept map.
-- **Build:**
-  - `services/tutor/scripts/ingest.py --pack <id>` *(new)*: reads `sources/sources.json`,
-    splits each document with the splitter for its `doc_type`, and writes `corpus/chunks.jsonl`
-    and `corpus/manifest.json`. Output is deterministic: the same input gives byte-identical files.
-  - Splitters in `tutor/ingest/` *(new)*:
-    - `standard`: one passage per numbered paragraph, including `B`, `IE` and `C` paragraphs.
-      Sub-items like `(a)`, `(b)` stay inside their paragraph.
-    - `study_material`: follow the heading hierarchy (`ch<n>.s<m>.p<k>`), at most about 350 words
-      per chunk, never crossing a section boundary.
-    - `rtp`, `mtp`, `past_paper`: one passage per question and one per answer (`q<n>`,
-      `q<n>.ans`), with paper and attempt metadata.
-    - `amendment`: paragraph level, with an optional `supersedes` list.
-  - Input: `.txt` and `.md` are required. `.pdf` is optional behind a new extra
-    `ingest = ["pypdf>=4"]` in `pyproject.toml`; keep page numbers where available.
-  - A fixture pack in `services/tutor/tests/fixtures/packs/fixture_115/` *(new)* with synthetic
-    documents. Every fixture passage starts with `[TEST FIXTURE - NOT SYLLABUS TEXT]`.
-- **Acceptance:** splitter unit tests per doc type; passage IDs are unique; running ingest twice
-  gives the same `corpus_sha256`.
-- **Out of scope:** OCR, embeddings, writing real syllabus text.
-- **Human gate:** real sources come from H1. Until then, only the fixture pack has a corpus.
+- **Requirements:** FR-10. **Spec:** [specs/T20.md](specs/T20.md) (binding; the detail lives there).
+- **Summary:** Deterministic splitters per document type (standard, amendment, study material,
+  RTP/MTP/past paper) write `corpus/chunks.jsonl` with stable passage IDs. Only the synthetic
+  fixture pack has a corpus.
+- **Human gate:** real sources come from H1.
 
 #### T21 — Source-ref resolver and passage API
-- **Requirements:** FR-3 and FR-10 ("a citation must resolve back to the source document and
-  passage").
-- **Read first:** every distinct `source_refs` form in `concept_map.json`.
-- **Build:**
-  - `tutor/retrieval/refs.py` *(new)*: parse and resolve refs. It must handle every form in the
-    current map: `IndAS115.para.9-16` (range in document order), `IndAS115.para.22(b)` (resolves
-    to para 22, label keeps "(b)"), `IndAS115.para.B28-B33`, and cross-standard
-    `IndAS37.para.66-69`. The doc code maps to a document through `manifest.doc_codes`.
-  - Citation labels: "Ind AS 115, para 76", "Ind AS 115, paras 76–77", "ICAI Study Material,
-    Ch 4 §2", "RTP May 2025, Q3 (answer)".
-  - `GET /passages/{passage_id}` returns the passage and its source document metadata, or 404.
-  - `services/tutor/scripts/validate_pack.py --pack <id>` *(new)*: exits non-zero and lists
-    every node ref that resolves to no passage.
-- **Acceptance:** parser tests for each form above; API test; the validator passes on the fixture
-  pack and fails on a deliberately broken ref. On the real pack the test is skipped with a
-  logged reason while the corpus is missing.
+- **Requirements:** FR-3, FR-10 (a citation must resolve back to the source document and passage).
+  **Spec:** [specs/T21.md](specs/T21.md) (binding; the detail lives there).
+- **Summary:** `tutor/retrieval/refs.py` resolves every `source_refs` form to passages and builds
+  citation labels; `GET /passages/{passage_id}`; `validate_pack.py` lists refs that resolve to
+  nothing.
 
 #### T22 — Retriever
-- **Requirements:** FR-10 ("compact index, node-linked first, similarity for lookup"), FR-11.
-- **Read first:** T21 output.
-- **Build:**
-  - `tutor/retrieval/retriever.py` *(new)*: a `Retriever` protocol with `for_node(node_id)`
-    (node-linked, deterministic, document order) and `search(query, k, filters)` returning
-    `ScoredPassage` items.
-  - `BM25Retriever` in pure Python, with no heavy new dependency. Lower-case tokens, keep
-    paragraph numbers, drop common English stopwords, expand terms from the pack's
-    `synonyms.json`. Build the index at pack load and cache it by `corpus_sha256`. Break ties by
-    `passage_id`.
-  - Map raw scores to a `confidence` in [0, 1]. Choose the method, document it in the module
-    docstring, and make it stable across queries.
-  - Filters: `doc_type`, `attempt`, `chapter`, `node_ids`.
-  - `services/tutor/scripts/calibrate_retrieval.py` *(new)* and
-    `tests/evals/retrieval/queries.jsonl` *(new)*: in-syllabus questions with expected passage
-    IDs, and out-of-syllabus questions (for example Ind AS 116 leases, GST rates, US GAAP). The
-    script reports recall@5 and the threshold that best separates the two groups.
-- **Acceptance:** ordering is deterministic across runs; recall@5 is at least 0.8 on fixture
-  queries; fixture out-of-syllabus queries score below the suggested threshold.
+- **Requirements:** FR-10, FR-11. **Spec:** [specs/T22.md](specs/T22.md) (binding; the detail lives
+  there).
+- **Summary:** `Retriever` protocol with node-linked lookup and pure-Python BM25 (synonyms, stable
+  confidence, deterministic ties); `calibrate_retrieval.py` reports recall@5 (at least 0.8 on
+  fixture queries) and a suggested threshold.
 - **Human gate:** H5 signs off the threshold for the real pack.
 
 #### T23 — Grounded Claude review pipeline
@@ -942,10 +846,9 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
 - **Acceptance:** the full test suite passes with `STORE=sqlite`; the deletion test passes.
 
 #### T82 — Voice verification mock endpoint
-- **Requirements:** FR-9.
-- **Build:** `POST /verify` accepts a student ID and audio and returns `{match, score, method}`
-  through `SpeakerVerifier` selected by `SPEAKER_VERIFIER`. The stub always matches.
-- **Acceptance:** a conformance test any verifier must pass (score in [0, 1], stable shape).
+- **Requirements:** FR-9. **Spec:** [specs/T82.md](specs/T82.md) (binding; the detail lives there).
+- **Summary:** `POST /verify` through `SpeakerVerifier`, selected by `SPEAKER_VERIFIER`; the stub
+  always matches; a conformance test any verifier must pass.
 
 #### T83 — Content swap proof
 - **Requirements:** FR-10 ("swap … without code changes"), NFR maintainability.

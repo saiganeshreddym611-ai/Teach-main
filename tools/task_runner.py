@@ -9,6 +9,10 @@ Agents:
             It runs with --bare, so it never reads your Claude login or subscription: every
             model call goes to Ollama and counts against your Ollama plan only.
   openclaw  OpenClaw's embedded agent (`openclaw agent --local`), if installed.
+  opencode  OpenCode in headless mode (`opencode run --auto`), default model NVIDIA Nemotron Ultra
+            (env TASK_OPENCODE_MODEL). Like copilot it gets a short prompt pointing at
+            specs/<ID>.md; OPENCODE_PERMISSIONS denies git writes, deletes, web access and files
+            outside the repository.
 
 Review checkpoint (owner decision D5): the runner never marks its own work done. Each run does
 one task and stops:
@@ -106,6 +110,21 @@ COPILOT_DENIED_TOOLS = [
     "shell(Invoke-WebRequest)", "shell(Invoke-RestMethod)",
 ]
 COPILOT_MODEL = os.environ.get("TASK_COPILOT_MODEL")  # unset: Copilot picks ("auto")
+OPENCODE_MODEL = os.environ.get("TASK_OPENCODE_MODEL", "nvidia/nvidia/nemotron-3-ultra-550b-a55b")
+# Passed as OPENCODE_CONFIG_CONTENT. `--auto` approves everything not denied here.
+OPENCODE_PERMISSIONS = {
+    "edit": "allow",
+    "webfetch": "deny",
+    "external_directory": "deny",
+    "bash": {
+        "*": "allow",
+        **{f"{c}*": "deny" for c in (
+            "git push", "git commit", "git reset", "git checkout", "git restore", "git clean",
+            "git rebase", "git remote", "git stash", "rm ", "del ", "Remove-Item", "curl",
+            "Invoke-WebRequest", "Invoke-RestMethod", "python tools/task_runner.py")},
+    },
+}
+SPEC_AGENTS = ("copilot", "opencode")  # agents that get the spec prompt, not TASKS.md
 
 
 # --------------------------------------------------------------------------- #
@@ -225,6 +244,30 @@ Rules for this run:
 """
 
 
+OPENCODE_TEMPLATE = """You are a coding agent working in the repository at:
+{repo}
+
+Your task: {id} - {title}
+Implement specs/{id}.md exactly. Its "Prompt for the agent" block is your instruction, and the spec
+is binding. Read .github/copilot-instructions.md first and follow its rules, except its "When you
+finish" section: do not run task_runner.py submit or wait. Files from an earlier, unfinished
+attempt may already exist: check them against the spec, keep what fits and finish the rest.
+
+Rules for this run:
+- Do only this task. Do not edit TASKS.md, specs/, tools/ or .github/.
+- Do not commit, push or add git remotes. The runner commits your work.
+- Run Python only through services/tutor/.venv (for example
+  `cd services/tutor && .venv/Scripts/python -m pytest -q`). Never pip install into another Python.
+- Some shell commands are refused. If a refused command is essential, stop and report BLOCKED
+  with the command you needed.
+- Run the spec's "Done when" commands and report their real output. Never claim a check passed
+  without running it.
+- When you are finished, write one line to the file {result_file}
+  and also end your reply with that same line: "RESULT: DONE", or "RESULT: BLOCKED" followed by a
+  one-line reason.
+"""
+
+
 def feedback_file(task_id: str) -> Path:
     return RUNS_DIR / task_id / "feedback.md"
 
@@ -247,12 +290,12 @@ def spec_verify(task_id: str) -> str | None:
 
 
 def build_prompt(text: str, row: dict, result_file: Path, agent: str = "claude") -> str:
-    if agent == "copilot":
+    if agent in SPEC_AGENTS:
         if not delegated(row["id"]):
             sys.exit(f"{row['id']} is not delegated: it needs specs/{row['id']}.md without "
                      "'Coder: Claude' (D8).")
-        prompt = COPILOT_TEMPLATE.format(repo=REPO, id=row["id"], title=row["title"],
-                                         result_file=result_file)
+        template = COPILOT_TEMPLATE if agent == "copilot" else OPENCODE_TEMPLATE
+        prompt = template.format(repo=REPO, id=row["id"], title=row["title"], result_file=result_file)
     else:
         prompt = PROMPT_TEMPLATE.format(
             repo=REPO, id=row["id"], title=row["title"], result_file=result_file,
@@ -281,6 +324,16 @@ def find_claude() -> str | None:
     return str(candidates[0]) if candidates else None
 
 
+def find_opencode() -> str | None:
+    """The real binary: the npm .cmd shim mangles arguments through cmd.exe."""
+    shim = shutil.which("opencode")
+    if shim and shim.lower().endswith((".cmd", ".ps1")):
+        exe = Path(shim).parent / "node_modules" / "opencode-ai" / "bin" / "opencode.exe"
+        if exe.exists():
+            return str(exe)
+    return shim
+
+
 def claude_env(model: str) -> dict:
     env = dict(os.environ)
     for k in ("ANTHROPIC_AUTH_TOKEN", "CLAUDE_CODE_OAUTH_TOKEN", "CLAUDE_CODE_USE_BEDROCK",
@@ -305,6 +358,8 @@ def agent_label(args) -> str:
     """How the agent appears on the status board and in commit messages."""
     if args.agent == "copilot":
         return f"Copilot CLI ({args.model or 'auto'})"
+    if args.agent == "opencode":
+        return f"OpenCode ({args.model.rsplit('/', 1)[-1]})"
     return f"{args.agent} {args.model}"
 
 
@@ -331,6 +386,11 @@ def agent_command(args, session_id: str, prompt_path: Path) -> tuple[list[str], 
                     "--allowedTools", *CLAUDE_ALLOWED_TOOLS]
         cmd += ["--disallowedTools", *CLAUDE_DENIED_TOOLS]
         return cmd, claude_env(args.model), prompt_path.read_text(encoding="utf-8")
+    if args.agent == "opencode":
+        cmd = [find_opencode() or "opencode", "run", "--auto", "--model", args.model,
+               f"Read the file {prompt_path} and follow it exactly."]
+        env = dict(os.environ, OPENCODE_CONFIG_CONTENT=json.dumps({"permission": OPENCODE_PERMISSIONS}))
+        return cmd, env, ""  # empty stdin: with an open pipe, `opencode run` waits for it to close
     exe = shutil.which("openclaw") or "openclaw"
     model = args.model if "/" in args.model else "ollama/" + args.model
     cmd = [exe, "agent", "--local", "--session-id", session_id, "--message-file", str(prompt_path),
@@ -439,6 +499,10 @@ def preflight(args) -> None:
         if not shutil.which("copilot"):
             sys.exit("Copilot CLI not found. Install it: npm install -g @github/copilot")
         return
+    if args.agent == "opencode":
+        if not find_opencode():
+            sys.exit("OpenCode not found. Install it: npm install -g opencode-ai")
+        return
     if args.agent == "claude" and not find_claude():
         sys.exit("Claude Code not found. Install it (npm install -g @anthropic-ai/claude-code) "
                  "or install the Claude Code VS Code extension.")
@@ -481,7 +545,7 @@ def cmd_smoke(args) -> int:
     result_file = work / "result.txt"
     prompt_path = work / "prompt.md"
     prompt_path.write_text(
-        "Create a file named hello.txt in the current directory containing the single word hello.\n"
+        f"Create the file {work / 'hello.txt'} containing the single word hello.\n"
         f"Then write the line RESULT: DONE to the file {result_file} and end your reply with that line.\n",
         encoding="utf-8")
     print(f"smoke test: {agent_label(args)} in {work}")
@@ -559,7 +623,7 @@ def run_one(args, row: dict) -> bool:
 def cmd_run(args) -> int:
     rows = parse_board(read_tasks_md())
     waiting = pending_reviews(rows)
-    if waiting and not args.dry_run:
+    if waiting and not args.dry_run and not args.stack:
         ids = ", ".join(r["id"] for r in waiting)
         sys.exit(f"Checkpoint: {ids} waiting for review. Run `review <ID>`, then `approve <ID>` or "
                  "`reject <ID> --reason ...` before starting another task.")
@@ -575,7 +639,7 @@ def cmd_run(args) -> int:
             sys.exit(f"{args.task} is a human task")
     else:
         el = eligible(rows)
-        if args.agent == "copilot":
+        if args.agent in SPEC_AGENTS:
             el = [r for r in el if delegated(r["id"])]
         if not el:
             print("Nothing eligible for this agent. Run `status` to see what is blocked or waiting.")
@@ -783,7 +847,7 @@ def main() -> int:
     sub.add_parser("status", help="show the status board summary and eligible tasks")
 
     def agent_opts(p):
-        p.add_argument("--agent", choices=["copilot", "claude", "openclaw"], default=DEFAULT_AGENT,
+        p.add_argument("--agent", choices=["copilot", "claude", "openclaw", "opencode"], default=DEFAULT_AGENT,
                        help=f"coding agent (default {DEFAULT_AGENT}; env TASK_AGENT)")
         p.add_argument("--model", help=f"copilot: Copilot model (default auto; env TASK_COPILOT_MODEL); "
                                        f"claude/openclaw: Ollama model (default {DEFAULT_MODEL}; env TASK_MODEL)")
@@ -798,6 +862,9 @@ def main() -> int:
     r.add_argument("--verify", help="custom verification shell command (default: pytest in services/tutor)")
     r.add_argument("--allow-dirty", action="store_true", help="allow starting with uncommitted changes")
     r.add_argument("--dry-run", action="store_true", help="write the prompt and print the command only")
+    r.add_argument("--stack", action="store_true",
+                   help="run although other tasks wait for review; the new task builds on unreviewed "
+                        "code, so use it only on a disposable trial branch")
     sb = sub.add_parser("submit", help="send work written outside the runner (e.g. Copilot) to the checkpoint")
     sb.add_argument("task_id")
     sb.add_argument("--by", required=True, help="who wrote the code, e.g. 'Copilot (GPT-5)'")
@@ -822,7 +889,7 @@ def main() -> int:
     rj.add_argument("--revert", action="store_true", help="also git-revert the task commit")
     args = ap.parse_args()
     if hasattr(args, "agent") and args.model is None:
-        args.model = COPILOT_MODEL if args.agent == "copilot" else DEFAULT_MODEL
+        args.model = {"copilot": COPILOT_MODEL, "opencode": OPENCODE_MODEL}.get(args.agent, DEFAULT_MODEL)
     return {"status": cmd_status, "smoke": cmd_smoke, "run": cmd_run, "submit": cmd_submit,
             "wait": cmd_wait, "review": cmd_review, "approve": cmd_approve,
             "reject": cmd_reject}[args.cmd](args)

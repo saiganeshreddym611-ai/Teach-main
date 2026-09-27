@@ -459,46 +459,19 @@ marked *(new)* do not exist yet.
   not regress.
 
 #### T31 — Ledger v2: student-scoped, cited, exportable
-- **Requirements:** FR-7, FR-13, NFR traceability.
-- **Read first:** `tutor/ledger.py`, `tutor/store.py`, `tutor/main.py`.
-- **Build:**
-  - Today the ledger lives on each `Session`. FR-7 needs one ledger per student across sessions.
-    Add a `LedgerStore` protocol (`append`, `events_for(student_id)`, `delete_student`) with an
-    in-memory implementation. `SessionView.ledger` shows this session's events; the mastery
-    projection uses all of the student's events, so a returning student is not re-taught verified
-    nodes.
-  - Fill the new event fields from the grader output: `evidence`, `passage_ids`,
-    `grader_call_id`, `content_version`, `source`, `session_id`.
-  - Keep today's rules: `NOT_MENTIONED` is not written, and a VERIFIED node is overwritten only by
-    a focused verdict (teach-back, probe, review, task remediation). Document in `ledger.py` that
-    a focused downgrade is explicit and evidence-linked, never incidental.
-  - `GET /students/{id}/ledger` returns the pitch reference shape (`VERIFIED`→`MASTERED`,
-    `GAP`→`GAP_IDENTIFIED`, `PARTIAL`→`PARTIAL`, no event→`NOT_ASSESSED`) with confidence, last
-    timestamp, evidence turn and citation labels, plus the raw `events` list.
-  - `GET /students/{id}/ledger/{event_id}/trace` returns the event, the exact student turn text,
-    the cited passages and the grader call ID.
-- **Acceptance:** tests for cross-session projection, blocked incidental downgrade, allowed and
-  recorded focused downgrade, export status mapping, and a trace that returns the exact turn text.
+- **Requirements:** FR-7, FR-13, NFR traceability. **Spec:** [specs/T31.md](specs/T31.md)
+  (binding). Trial coder: OpenCode + Nemotron Ultra (owner, 2026-09-28).
+- **Summary:** one ledger per student across sessions (`LedgerStore`), every event cited and
+  linked to its grader call and content version, focused-only downgrades, the FR-7 export at
+  `GET /students/{id}/ledger`, and a trace from any event back to the student's exact words.
 
 #### T32 — Grader audit log and determinism
-- **Requirements:** NFR auditability and determinism, AC7.
-- **Read first:** `_capture()` in `tutor/grader.py`, `tests/evals/grader/run_evals.py`.
-- **Build:**
-  - Each capture adds `grader_call_id`, `student_id`, `prompt_version`, `content_hash`, the SHA-256
-    of the system prompt, the focus node rubric, the passage IDs offered, the `_finalise`
-    correction count and latency. The call ID is returned to the caller and written on ledger
-    events.
-  - Captures move to `GRADER_CAPTURE_DIR`. `CAPTURE_GRADER_CALLS=0` disables them.
-  - A grade memo keyed by SHA-256 of (content hash, prompt version, provider, model, focus node,
-    prior context, transcript) returns the stored result for an identical input. `GRADE_MEMO=0`
-    disables it.
-  - `run_evals.py` gains `--no-memo` (the default for evals, so raw model determinism is measured)
-    and compares statuses **and** passage IDs across `--repeat` runs, printing per-case diffs.
-  - `scripts/grader_usage.py` totals input, cache-read, cache-write and output tokens per phase
-    (diagnostic, teach-back) from the captures. It is the trigger data for T34 and shows whether
-    grader `effort` or output length is the cheaper lever.
-- **Acceptance:** a test with a call-counting scripted grader shows the second identical call hits
-  the memo; captures contain `student_id`; the eval runner reports inconsistent citations.
+- **Requirements:** NFR auditability and determinism, AC7. **Spec:** [specs/T32.md](specs/T32.md)
+  (binding). Trial coder: OpenCode + Nemotron Ultra (owner, 2026-09-28).
+- **Summary:** full audit capture per grader call (call ID, student, prompt and content hashes,
+  passages offered, corrections, latency, usage) in `GRADER_CAPTURE_DIR`; a grade memo keyed on
+  the exact prompt text; the call ID on ledger events; eval runner reports inconsistent citations;
+  `scripts/grader_usage.py` gives the T34 trigger data.
 
 #### T33 — Grader eval expansion
 - **Requirements:** AC2, AC4, AC7, FR-3.

@@ -4,6 +4,7 @@ Three implementations behind one interface, all returning `GraderOutput`:
 - ClaudeGrader   : claude-opus-5, structured output, effort=high.
 - OllamaGrader   : any Ollama model (default gemma4:31b-cloud), JSON-schema output.
 - MockGrader     : deterministic keyword overlap, for key-less UI/dev runs.
+- MemoGrader     : wraps any grader with in-memory memoisation and capture.
 
 Code, not the model, has the last word: `_finalise()` removes anything the model may not cite or
 reference and counts every correction for the audit log.
@@ -12,6 +13,7 @@ from __future__ import annotations
 
 import json
 import re
+import time
 from collections import Counter
 from datetime import datetime, timezone
 from typing import Protocol
@@ -23,9 +25,17 @@ from ollama import ResponseError as OllamaResponseError
 from .config import settings
 from .contracts.grading import Claim, ClaimJudgment, GraderOutput, NodeVerdictV2, Omission
 from .curriculum import Curriculum
-from .grading_links import NodeLinks, node_links, passages_block
+from .grading_links import NodeLinks, node_links, passages_block, offered_passage_ids
+from .grader_audit import (
+    new_call_id,
+    sha256_text,
+    memo_key,
+    grade_memo,
+    write_capture,
+)
 from .models import NodeStatus
-from .prompts import GRADER_INSTRUCTIONS, tree_block
+from .prompts import tree_block
+from . import prompts
 
 GRADED = {NodeStatus.VERIFIED, NodeStatus.PARTIAL, NodeStatus.GAP}
 
@@ -117,6 +127,8 @@ class Grader(Protocol):
         focus_node_id: str | None,
         prior_context: str,
         session_id: str,
+        student_id: str = "",
+        call_id: str | None = None,
     ) -> GraderOutput: ...
 
 
@@ -125,17 +137,24 @@ def _system_blocks(curriculum: Curriculum, links: NodeLinks, focus_node_id: str 
     passages = passages_block(curriculum, links, focus_node_id)
     if passages:
         blocks.append(passages)
-    blocks.append({"type": "text", "text": GRADER_INSTRUCTIONS})
+    blocks.append({"type": "text", "text": prompts.GRADER_INSTRUCTIONS})
     return blocks
+
+
+def _system_text(curriculum: Curriculum, links: NodeLinks, focus_node_id: str | None) -> str:
+    blocks = _system_blocks(curriculum, links, focus_node_id)
+    return "\n\n".join(b["text"] for b in blocks)
 
 
 class ClaudeGrader:
     def __init__(self, client: AsyncAnthropic | None = None):
         self.client = client or AsyncAnthropic()
 
-    async def grade(self, curriculum, transcript, *, focus_node_id, prior_context, session_id) -> GraderOutput:
+    async def grade(self, curriculum, transcript, *, focus_node_id, prior_context, session_id, student_id: str = "", call_id: str | None = None) -> GraderOutput:
         links = node_links(curriculum)
         user = _user_content(curriculum, transcript, focus_node_id, prior_context)
+        call_id = call_id or new_call_id()
+        start = time.perf_counter()
         response = await self.client.messages.parse(
             model=settings.model,
             max_tokens=16000,
@@ -144,6 +163,7 @@ class ClaudeGrader:
             output_format=GraderOutput,
             output_config={"effort": "high"},
         )
+        latency_ms = round((time.perf_counter() - start) * 1000)
         if response.stop_reason == "refusal":
             raise RuntimeError(f"grader refused: {response.stop_details}")
         raw: GraderOutput | None = response.parsed_output
@@ -151,10 +171,21 @@ class ClaudeGrader:
             raise RuntimeError(f"grader returned no parsed output (stop_reason={response.stop_reason})")
         result, fixes = _finalise(curriculum, raw, links)
         _capture(
-            session_id, user, result, fixes,
-            provider="claude", model=response.model,
+            session_id=session_id,
+            student_id=student_id,
+            focus_node_id=focus_node_id,
+            call_id=call_id,
+            curriculum=curriculum,
+            links=links,
+            user=user,
+            result=result,
+            fixes=fixes,
+            provider="claude",
+            model=response.model,
             request_id=getattr(response, "_request_id", None),
             usage=response.usage.model_dump() if response.usage else None,
+            latency_ms=latency_ms,
+            phase="teach_back" if focus_node_id else "diagnostic",
         )
         return result
 
@@ -246,13 +277,16 @@ class OllamaGrader:
                 if attempt == 2:
                     raise
 
-    async def grade(self, curriculum, transcript, *, focus_node_id, prior_context, session_id) -> GraderOutput:
+    async def grade(self, curriculum, transcript, *, focus_node_id, prior_context, session_id, student_id: str = "", call_id: str | None = None) -> GraderOutput:
         links = node_links(curriculum)
         user = _user_content(curriculum, transcript, focus_node_id, prior_context)
         blocks = _system_blocks(curriculum, links, focus_node_id)
         system = "\n\n".join(b["text"] for b in blocks) + OLLAMA_OUTPUT_CONTRACT
         messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+        call_id = call_id or new_call_id()
+        start = time.perf_counter()
         response = await self._chat(messages)
+        latency_ms = round((time.perf_counter() - start) * 1000)
         content = response.message.content or ""
         try:
             raw = GraderOutput.model_validate_json(_extract_json(content))
@@ -274,35 +308,164 @@ class OllamaGrader:
                 raise RuntimeError(f"ollama grader returned invalid JSON twice ({e}): {content[:300]}") from e
         result, fixes = _finalise(curriculum, raw, links)
         _capture(
-            session_id, user, result, fixes,
-            provider="ollama", model=response.model, request_id=None,
+            session_id=session_id,
+            student_id=student_id,
+            focus_node_id=focus_node_id,
+            call_id=call_id,
+            curriculum=curriculum,
+            links=links,
+            user=user,
+            result=result,
+            fixes=fixes,
+            provider="ollama",
+            model=response.model,
+            request_id=None,
             usage={"prompt_eval_count": response.prompt_eval_count, "eval_count": response.eval_count,
                    "total_ms": round((response.total_duration or 0) / 1e6), "retried": len(messages) > 2},
+            latency_ms=latency_ms,
+            phase="teach_back" if focus_node_id else "diagnostic",
         )
         return result
 
 
-def _capture(session_id: str, user: str, result: GraderOutput, fixes: dict[str, int], *, provider: str, model: str,
-             request_id: str | None, usage: dict | None) -> None:
+def _capture(
+    *,
+    session_id: str,
+    student_id: str,
+    focus_node_id: str | None,
+    call_id: str,
+    curriculum: Curriculum,
+    links: NodeLinks,
+    user: str,
+    result: GraderOutput,
+    fixes: dict[str, int],
+    provider: str,
+    model: str,
+    request_id: str | None,
+    usage: dict | None,
+    latency_ms: int,
+    phase: str,
+) -> None:
     """Every grader call is an eval candidate. Write it to disk."""
+    if not settings.capture_grader_calls:
+        return
     try:
-        settings.capture_dir.mkdir(parents=True, exist_ok=True)
+        settings.grader_capture_dir.mkdir(parents=True, exist_ok=True)
         ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        system_text = _system_text(curriculum, links, focus_node_id)
         payload = {
+            "grader_call_id": call_id,
+            "ts": ts,
             "session_id": session_id,
+            "student_id": student_id,
+            "phase": phase,
+            "focus_node_id": focus_node_id,
+            "focus_rubric": curriculum.node(focus_node_id).rubric if focus_node_id and focus_node_id in curriculum.by_id else [],
             "provider": provider,
-            "request_id": request_id,
             "model": model,
-            "usage": usage,
+            "request_id": request_id,
+            "prompt_version": prompts.PROMPT_VERSION,
+            "content_hash": getattr(curriculum, "content_hash", None),
+            "system_sha256": sha256_text(system_text),
+            "offered_passage_ids": offered_passage_ids(curriculum, links, focus_node_id),
             "input": user,
             "output": result.model_dump(mode="json"),
             "corrections": fixes,
+            "latency_ms": latency_ms,
+            "usage": usage,
+            "memo_hit": False,
+            "memo_of": None,
         }
-        (settings.capture_dir / f"{ts}_{session_id}.json").write_text(
+        (settings.grader_capture_dir / f"{call_id}.json").write_text(
             json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8"
         )
     except Exception:  # capture must never break grading
         pass
+
+
+class MemoGrader:
+    """Wraps any grader with in-memory memoisation and capture writing."""
+
+    def __init__(self, inner: Grader, backend: str):
+        self.inner = inner
+        self.backend = backend
+
+    async def grade(self, curriculum, transcript, *, focus_node_id, prior_context, session_id, student_id: str = "", call_id: str | None = None) -> GraderOutput:
+        from .llm import describe_grader
+        links = node_links(curriculum)
+        user = _user_content(curriculum, transcript, focus_node_id, prior_context)
+        system_text = _system_text(curriculum, links, focus_node_id)
+        key = memo_key(self.backend, prompts.PROMPT_VERSION, system_text, user)
+        call_id = call_id or new_call_id()
+
+        if not settings.grade_memo:
+            return await self.inner.grade(
+                curriculum, transcript, focus_node_id=focus_node_id, prior_context=prior_context,
+                session_id=session_id, student_id=student_id, call_id=call_id
+            )
+
+        cached = grade_memo.get(key)
+        if cached:
+            output, original_call_id = cached
+            _capture(
+                session_id=session_id,
+                student_id=student_id,
+                focus_node_id=focus_node_id,
+                call_id=call_id,
+                curriculum=curriculum,
+                links=links,
+                user=user,
+                result=output,
+                fixes={},
+                provider=self.backend,
+                model=describe_grader(),
+                request_id=None,
+                usage=None,
+                latency_ms=0,
+                phase="teach_back" if focus_node_id else "diagnostic",
+            )
+            # The capture above is handled differently for memo hits
+            # We need to write a special capture with memo_hit=True
+            if settings.capture_grader_calls:
+                try:
+                    settings.grader_capture_dir.mkdir(parents=True, exist_ok=True)
+                    payload = {
+                        "grader_call_id": call_id,
+                        "ts": datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"),
+                        "session_id": session_id,
+                        "student_id": student_id,
+                        "phase": "teach_back" if focus_node_id else "diagnostic",
+                        "focus_node_id": focus_node_id,
+                        "focus_rubric": curriculum.node(focus_node_id).rubric if focus_node_id and focus_node_id in curriculum.by_id else [],
+                        "provider": self.backend,
+                        "model": describe_grader(),
+                        "request_id": None,
+"prompt_version": prompts.PROMPT_VERSION,
+                        "content_hash": getattr(curriculum, "content_hash", None),
+                        "system_sha256": sha256_text(system_text),
+                        "offered_passage_ids": offered_passage_ids(curriculum, links, focus_node_id),
+                        "input": user,
+                        "output": output.model_dump(mode="json"),
+                        "corrections": {},
+                        "latency_ms": 0,
+                        "usage": None,
+                        "memo_hit": True,
+                        "memo_of": original_call_id,
+                    }
+                    (settings.grader_capture_dir / f"{call_id}.json").write_text(
+                        json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8"
+                    )
+                except Exception:
+                    pass
+            return output
+
+        # Miss: call inner grader with the same call_id
+        output = await self.inner.grade(
+            curriculum, transcript, focus_node_id=focus_node_id, prior_context=prior_context,
+            session_id=session_id, student_id=student_id, call_id=call_id
+        )
+        grade_memo.put(key, output, call_id)
+        return output
 
 
 # --------------------------------------------------------------------------- #
@@ -326,8 +489,11 @@ class MockGrader:
     """Keyword-overlap grader. Not clever - just deterministic and free. Emits one claim per
     matched node, cited to that node's own linked passages."""
 
-    async def grade(self, curriculum, transcript, *, focus_node_id, prior_context, session_id) -> GraderOutput:
+    async def grade(self, curriculum, transcript, *, focus_node_id, prior_context, session_id, student_id: str = "", call_id: str | None = None) -> GraderOutput:
         links = node_links(curriculum)
+        user = _user_content(curriculum, transcript, focus_node_id, prior_context)
+        call_id = call_id or new_call_id()
+        start = time.perf_counter()
         said = _keywords(transcript)
         verdicts: list[NodeVerdictV2] = []
         claims: list[Claim] = []
@@ -365,5 +531,22 @@ class MockGrader:
             )
         verified = sum(1 for v in verdicts if v.status == NodeStatus.VERIFIED)
         summary = f"[mock] {verified} node(s) verified, {len(verdicts) - verified} partial/gap from keyword overlap."
-        result, _ = _finalise(curriculum, GraderOutput(claims=claims, verdicts=verdicts, summary=summary), links)
+        result, fixes = _finalise(curriculum, GraderOutput(claims=claims, verdicts=verdicts, summary=summary), links)
+        _capture(
+            session_id=session_id,
+            student_id=student_id,
+            focus_node_id=focus_node_id,
+            call_id=call_id,
+            curriculum=curriculum,
+            links=links,
+            user=user,
+            result=result,
+            fixes=fixes,
+            provider="mock",
+            model="mock",
+            request_id=None,
+            usage=None,
+            latency_ms=round((time.perf_counter() - start) * 1000),
+            phase="teach_back" if focus_node_id else "diagnostic",
+        )
         return result

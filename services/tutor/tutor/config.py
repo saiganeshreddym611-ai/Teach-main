@@ -56,8 +56,10 @@ class Settings:
     reviewer: str = os.getenv("REVIEWER", "session").lower()
     reviewer_model: str = os.getenv("REVIEWER_MODEL") or os.getenv("TUTOR_MODEL", "claude-opus-5")
     review_dir: Path = Path(os.getenv("REVIEW_DIR", str(Path(__file__).resolve().parents[1] / "data" / "reviews")))
-    # Where grader calls are captured for the eval set
-    capture_dir: Path = Path(__file__).resolve().parents[1] / "tests" / "evals" / "grader" / "captured"
+    # Grader audit settings
+    grader_capture_dir: Path = Path(os.getenv("GRADER_CAPTURE_DIR", str(Path(__file__).resolve().parents[1] / "data" / "captures")))
+    capture_grader_calls: bool = os.getenv("CAPTURE_GRADER_CALLS", "1") in {"1", "true", "yes"}
+    grade_memo: bool = os.getenv("GRADE_MEMO", "1") in {"1", "true", "yes"}
 
 
 settings = Settings()

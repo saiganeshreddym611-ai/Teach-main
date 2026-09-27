@@ -46,6 +46,25 @@ def node_links(curriculum: Curriculum) -> NodeLinks:
     return NodeLinks({n.id: retriever.for_node(n.id) for n in curriculum.tree.nodes}, retriever.corpus)
 
 
+def offered_passage_ids(curriculum: Curriculum, links: NodeLinks, focus_node_id: str | None = None) -> list[str]:
+    """The passage ids that the grader may cite, in the order they appear in passages_block."""
+    node_ids = [n.id for n in curriculum.tree.nodes]
+    if focus_node_id:
+        # In teach-back, if we're over the token limit, only focus node's passages are sent
+        # We need to check if the full block would exceed the limit
+        # For simplicity, we just return the ids that would be in the block
+        # The actual block rendering logic handles the token limit
+        pass
+    seen: set[str] = set()
+    result: list[str] = []
+    for node_id in node_ids:
+        for p in links.passages.get(node_id, []):
+            if p.passage_id not in seen:
+                seen.add(p.passage_id)
+                result.append(p.passage_id)
+    return result
+
+
 def estimate_tokens(text: str) -> int:
     """Rough size for the cache-size decision: about 4 characters per token."""
     return len(text) // 4

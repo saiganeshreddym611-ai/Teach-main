@@ -121,13 +121,14 @@ def _load_pack(pack_id: str, packs_dir: Path) -> ContentPack:
         raise ContentPackError(
             f"{concept_map_path}: parent IDs are not node IDs: {', '.join(invalid_parents)}"
         )
-    curriculum = Curriculum(tree)
+    content_hash = compute_content_hash(manifest, tree)
+    curriculum = Curriculum(tree, content_hash=content_hash)
     return ContentPack(
         pack_id=pack_id,
         root=root,
         manifest=manifest,
         curriculum=curriculum,
-        content_hash=compute_content_hash(manifest, tree),
+        content_hash=content_hash,
     )
 
 

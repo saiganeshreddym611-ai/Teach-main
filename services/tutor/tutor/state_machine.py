@@ -17,6 +17,7 @@ from typing import Any, AsyncIterator
 from .config import settings
 from .curriculum import Curriculum
 from .grader import Grader
+from .grader_audit import new_call_id
 from .ledger import append_verdicts, project_status
 from .contracts.grading import GraderOutput
 from .grader import omissions
@@ -167,10 +168,12 @@ async def run_turn(
     directive: str
 
     if session.phase == Phase.DIAGNOSTIC:
+        call_id = new_call_id()
         result = await grader.grade(
-            curriculum, transcript, focus_node_id=None, prior_context="", session_id=session.id
+            curriculum, transcript, focus_node_id=None, prior_context="", session_id=session.id,
+            student_id=session.student_id, call_id=call_id
         )
-        ledger_delta = append_verdicts(session, result.verdicts, student_turn.id, Phase.DIAGNOSTIC)
+        ledger_delta = append_verdicts(session, result.verdicts, student_turn.id, Phase.DIAGNOSTIC, grader_call_id=call_id)
         session.student_level_summary = result.summary
         missing = omissions(curriculum, result, node_links(curriculum))
         yield TurnEvent("grade", _grade_payload(result, missing))
@@ -185,11 +188,13 @@ async def run_turn(
     elif session.phase == Phase.TEACH_BACK:
         target = session.target_node
         last_tutor = next((t.text for t in reversed(session.turns) if t.role == "tutor"), "")
+        call_id = new_call_id()
         result = await grader.grade(
-            curriculum, transcript, focus_node_id=target, prior_context=f"Tutor asked: {last_tutor}", session_id=session.id
+            curriculum, transcript, focus_node_id=target, prior_context=f"Tutor asked: {last_tutor}", session_id=session.id,
+            student_id=session.student_id, call_id=call_id
         )
         ledger_delta = append_verdicts(
-            session, result.verdicts, student_turn.id, Phase.TEACH_BACK, focus_node_ids={target}
+            session, result.verdicts, student_turn.id, Phase.TEACH_BACK, focus_node_ids={target}, grader_call_id=call_id
         )
         yield TurnEvent("grade", _grade_payload(result, []))
         verdict = next((v for v in result.verdicts if v.node_id == target), None)

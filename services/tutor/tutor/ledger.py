@@ -18,6 +18,7 @@ def append_verdicts(
     phase: Phase,
     *,
     focus_node_ids: set[str] | None = None,
+    grader_call_id: str | None = None,
 ) -> list[LedgerEvent]:
     """Write one event per verdict that carries evidence (NOT_MENTIONED is skipped).
 
@@ -44,6 +45,7 @@ def append_verdicts(
             session_id=session.id,
             evidence=v.evidence,
             passage_ids=list(v.passage_ids),
+            grader_call_id=grader_call_id,
         )
         session.ledger.append(ev)
         written.append(ev)

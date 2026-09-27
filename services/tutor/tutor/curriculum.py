@@ -20,11 +20,12 @@ PROMPT_NODE_FIELDS = (
 
 
 class Curriculum:
-    def __init__(self, tree: Tree):
+    def __init__(self, tree: Tree, content_hash: str | None = None):
         self.tree = tree
         self.by_id: dict[str, Node] = {n.id: n for n in tree.nodes}
         # Document order is the priority order within a level.
         self.order: dict[str, int] = {n.id: i for i, n in enumerate(tree.nodes)}
+        self.content_hash = content_hash
 
     def node(self, node_id: str) -> Node:
         return self.by_id[node_id]

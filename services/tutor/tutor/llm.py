@@ -4,17 +4,19 @@ from __future__ import annotations
 from functools import lru_cache
 
 from .config import settings
-from .grader import ClaudeGrader, Grader, MockGrader, OllamaGrader
+from .grader import ClaudeGrader, Grader, MemoGrader, MockGrader, OllamaGrader
 from .tutor_voice import ClaudeTutor, MockTutor, OllamaTutor, TutorVoice
 
 
 @lru_cache(maxsize=1)
 def get_grader() -> Grader:
     if settings.mock_llm:
-        return MockGrader()
-    if settings.grader_provider == "ollama":
-        return OllamaGrader()
-    return ClaudeGrader()
+        inner = MockGrader()
+    elif settings.grader_provider == "ollama":
+        inner = OllamaGrader()
+    else:
+        inner = ClaudeGrader()
+    return MemoGrader(inner, describe_grader())
 
 
 def describe_grader() -> str:

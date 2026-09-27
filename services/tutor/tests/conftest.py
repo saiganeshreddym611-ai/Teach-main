@@ -2,6 +2,7 @@ import pytest
 
 from tutor.curriculum import load_curriculum
 from tutor.contracts.grading import GraderOutput, NodeVerdictV2
+from tutor.grader_audit import grade_memo
 from tutor.models import NodeStatus, Session
 from tutor.prompts import TEACH_BACK_SENTINEL
 
@@ -16,6 +17,18 @@ def session():
     return Session(student_id="s1", topic_id="ind_as_115")
 
 
+@pytest.fixture(autouse=True)
+def isolate_grader_audit(tmp_path):
+    """Point capture dir to tmp_path and clear memo before each test."""
+    from tutor.config import settings
+    original_capture_dir = settings.grader_capture_dir
+    settings.grader_capture_dir = tmp_path
+    grade_memo.clear()
+    yield
+    settings.grader_capture_dir = original_capture_dir
+    grade_memo.clear()
+
+
 class ScriptedGrader:
     """Returns the next scripted GraderOutput on each call and records calls."""
 
@@ -23,8 +36,8 @@ class ScriptedGrader:
         self.results = list(results)
         self.calls = []
 
-    async def grade(self, curriculum, transcript, *, focus_node_id, prior_context, session_id):
-        self.calls.append({"transcript": transcript, "focus": focus_node_id, "prior": prior_context})
+    async def grade(self, curriculum, transcript, *, focus_node_id, prior_context, session_id, student_id: str = "", call_id: str | None = None):
+        self.calls.append({"transcript": transcript, "focus": focus_node_id, "prior": prior_context, "student_id": student_id, "call_id": call_id})
         return self.results.pop(0)
 
 

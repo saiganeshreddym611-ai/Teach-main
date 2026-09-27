@@ -50,6 +50,9 @@ kiosk uses the browser voice until it is ready. `TTS_AUTO_DOWNLOAD=0` turns the 
 | `RETRIEVAL_MIN_CONFIDENCE` | Placeholder for the future out-of-syllabus gate; defaults to `0.5` until H5 signs off a calibrated value. |
 | `TTS_ENGINE` | `piper` (default, server-side `POST /tts`), `kokoro`, or `browser` (Web Speech API in the kiosk). `TTS_AUTO_DOWNLOAD=0` stops the first-start voice download. |
 | `PIPER_VOICE`, `KOKORO_VOICE`, `TTS_SPEED` | Default voice and rate. The kiosk header has a voice picker for any voice in `models/`. |
+| `GRADER_CAPTURE_DIR` | Directory for grader call captures (default `services/tutor/data/captures`). |
+| `CAPTURE_GRADER_CALLS` | `1` to write capture files (default); `0` to disable. |
+| `GRADE_MEMO` | `1` to enable in-memory memoisation of grader results (default); `0` to disable. |
 
 **2. Kiosk UI (Node 20+)**
 

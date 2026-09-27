@@ -438,16 +438,9 @@ marked *(new)* do not exist yet.
   agent) with this pack as the pattern; Claude reviews each one with T23 (owner, 2026-09-27).
 
 #### T26 — Hybrid retrieval: vector search that keeps passage IDs (D9)
-- **Coder:** Claude (D8: retrieval core, determinism).
-- **Why:** students speak in paraphrase. T42 calibration found reworded questions scoring only
-  0.39–0.57 on BM25. The owner wants a vector database in future (D9).
-- **Summary:** embed every passage with a local embedding model served by Ollama, chosen by
-  measurement on the calibration questions; store the vectors per passage ID next to the corpus
-  (`corpus/vectors.*`), rebuilt by `scripts/ingest.py`, with the model name and version in the
-  corpus manifest. Search combines the vector and BM25 scores. Every match is still a passage ID,
-  so citations, the T23 quote check and the ledger's trace to source do not change.
-- **Acceptance:** calibration recall on reworded questions improves over BM25 alone; identical
-  results across runs; the fixture and Ind AS 37 tests still pass.
+- **Requirements:** D9. **Spec:** [specs/T26.md](specs/T26.md) (binding).
+  Coder: Copilot (owner's batch, 2026-09-28; audited later).
+- **Summary:** local Ollama embeddings per passage ID next to the corpus, hybrid vector + BM25 search behind `RETRIEVAL_MODE` (default `bm25`), embedding model chosen by measurement on reworded `ind_as_37` questions; grading untouched.
 
 ### M3 — Cited, claim-level grading
 
@@ -474,24 +467,9 @@ marked *(new)* do not exist yet.
   `scripts/grader_usage.py` gives the T34 trigger data.
 
 #### T33 — Grader eval expansion
-- **Requirements:** AC2, AC4, AC7, FR-3.
-- **Read first:** `tests/evals/grader/_make_cases.py` and the existing cases.
-- **Build:**
-  - Case schema gains optional `expect_citations` (node ID → passage ID prefixes) and
-    `expect_omissions`.
-  - New cases, with fictional student speech written by the agent:
-    - The AC1/AC2 diagnostic: explains steps 1, 2, 3 and 5, says revenue is recognised on
-      invoicing, and omits allocation. Expect `ind_as_115.step_5` as `GAP` with its "invoicing or
-      cash receipt" misconception, `ind_as_115.step_4` as `NOT_MENTIONED` and listed in omissions.
-    - The AC4 teach-back: extend case 03 (allocates on cost) with citation expectations.
-    - One multi-claim answer that mixes an accurate and an inaccurate claim on the same node.
-    - STT-noisy speech that must still verify, with citations.
-  - New cases start as `draft`; T23 reviews each expected verdict and citation against the
-    sources before the case counts.
-  - Run against the configured model with `--repeat 3` and update the README results table.
-  - You may iterate the grader prompt (bumping `PROMPT_VERSION` and re-running every case), but
-    never weaken the strictness rules.
-- **Human gate:** H4 spot-checks the AI-reviewed cases.
+- **Requirements:** AC2, AC4, AC7, FR-3. **Spec:** [specs/T33.md](specs/T33.md) (binding).
+  Coder: Copilot (owner's batch, 2026-09-28; audited later).
+- **Summary:** case fields `pack`, `status`, `expect_citations`, `expect_omissions`; five draft cases (two on Ind AS 115, three on Ind AS 37 with citations); drafts count only after Claude's T23 review; results row in the README. Human gate: H4.
 
 #### T34 — Context budget: section-scoped grading (triggered, not scheduled)
 - **Coder:** Claude (D8). **Requirements:** NFR cost and latency. See Q12.
@@ -513,25 +491,9 @@ marked *(new)* do not exist yet.
 ### M4 — Socratic, grounded tutor
 
 #### T40 — Socratic probe-first flow
-- **Requirements:** FR-5 ("ask a probing question before revealing the answer"), FR-6, AC3.
-- **Read first:** `tutor/state_machine.py`, `tests/test_state_machine.py`, `tutor/tutor_voice.py`
-  (`MockTutor`).
-- **Build:**
-  - Add `instruct_step: PROBE | EXPLAIN | CONTINUE` to `Session`.
-  - When code selects a new target node, the first tutor turn is a probe: directive
-    `ACTION=PROBE` asks one question that leads toward the first unmet rubric item, states no rule,
-    at most 60 words, and does not request a teach-back. Include known grader evidence or the
-    matched misconception.
-  - The student's reply to a probe gets a focused grade (`source="probe"`). Then:
-    VERIFIED writes the event and advances; PARTIAL gives an `EXPLAIN` limited to the missing
-    rubric items; GAP or NOT_MENTIONED gives a full `EXPLAIN` that corrects the misconception.
-  - Code gates the teach-back sentinel. Today the tutor can move INSTRUCT→TEACH_BACK on any turn
-    by emitting `<<TEACH_BACK>>`. Honour it only when the rules allow (never during `PROBE`, never
-    on the first `EXPLAIN` turn); otherwise strip and ignore it. The max-turns force stays.
-  - `MockTutor` handles `ACTION=PROBE`. Update the README state diagram.
-- **Acceptance:** tests show the first turn on a new node is a probe with no explanation; probe
-  VERIFIED advances; probe GAP leads to EXPLAIN; a sentinel during PROBE does not change phase;
-  `test_api_mock.py` is updated and passes.
+- **Requirements:** FR-5, FR-6, AC3. **Spec:** [specs/T40.md](specs/T40.md) (binding).
+  Coder: Copilot (owner's batch, 2026-09-28; audited later).
+- **Summary:** `Session.instruct_step` PROBE → EXPLAIN → CONTINUE; a new node starts with a probe question; the probe reply is graded (`source="probe"`); VERIFIED advances, PARTIAL explains only missing rubric items, GAP explains in full; code gates the teach-back sentinel.
 
 #### T41 — Tutor grounding and spoken citations
 - **Requirements:** FR-5, FR-6 ("corrections cite the exact reviewed source passage"), AC3, AC4.
@@ -694,13 +656,9 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
   fixture-replay tests.
 
 #### T61 — Mastery dashboard v2
-- **Requirements:** FR-8, FR-13 ("mastery by chapter"), AC2.
-- **Build:** in `components/MasteryGrid.tsx`, group by chapter when there is more than one;
-  highlight omissions after the diagnostic; clicking a chip opens an evidence panel inside the
-  rail with status, confidence, the student's quote and each citation's passage text from
-  `/passages`. Escape closes it. Updates stay live.
-- **Acceptance:** lint and build pass; a manual check with `MOCK_LLM=1` shows evidence and citations;
-  the panel is keyboard accessible.
+- **Requirements:** FR-8, FR-13, AC2. **Spec:** [specs/T61.md](specs/T61.md) (binding).
+  Coder: Copilot (owner's batch, 2026-09-28; audited later).
+- **Summary:** chapter grouping, omission marks after the diagnostic, and an evidence panel in the rail (status, confidence, the student's quote, cited passage text), keyboard accessible.
 
 #### T62 — Citation chips on tutor turns
 - **Requirements:** FR-5, FR-6, AC3, AC4.
@@ -810,11 +768,9 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
   text in `/passages`, a changed grader prompt hash, and stable node IDs, with no code changes.
 
 #### T84 — Optional seeded job profile
-- **Requirements:** REQUIREMENTS section 9 (only if it costs nothing).
-- **Build:** `content/packs/ind_as_115/job_profiles/*.json` with the section 9 shape; a
-  "qualified" projection (every required node VERIFIED); an optional job-profile filter on the
-  node selector that walks core nodes before adjacent ones.
-- **Acceptance:** projection and selector filter tests.
+- **Requirements:** REQUIREMENTS section 9. **Spec:** [specs/T84.md](specs/T84.md) (binding).
+  Coder: Copilot (owner's batch, 2026-09-28; audited later).
+- **Summary:** `JobProfile` contract and loader, a fictional seed profile for `ind_as_115`, the `qualified` projection and an optional core-before-adjacent selector filter.
 
 #### T85 — Student flags and community check
 - **Requirements:** FR-14, D7, NFR privacy, `QUALITY-AND-REVIEW.md` section 4,

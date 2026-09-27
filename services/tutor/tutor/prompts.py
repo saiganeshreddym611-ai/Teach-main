@@ -9,11 +9,11 @@ from __future__ import annotations
 
 from .curriculum import Curriculum
 
-PROMPT_VERSION = "1"
-
 # Sentinel the tutor appends when its last question is the teach-back request.
 TEACH_BACK_SENTINEL = "<<TEACH_BACK>>"
 
+# Bump when prompt text, the grader output schema, or the tree serialisation changes.
+PROMPT_VERSION = "1"
 
 def tree_block(curriculum: Curriculum) -> dict:
     text = (

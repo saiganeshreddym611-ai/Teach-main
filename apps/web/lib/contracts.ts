@@ -1,73 +1,103 @@
-export type Phase = "DIAGNOSTIC" | "INSTRUCT" | "TEACH_BACK" | "COMPLETE" | "TASK" | "REVIEW";
-export type NodeStatus = "NOT_MENTIONED" | "GAP" | "PARTIAL" | "VERIFIED";
+import type { NodeStatus, Phase } from "./api";
 
-export interface ReviewClaim {
-  claim: string;
-  verdict: "supported" | "contradicted" | "not_found";
-  passage_id: string | null;
-  quote: string;
-  quote_verified: boolean;
-}
+export type Sha256 = string;
+export type ReviewStatus = "draft" | "claude_reviewed" | "needs_expert" | "signed_off";
+export type DocType = "standard" | "study_material" | "rtp" | "mtp" | "past_paper" | "amendment";
+export type ClaimVerdict = "supported" | "contradicted" | "not_found";
+export type ParamType = "money" | "percent" | "date" | "int" | "choice" | "name";
 
-export interface Reviewer {
+export type ReviewerInfo = {
   mode: "session" | "claude-api";
-  model: string;
-}
+  model?: string;
+};
 
-export interface ReviewMeta {
-  status: "draft" | "claude_reviewed" | "needs_expert" | "signed_off";
-  content_sha256: string;
-  reviewer: Reviewer | null;
-  reviewed_at: string | null;
-  claims: ReviewClaim[];
-  report_id: string | null;
-  signed_off_by: string | null;
-  signed_off_at: string | null;
-  notes: string;
-}
+export type ReviewClaim = {
+  claim: string;
+  verdict: ClaimVerdict;
+  passage_id?: string | null;
+  quote?: string;
+  quote_verified?: boolean;
+};
 
-export interface SourceDoc {
+export type ReviewMeta = {
+  status?: ReviewStatus;
+  content_sha256: Sha256;
+  reviewer?: ReviewerInfo | null;
+  claims?: ReviewClaim[];
+  report_id?: string | null;
+  signed_off_by?: string | null;
+  signed_off_at?: string | null;
+  notes?: string;
+};
+
+export type ReleaseSignoff = {
+  pack_id: string;
+  version: string;
+  content_hash: Sha256;
+  signed_off_by: string;
+  signed_off_at: string;
+  scope_note?: string;
+};
+
+export type SourceDoc = {
   doc_id: string;
   doc_code: string;
   title: string;
-  short_name: string;
-  doc_type: "standard" | "study_material" | "rtp" | "mtp" | "past_paper" | "amendment";
-  issuer: string;
+  short_name?: string;
+  doc_type: DocType;
+  issuer?: string;
   authority_rank: number;
-  attempt: string;
-  version: string;
+  attempt?: string | null;
+  version?: string;
   path: string;
-  sha256: string;
-  license_note: string;
-}
+  sha256?: string;
+  license_note?: string;
+};
 
-export interface Passage {
+export type Passage = {
   passage_id: string;
   doc_id: string;
-  doc_type: SourceDoc["doc_type"];
-  paper: string;
-  chapter: string;
-  section: string;
+  doc_type: DocType;
+  paper?: string;
+  chapter?: string;
+  section?: string;
   locator: string;
-  attempt: string;
-  version: string;
-  page: number | null;
+  attempt?: string | null;
+  version?: string;
+  page?: number | null;
   text: string;
-  sha256: string;
-  supersedes: string[];
-}
+  sha256: Sha256;
+  supersedes?: string[];
+};
 
-export interface Citation {
+export type Citation = {
   passage_id: string;
   label: string;
   doc_id: string;
-}
+};
 
-export interface ScoredPassage {
+export type ScoredPassage = {
   passage: Passage;
   score: number;
-  confidence: number;
-}
+  confidence?: number;
+};
+
+export type PackManifest = {
+  pack_id: string;
+  exam: string;
+  paper: string;
+  attempt: string;
+  version: string;
+  topics: string[];
+  doc_codes?: Record<string, string>;
+  out_of_scope_message?: string;
+};
+
+export type CorpusManifest = {
+  built_from: Record<string, string>;
+  chunk_count: number;
+  corpus_sha256: Sha256;
+};
 
 export type ClaimJudgment =
   | "ACCURATE"
@@ -76,106 +106,194 @@ export type ClaimJudgment =
   | "UNSUPPORTED"
   | "OFF_SYLLABUS";
 
-export interface Claim {
+export type Claim = {
   claim_id: string;
   quote: string;
-  node_id: string | null;
+  node_id?: string | null;
   judgment: ClaimJudgment;
-  passage_ids: string[];
-}
+  passage_ids?: string[];
+};
 
-export interface NodeVerdictV2 {
+export type NodeVerdictV2 = {
   node_id: string;
   status: NodeStatus;
   confidence: number;
-  evidence: string;
-  rubric_items_met: number[];
-  misconception_ids: number[];
-  passage_ids: string[];
-  citation_origin: "model" | "node_link";
-}
+  evidence?: string;
+  rubric_items_met?: number[];
+  misconception_ids?: number[];
+  passage_ids?: string[];
+  citation_origin?: "model" | "node_link";
+};
 
-export interface GraderOutput {
-  claims: Claim[];
+export type GraderOutput = {
+  claims?: Claim[];
   verdicts: NodeVerdictV2[];
   summary: string;
-}
+};
 
-export interface Omission {
+export type Omission = {
   node_id: string;
-  citations: string[];
-}
+  citations?: Citation[];
+};
 
-export interface LedgerEvent {
-  kind: "concept";
+export type LedgerSource =
+  | "diagnostic"
+  | "probe"
+  | "teach_back"
+  | "task"
+  | "review"
+  | "practice";
+
+export type LedgerEvent = {
+  kind?: "concept";
   id: string;
   student_id: string;
-  session_id: string | null;
   node_id: string;
   status: NodeStatus;
   confidence: number;
-  evidence: string;
   evidence_turn_id: string;
-  passage_ids: string[];
-  grader_call_id: string | null;
-  content_version: string | null;
-  source: "diagnostic" | "probe" | "teach_back" | "task" | "review" | "practice";
   phase: Phase;
   ts: string;
-}
+  session_id?: string | null;
+  evidence?: string;
+  passage_ids?: string[];
+  grader_call_id?: string | null;
+  content_version?: string | null;
+  source?: LedgerSource | null;
+};
 
-export interface TaskAttemptEvent {
-  kind: "task";
-  id: string;
+export type RubricItemResult = {
+  rubric_id: string;
+  score: number;
+  node_id?: string | null;
+  passage_ids?: string[];
+};
+
+export type TaskAttemptEvent = {
+  kind?: "task";
+  id?: string;
   student_id: string;
   session_id: string;
   skill_id: string;
   task_id: string;
   template_version: string;
   variant_seed: number;
-  answer_key_sha256: string;
+  answer_key_sha256: Sha256;
   score: number;
   passed: boolean;
-  item_results: Array<{
-    rubric_id: string;
-    score: number;
-    node_id: string | null;
-    passage_ids: string[];
-  }>;
+  item_results?: RubricItemResult[];
   evidence_turn_id: string;
-  grader_call_id: string | null;
-  ts: string;
-}
+  grader_call_id?: string | null;
+  ts?: string;
+};
 
-export interface ParamSpec {
-  type: "money" | "percent" | "date" | "int" | "choice" | "name";
-  min: number | null;
-  max: number | null;
-  step: number | null;
-  choices: string[];
-}
+export type ParamSpec = {
+  type: ParamType;
+  min?: string | null;
+  max?: string | null;
+  step?: string | null;
+  choices?: string[];
+};
 
-export interface SkillDef {
-  skill_id: string;
+export type NumericCheck = {
+  type: "numeric";
+  field: string;
+  tolerance?: string;
+};
+
+export type DiscrepancyCheck = {
+  type: "discrepancy";
+  discrepancy_id: string;
+};
+
+export type JudgementCheck = {
+  type: "judgement";
+};
+
+export type RubricCheck = NumericCheck | DiscrepancyCheck | JudgementCheck;
+
+export type RubricItem = {
+  id: string;
+  text: string;
+  weight?: number;
+  node_id: string;
+  passage_ids?: string[];
+  required?: boolean;
+  check: RubricCheck;
+};
+
+export type PlantedDiscrepancy = {
+  id: string;
+  row_id: string;
+  issue_type: string;
+  node_id: string;
+  passage_ids?: string[];
+};
+
+export type TaskDocument = {
+  doc_id: string;
   title: string;
-  description: string;
-  task_ids: string[];
-  unlock_rule: "all_tasks_passed";
-}
+  columns: string[];
+  rows: Array<Record<string, string>>;
+};
 
-export interface TaskTemplate {
+export type TaskTemplate = {
   task_id: string;
   skill_id: string;
   title: string;
-  description: string;
+  kind: "calculation" | "discrepancy_hunt";
+  node_ids: string[];
+  company?: Record<string, string>;
+  narrative_template: string;
+  params?: Record<string, ParamSpec>;
+  constraints?: string[];
+  documents?: TaskDocument[];
+  calculator: string;
+  answer_fields: string[];
+  rubric: RubricItem[];
+  planted_discrepancies?: PlantedDiscrepancy[];
+  model_answer_template?: string;
+  pass_threshold: number;
   template_version: string;
-  parameters: Record<string, ParamSpec>;
-  rubric: Array<{
-    rubric_id: string;
-    description: string;
-    node_id: string;
-    passage_ids: string[];
-  }>;
-  brief: Record<string, unknown>;
-  review_status: "draft" | "claude_reviewed" | "needs_expert" | "signed_off";
-}
+};
+
+export type TaskVariant = {
+  task_id: string;
+  seed: number;
+  params: Record<string, string>;
+  narrative: string;
+  documents?: TaskDocument[];
+  answer_key: Record<string, string>;
+  answer_key_sha256: Sha256;
+};
+
+export type SkillDef = {
+  skill_id: string;
+  title: string;
+  description?: string;
+  task_ids: string[];
+  unlock_rule?: "all_tasks_passed";
+};
+
+export type ContentInfo = {
+  manifest: PackManifest;
+  content_hash: Sha256;
+  review_counts?: Record<string, Record<string, number>>;
+};
+
+export type PassageResponse = {
+  passage: Passage;
+  source: SourceDoc;
+  citation: Citation;
+};
+
+export type VerifyRequest = {
+  student_id: string;
+  audio_b64: string;
+};
+
+export type VerifyResponse = {
+  match: boolean;
+  score: number;
+  method: string;
+};

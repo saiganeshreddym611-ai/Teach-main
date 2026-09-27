@@ -1,36 +1,29 @@
 """API-facing contract schemas for future versioned endpoints."""
 from __future__ import annotations
 
-from typing import Literal
-
 from pydantic import BaseModel, Field
 
-
-Phase = Literal["DIAGNOSTIC", "INSTRUCT", "TEACH_BACK", "COMPLETE", "TASK", "REVIEW"]
-
-
-class CreateSessionRequest(BaseModel):
-    student_id: str = "demo_student"
-    topic_id: str = "ind_as_115"
+from .content import Citation, PackManifest, Passage, Sha256, SourceDoc
 
 
-class CreateSessionResponse(BaseModel):
-    session_id: str
-    phase: Phase
-    opening_prompt: str
+class ContentInfo(BaseModel):
+    manifest: PackManifest
+    content_hash: Sha256
+    review_counts: dict[str, dict[str, int]] = {}
 
 
-class TurnRequest(BaseModel):
-    transcript: str = Field(min_length=1)
+class PassageResponse(BaseModel):
+    passage: Passage
+    source: SourceDoc
+    citation: Citation
 
 
-class SessionView(BaseModel):
-    session_id: str
-    student_id: str
-    topic_id: str
-    phase: Phase
-    target_node: str | None = None
-    student_level_summary: str = ""
-    mastery: list[dict] = Field(default_factory=list)
-    turns: list[dict] = Field(default_factory=list)
-    ledger: list[dict] = Field(default_factory=list)
+class VerifyRequest(BaseModel):
+    student_id: str = Field(min_length=1, max_length=64, pattern=r"^[A-Za-z0-9_\-]+$")
+    audio_b64: str = Field(min_length=1, max_length=7_000_000)
+
+
+class VerifyResponse(BaseModel):
+    match: bool
+    score: float = Field(ge=0.0, le=1.0)
+    method: str

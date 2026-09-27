@@ -1,18 +1,22 @@
 """Schemas for claim extraction and citation-backed grading."""
 from __future__ import annotations
 
+from enum import Enum
 from typing import Literal
 
 from pydantic import BaseModel, Field
 
+from tutor.models import NodeStatus
 
-ClaimJudgment = Literal[
-    "ACCURATE",
-    "INACCURATE",
-    "MISCONCEPTION",
-    "UNSUPPORTED",
-    "OFF_SYLLABUS",
-]
+from .content import Citation
+
+
+class ClaimJudgment(str, Enum):
+    ACCURATE = "ACCURATE"
+    INACCURATE = "INACCURATE"
+    MISCONCEPTION = "MISCONCEPTION"
+    UNSUPPORTED = "UNSUPPORTED"
+    OFF_SYLLABUS = "OFF_SYLLABUS"
 
 
 class Claim(BaseModel):
@@ -20,26 +24,26 @@ class Claim(BaseModel):
     quote: str
     node_id: str | None = None
     judgment: ClaimJudgment
-    passage_ids: list[str] = Field(default_factory=list)
+    passage_ids: list[str] = []
 
 
 class NodeVerdictV2(BaseModel):
     node_id: str
-    status: Literal["NOT_MENTIONED", "GAP", "PARTIAL", "VERIFIED"]
+    status: NodeStatus
     confidence: float = Field(ge=0.0, le=1.0)
     evidence: str = ""
-    rubric_items_met: list[int] = Field(default_factory=list)
-    misconception_ids: list[int] = Field(default_factory=list)
-    passage_ids: list[str] = Field(default_factory=list)
+    rubric_items_met: list[int] = []
+    misconception_ids: list[int] = []
+    passage_ids: list[str] = []
     citation_origin: Literal["model", "node_link"] = "node_link"
 
 
 class GraderOutput(BaseModel):
-    claims: list[Claim] = Field(default_factory=list)
-    verdicts: list[NodeVerdictV2] = Field(default_factory=list)
+    claims: list[Claim] = []
+    verdicts: list[NodeVerdictV2]
     summary: str
 
 
 class Omission(BaseModel):
     node_id: str
-    citations: list[str] = Field(default_factory=list)
+    citations: list[Citation] = []

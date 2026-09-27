@@ -88,6 +88,9 @@ class Turn(BaseModel):
     ts: datetime = Field(default_factory=_now)
 
 
+LedgerSource = Literal["diagnostic", "probe", "teach_back", "task", "review", "practice"]
+
+
 class LedgerEvent(BaseModel):
     id: str = Field(default_factory=_uid)
     student_id: str
@@ -103,7 +106,7 @@ class LedgerEvent(BaseModel):
     passage_ids: list[str] = Field(default_factory=list)
     grader_call_id: str | None = None
     content_version: str | None = None
-    source: Literal["diagnostic", "probe", "teach_back", "task", "review", "practice"] = "diagnostic"
+    source: LedgerSource | None = None
 
 
 class Session(BaseModel):

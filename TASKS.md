@@ -1,4 +1,4 @@
-# Teach — Task Plan for Code Agents
+﻿# Teach â€” Task Plan for Code Agents
 
 This file breaks `REQUIREMENTS.md` into tasks that coding agents can pick up, one at a time, over
 many sessions. It is a plan, not a spec: `REQUIREMENTS.md` says **what** the product must do,
@@ -273,8 +273,8 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 
 | ID | Title | Lane | Depends on | Status |
 |---|---|---|---|---|
-| T00 | Initialise git and baseline commit | A | — | done (638b803) |
-| T01 | Baseline green and housekeeping | A | T00 | review (Copilot + Claude review fixes, 2026-09-27, log .task-runs/T01/20260927-122351) |
+| T00 | Initialise git and baseline commit | A | â€” | done (638b803) |
+| T01 | Baseline green and housekeeping | A | T00 | done (a6f4f87) |
 | T02 | Shared contracts module | A | T01 | todo |
 | T10 | Content pack layout and loader | A | T02 | todo |
 | T11 | Review gate | A | T10 | todo |
@@ -319,7 +319,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T102 | Placement diagnostic from graduation profile | L | T100, T101, T70 | todo |
 | T103 | Goals and next-topic recommender | L | T100, T101, T70, T84 | todo |
 | T104 | Signed portable ledger export | L | T31, T80, H6 | todo |
-| H1 | Supply source documents and confirm licensing | human | — | todo |
+| H1 | Supply source documents and confirm licensing | human | â€” | todo |
 | H2 | Sign off Claude's concept-map review | human | T23 | todo |
 | H3 | Supply official worked illustrations; triage task review | human | T50, T23 | todo |
 | H4 | Spot-check Claude-reviewed evals and practice mapping | human | T33, T71, T23 | todo |
@@ -337,9 +337,9 @@ personalisation (post-MVP: do not start before H6).
 Each task lists what to read, what to build, how to prove it, and what not to do. File paths
 marked *(new)* do not exist yet.
 
-### M0 — Foundation
+### M0 â€” Foundation
 
-#### T00 — Initialise git and baseline commit
+#### T00 â€” Initialise git and baseline commit
 - **Requirements:** enables parallel work for every later task.
 - **Read first:** `.gitignore`.
 - **Build:**
@@ -350,7 +350,7 @@ marked *(new)* do not exist yet.
 - **Acceptance:** `git status` is clean after the commit. `git log` shows one commit.
 - **Out of scope:** adding a remote, pushing, CI.
 
-#### T01 — Baseline green and housekeeping
+#### T01 â€” Baseline green and housekeeping
 - **Requirements:** NFR auditability (health must report the right models).
 - **Read first:** `README.md` (Run it, Test it), `services/tutor/tutor/llm.py`.
 - **Build:**
@@ -362,8 +362,8 @@ marked *(new)* do not exist yet.
   when grader and tutor models differ.
 - **Out of scope:** any behaviour change.
 
-#### T02 — Shared contracts module
-- **Requirements:** enables lanes A–G to work in parallel.
+#### T02 â€” Shared contracts module
+- **Requirements:** enables lanes Aâ€“G to work in parallel.
 - **Read first:** section 3 of this file, `tutor/models.py`, `apps/web/lib/api.ts`.
 - **Build:**
   - `services/tutor/tutor/contracts/` *(new)* with `content.py`, `grading.py`, `ledger.py`,
@@ -381,9 +381,9 @@ marked *(new)* do not exist yet.
     `state_machine.py` or `tutor_voice.py`.
 - **Out of scope:** using the new models anywhere.
 
-### M1 — Content packs and review gate
+### M1 â€” Content packs and review gate
 
-#### T10 — Content pack layout and loader
+#### T10 â€” Content pack layout and loader
 - **Requirements:** FR-2, FR-10, NFR maintainability.
 - **Read first:** `tutor/curriculum.py`, `tutor/prompts.py` (`tree_block`), `tests/conftest.py`.
 - **Build:**
@@ -407,7 +407,7 @@ marked *(new)* do not exist yet.
   - Existing tests pass. An unknown `CONTENT_PACK` fails with a clear error.
 - **Out of scope:** corpus, reviews, new content.
 
-#### T11 — Review gate
+#### T11 â€” Review gate
 - **Requirements:** FR-2 (grounded review before use), NFR accuracy and review, owner decision D1
   in `HUMAN-DECISIONS.md`.
 - **Read first:** T10 output, section 2 rule 7, `HUMAN-DECISIONS.md` section 2.
@@ -435,9 +435,9 @@ marked *(new)* do not exist yet.
   reproducible, and a recorded error returns the item to `draft`.
 - **Human gate:** H2 and H3 use the report and `record_audit.py`.
 
-### M2 — Corpus and retrieval
+### M2 â€” Corpus and retrieval
 
-#### T20 — Ingestion pipeline
+#### T20 â€” Ingestion pipeline
 - **Requirements:** FR-10.
 - **Read first:** section 3.1 and 3.2, `Node.source_refs` values in the concept map.
 - **Build:**
@@ -461,7 +461,7 @@ marked *(new)* do not exist yet.
 - **Out of scope:** OCR, embeddings, writing real syllabus text.
 - **Human gate:** real sources come from H1. Until then, only the fixture pack has a corpus.
 
-#### T21 — Source-ref resolver and passage API
+#### T21 â€” Source-ref resolver and passage API
 - **Requirements:** FR-3 and FR-10 ("a citation must resolve back to the source document and
   passage").
 - **Read first:** every distinct `source_refs` form in `concept_map.json`.
@@ -470,8 +470,8 @@ marked *(new)* do not exist yet.
     current map: `IndAS115.para.9-16` (range in document order), `IndAS115.para.22(b)` (resolves
     to para 22, label keeps "(b)"), `IndAS115.para.B28-B33`, and cross-standard
     `IndAS37.para.66-69`. The doc code maps to a document through `manifest.doc_codes`.
-  - Citation labels: "Ind AS 115, para 76", "Ind AS 115, paras 76–77", "ICAI Study Material,
-    Ch 4 §2", "RTP May 2025, Q3 (answer)".
+  - Citation labels: "Ind AS 115, para 76", "Ind AS 115, paras 76â€“77", "ICAI Study Material,
+    Ch 4 Â§2", "RTP May 2025, Q3 (answer)".
   - `GET /passages/{passage_id}` returns the passage and its source document metadata, or 404.
   - `services/tutor/scripts/validate_pack.py --pack <id>` *(new)*: exits non-zero and lists
     every node ref that resolves to no passage.
@@ -479,7 +479,7 @@ marked *(new)* do not exist yet.
   pack and fails on a deliberately broken ref. On the real pack the test is skipped with a
   logged reason while the corpus is missing.
 
-#### T22 — Retriever
+#### T22 â€” Retriever
 - **Requirements:** FR-10 ("compact index, node-linked first, similarity for lookup"), FR-11.
 - **Read first:** T21 output.
 - **Build:**
@@ -501,7 +501,7 @@ marked *(new)* do not exist yet.
   queries; fixture out-of-syllabus queries score below the suggested threshold.
 - **Human gate:** H5 signs off the threshold for the real pack.
 
-#### T23 — Grounded Claude review pipeline
+#### T23 â€” Grounded Claude review pipeline
 - **Requirements:** FR-2, FR-12, NFR accuracy and review, owner decisions D1 and D6 and the
   safeguards in `HUMAN-DECISIONS.md` section 2.
 - **Read first:** `HUMAN-DECISIONS.md` sections 1 and 2, `QUALITY-AND-REVIEW.md` section 3, T11 and
@@ -546,9 +546,9 @@ marked *(new)* do not exist yet.
 - **Human gate:** H2: the owner reads the report, checks the sample and every `needs_expert` item,
   and records the release sign-off.
 
-### M3 — Cited, claim-level grading
+### M3 â€” Cited, claim-level grading
 
-#### T30 — Grader v2: claims and citations
+#### T30 â€” Grader v2: claims and citations
 - **Requirements:** FR-3, FR-6, AC2, AC4, AC7.
 - **Read first:** `tutor/grader.py`, `tutor/prompts.py`, `tests/evals/grader/`,
   `contracts/grading.py`.
@@ -578,7 +578,7 @@ marked *(new)* do not exist yet.
     available and set the status to `review`, not `done`.
 - **Out of scope:** similarity retrieval inside grading.
 
-#### T31 — Ledger v2: student-scoped, cited, exportable
+#### T31 â€” Ledger v2: student-scoped, cited, exportable
 - **Requirements:** FR-7, FR-13, NFR traceability.
 - **Read first:** `tutor/ledger.py`, `tutor/store.py`, `tutor/main.py`.
 - **Build:**
@@ -592,15 +592,15 @@ marked *(new)* do not exist yet.
   - Keep today's rules: `NOT_MENTIONED` is not written, and a VERIFIED node is overwritten only by
     a focused verdict (teach-back, probe, review, task remediation). Document in `ledger.py` that
     a focused downgrade is explicit and evidence-linked, never incidental.
-  - `GET /students/{id}/ledger` returns the pitch reference shape (`VERIFIED`→`MASTERED`,
-    `GAP`→`GAP_IDENTIFIED`, `PARTIAL`→`PARTIAL`, no event→`NOT_ASSESSED`) with confidence, last
+  - `GET /students/{id}/ledger` returns the pitch reference shape (`VERIFIED`â†’`MASTERED`,
+    `GAP`â†’`GAP_IDENTIFIED`, `PARTIAL`â†’`PARTIAL`, no eventâ†’`NOT_ASSESSED`) with confidence, last
     timestamp, evidence turn and citation labels, plus the raw `events` list.
   - `GET /students/{id}/ledger/{event_id}/trace` returns the event, the exact student turn text,
     the cited passages and the grader call ID.
 - **Acceptance:** tests for cross-session projection, blocked incidental downgrade, allowed and
   recorded focused downgrade, export status mapping, and a trace that returns the exact turn text.
 
-#### T32 — Grader audit log and determinism
+#### T32 â€” Grader audit log and determinism
 - **Requirements:** NFR auditability and determinism, AC7.
 - **Read first:** `_capture()` in `tutor/grader.py`, `tests/evals/grader/run_evals.py`.
 - **Build:**
@@ -617,11 +617,11 @@ marked *(new)* do not exist yet.
 - **Acceptance:** a test with a call-counting scripted grader shows the second identical call hits
   the memo; captures contain `student_id`; the eval runner reports inconsistent citations.
 
-#### T33 — Grader eval expansion
+#### T33 â€” Grader eval expansion
 - **Requirements:** AC2, AC4, AC7, FR-3.
 - **Read first:** `tests/evals/grader/_make_cases.py` and the existing cases.
 - **Build:**
-  - Case schema gains optional `expect_citations` (node ID → passage ID prefixes) and
+  - Case schema gains optional `expect_citations` (node ID â†’ passage ID prefixes) and
     `expect_omissions`.
   - New cases, with fictional student speech written by the agent:
     - The AC1/AC2 diagnostic: explains steps 1, 2, 3 and 5, says revenue is recognised on
@@ -637,9 +637,9 @@ marked *(new)* do not exist yet.
     never weaken the strictness rules.
 - **Human gate:** H4 spot-checks the AI-reviewed cases.
 
-### M4 — Socratic, grounded tutor
+### M4 â€” Socratic, grounded tutor
 
-#### T40 — Socratic probe-first flow
+#### T40 â€” Socratic probe-first flow
 - **Requirements:** FR-5 ("ask a probing question before revealing the answer"), FR-6, AC3.
 - **Read first:** `tutor/state_machine.py`, `tests/test_state_machine.py`, `tutor/tutor_voice.py`
   (`MockTutor`).
@@ -652,7 +652,7 @@ marked *(new)* do not exist yet.
   - The student's reply to a probe gets a focused grade (`source="probe"`). Then:
     VERIFIED writes the event and advances; PARTIAL gives an `EXPLAIN` limited to the missing
     rubric items; GAP or NOT_MENTIONED gives a full `EXPLAIN` that corrects the misconception.
-  - Code gates the teach-back sentinel. Today the tutor can move INSTRUCT→TEACH_BACK on any turn
+  - Code gates the teach-back sentinel. Today the tutor can move INSTRUCTâ†’TEACH_BACK on any turn
     by emitting `<<TEACH_BACK>>`. Honour it only when the rules allow (never during `PROBE`, never
     on the first `EXPLAIN` turn); otherwise strip and ignore it. The max-turns force stays.
   - `MockTutor` handles `ACTION=PROBE`. Update the README state diagram.
@@ -660,7 +660,7 @@ marked *(new)* do not exist yet.
   VERIFIED advances; probe GAP leads to EXPLAIN; a sentinel during PROBE does not change phase;
   `test_api_mock.py` is updated and passes.
 
-#### T41 — Tutor grounding and spoken citations
+#### T41 â€” Tutor grounding and spoken citations
 - **Requirements:** FR-5, FR-6 ("corrections cite the exact reviewed source passage"), AC3, AC4.
 - **Read first:** T40 output, `tutor/prompts.py` (`TUTOR_INSTRUCTIONS`).
 - **Build:**
@@ -668,7 +668,7 @@ marked *(new)* do not exist yet.
     labels. `TEACH_BACK_FAILED` also carries the matched misconception, the student's claim quote
     and its passage.
   - Update `TUTOR_INSTRUCTIONS`: explain only from the provided passages and node fields; when
-    stating a rule, say its label once in natural speech ("Paragraph 76 of Ind AS 115 says…");
+    stating a rule, say its label once in natural speech ("Paragraph 76 of Ind AS 115 saysâ€¦");
     never cite a label that was not provided; never invent paragraph numbers.
   - The `done` event carries `grounding` (passages provided) and `citations` (provided passages the
     tutor actually mentioned, matched by label or paragraph number).
@@ -677,7 +677,7 @@ marked *(new)* do not exist yet.
 - **Acceptance:** scripted-tutor tests show passages in directives; unit tests for citation
   matching; `MockTutor` mentions a label on explain turns.
 
-#### T42 — Syllabus boundary and confidence guard
+#### T42 â€” Syllabus boundary and confidence guard
 - **Requirements:** FR-11, AC8.
 - **Read first:** T22 and T41 output.
 - **Build:**
@@ -698,7 +698,7 @@ marked *(new)* do not exist yet.
   citations and writes the log; an in-scope question puts retrieved passages in the directive;
   soft mode carries the label and writes no ledger event; the threshold comes from the environment.
 
-#### T43 — Tutor bench update
+#### T43 â€” Tutor bench update
 - **Requirements:** FR-5, NFR latency.
 - **Read first:** `tests/evals/tutor/bench_tutor.py`.
 - **Build:** add scripted directives for PROBE, EXPLAIN with passages, ANSWER_QUESTION,
@@ -707,9 +707,9 @@ marked *(new)* do not exist yet.
   with one question.
 - **Acceptance:** the bench runs on the configured tutor model(s) and the README table is updated.
 
-### M5 — Skills
+### M5 â€” Skills
 
-#### T50 — Skill and task schema, validator, draft templates
+#### T50 â€” Skill and task schema, validator, draft templates
 - **Requirements:** FR-12.
 - **Read first:** section 3.5, `REQUIREMENTS.md` FR-12, the concept map node list.
 - **Build:**
@@ -718,15 +718,15 @@ marked *(new)* do not exist yet.
   - Four draft task templates in `tasks/` *(new)*, all `review.status = "draft"`, with narrative,
     rubric and model-answer text drafted for T23 review. Use one fictional mid-size Indian IT
     services company across all four tasks (see `HUMAN-DECISIONS.md` section 7):
-    1. `rr_fixed_price_cost_to_cost` — fixed-price implementation contract, cost-to-cost input
+    1. `rr_fixed_price_cost_to_cost` â€” fixed-price implementation contract, cost-to-cost input
        method, revenue to date and contract asset or liability at period end. Nodes include
        `step_5.over_time_criteria`, `step_5.measuring_progress`, `cross_cutting.presentation`.
-    2. `rr_contract_modification` — scope change mid-contract; separate contract, prospective or
+    2. `rr_contract_modification` â€” scope change mid-contract; separate contract, prospective or
        cumulative catch-up. Nodes include `step_1.modification`.
-    3. `rr_variable_consideration` — performance bonus or SLA penalty; expected value versus most
+    3. `rr_variable_consideration` â€” performance bonus or SLA penalty; expected value versus most
        likely amount; the constraint. Nodes include `step_3.variable_consideration`,
        `step_3.constraint`.
-    4. `rr_discrepancy_hunt` — an invoice register and GL extract with planted premature revenue,
+    4. `rr_discrepancy_hunt` â€” an invoice register and GL extract with planted premature revenue,
        duplicate billing, a missing credit note and wrong-period recognition.
     The owner may swap in time-and-materials billing or an onerous contract later; that is a
     content change only. Use the grading defaults in `HUMAN-DECISIONS.md` section 7.3 unless the
@@ -741,7 +741,7 @@ marked *(new)* do not exist yet.
 - **Human gate:** T23 reviews the drafts; H3 supplies official worked illustrations and triages
   `needs_expert` items.
 
-#### T51 — Deterministic calculators and variant generator
+#### T51 â€” Deterministic calculators and variant generator
 - **Requirements:** FR-12 ("calculations must be deterministic code"), AC7.
 - **Read first:** T50 templates.
 - **Build:**
@@ -763,7 +763,7 @@ marked *(new)* do not exist yet.
   recomputes identically, the same seed gives an identical variant hash, and every planted
   discrepancy is detectable with no extra anomalies. Reference cases, once supplied, pass exactly.
 
-#### T52 — Task grader
+#### T52 â€” Task grader
 - **Requirements:** FR-12 ("rubric-based, partial credit, citations"), AC5.
 - **Read first:** T30 grader, T51 variants, section 3.5.
 - **Build:**
@@ -785,7 +785,7 @@ marked *(new)* do not exist yet.
   least four cases (correct, one numeric error, a missed discrepancy, wrong reasoning), which
   start as `draft` until T23 reviews them.
 
-#### T53 — TASK phase in the state machine
+#### T53 â€” TASK phase in the state machine
 - **Requirements:** FR-12, FR-13, AC5, AC6.
 - **Read first:** `tutor/state_machine.py` after T42, T52 output.
 - **Build:**
@@ -808,10 +808,10 @@ marked *(new)* do not exist yet.
       When that node is verified or parked, return to the task with a new seed derived from
       student, task and attempt number.
     - After `MAX_TASK_ATTEMPTS` failures the task is parked.
-- **Acceptance:** tests for the pass path, fail → teach-back → return with a new variant, a check
+- **Acceptance:** tests for the pass path, fail â†’ teach-back â†’ return with a new variant, a check
   that no directive ever contains answer-key values, unlock after all tasks pass, and parking.
 
-#### T54 — Skill projection and API
+#### T54 â€” Skill projection and API
 - **Requirements:** FR-12 ("show skill state and remaining tasks"), FR-13, NFR traceability, AC6.
 - **Build:**
   - `project_skills(events, pack)`: per skill, `locked` (no task available), `in_progress`
@@ -822,19 +822,19 @@ marked *(new)* do not exist yet.
     `answer_key_sha256`, seed, grader call ID and evidence turn. Return the hash, not the key.
 - **Acceptance:** projection tests for all three states; API tests.
 
-### M6 — Kiosk UI
+### M6 â€” Kiosk UI
 
 All UI tasks: keep one talk affordance, no navigation, no links out. Read the Next.js docs first
 (section 1, Commands).
 
-#### T60 — Web client types and SSE handling
+#### T60 â€” Web client types and SSE handling
 - **Requirements:** FR-1, FR-8.
 - **Build:** switch `apps/web/lib/api.ts` to the `contracts.ts` types; handle the new SSE kinds and
   ignore unknown ones; add `getPassage`, `getStudentLedger` and `getSkills`; add the new phases to
   `PHASE_LABEL` in `app/page.tsx`. Develop against recorded SSE fixtures until the backend lands.
 - **Acceptance:** lint and build pass; a test or fixture replay shows unknown events are ignored.
 
-#### T61 — Mastery dashboard v2
+#### T61 â€” Mastery dashboard v2
 - **Requirements:** FR-8, FR-13 ("mastery by chapter"), AC2.
 - **Build:** in `components/MasteryGrid.tsx`, group by chapter when there is more than one;
   highlight omissions after the diagnostic; clicking a chip opens an evidence panel inside the
@@ -843,13 +843,13 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
 - **Acceptance:** lint and build pass; a manual check with `MOCK_LLM=1` shows evidence and citations;
   the panel is keyboard accessible.
 
-#### T62 — Citation chips on tutor turns
+#### T62 â€” Citation chips on tutor turns
 - **Requirements:** FR-5, FR-6, AC3, AC4.
 - **Build:** in `components/Transcript.tsx`, show a small label chip for each citation on a tutor
   turn. Clicking opens the same rail panel as T61.
 - **Acceptance:** lint and build pass; manual check with the mock backend.
 
-#### T63 — Task workspace
+#### T63 â€” Task workspace
 - **Requirements:** FR-12, AC5.
 - **Build:** during `TASK`, the main column shows a task card (title, narrative, document tables,
   the fields to state). After grading it shows a score bar and each rubric item as met, partial or
@@ -857,13 +857,13 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
   revisited. Voice and text answers both work.
 - **Acceptance:** lint and build pass; manual check with the mock backend.
 
-#### T64 — Skills panel
+#### T64 â€” Skills panel
 - **Requirements:** FR-12, FR-13, AC6.
 - **Build:** a rail section under the mastery grid showing the skill state, each task's state and
   the remaining count, with a restrained unlock moment.
 - **Acceptance:** lint and build pass; manual check with the mock backend.
 
-#### T65 — UI smoke test
+#### T65 â€” UI smoke test
 - **Requirements:** FR-1, FR-8, AC5, AC6.
 - **Build:** a Playwright test in `apps/web/e2e/` *(new)* and an `e2e` npm script, running against a
   `MOCK_LLM=1` backend: begin a session, type a diagnostic, see the grade and chips, open a
@@ -871,7 +871,7 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
   the demo only and must not add visible navigation.
 - **Acceptance:** `npm run e2e` passes locally.
 
-#### T66 — Flag and community-check screens
+#### T66 â€” Flag and community-check screens
 - **Requirements:** FR-14, NFR distraction-free, D7, `QUALITY-AND-REVIEW.md` section 4.
 - **Build:**
   - A small "I think this is wrong" control on tutor turns, on the evidence panel (T61) and on task
@@ -883,23 +883,23 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
 - **Acceptance:** lint and build pass; the T65 Playwright test is extended with a flag and a vote
   against the mock backend.
 
-### M7 — Revision and practice
+### M7 â€” Revision and practice
 
-#### T70 — Spaced repetition and REVIEW phase
+#### T70 â€” Spaced repetition and REVIEW phase
 - **Requirements:** FR-13 ("resurface weak concepts through spaced repetition").
 - **Build:**
   - `tutor/revision.py` *(new)*: `due_reviews(events, now)` over the student ledger using
     `REVIEW_INTERVALS_DAYS`. Each VERIFIED node's next review date depends on its count of
     consecutive successful reviews. The clock is injectable.
   - A returning student with a non-empty ledger skips the diagnostic. If reviews are due, the
-    session starts in `REVIEW` with a code-built prompt ("Quick review: explain … with an
+    session starts in `REVIEW` with a code-built prompt ("Quick review: explain â€¦ with an
     example"). Grade it as a focused verdict with `source="review"`. Pass schedules the next
     interval; fail makes the node the INSTRUCT target. After reviews, the selector continues.
 - **Acceptance:** fake-clock tests for scheduling, due reviews served before new nodes, and a
   returning student skipping the diagnostic.
 
-#### T71 — Exam-style practice from RTP/MTP/past papers
-- **Requirements:** FR-13 ("exam-style practice … retaining exact source citations").
+#### T71 â€” Exam-style practice from RTP/MTP/past papers
+- **Requirements:** FR-13 ("exam-style practice â€¦ retaining exact source citations").
 - **Build:**
   - `practice_map.json`: `{item_id, question_passage_id, answer_passage_id, node_ids, marks,
     review}`. `scripts/suggest_practice_map.py` *(new)* may propose mappings with BM25; only
@@ -914,9 +914,9 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
   answer passages; unreviewed items are never used in strict mode.
 - **Human gate:** T23 reviews the mapping; H4 spot-checks it.
 
-### M8 — Privacy, integrity, portability
+### M8 â€” Privacy, integrity, portability
 
-#### T80 — Student data deletion and retention
+#### T80 â€” Student data deletion and retention
 - **Requirements:** NFR privacy.
 - **Build:** `DELETE /students/{id}?confirm=true` purges the student's sessions, ledger events,
   grader and task captures, off-syllabus log entries and memo entries, and returns counts.
@@ -932,33 +932,33 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
 - **Security note:** the API has no authentication. Record in section 10 that it must not be
   exposed beyond localhost until auth exists.
 
-#### T81 — Optional SQLite store
+#### T81 â€” Optional SQLite store
 - **Requirements:** REQUIREMENTS section 7 (persistence optional).
 - **Build:** SQLite implementations of `SessionStore` and `LedgerStore` behind `STORE=sqlite`,
   including deletion.
 - **Acceptance:** the full test suite passes with `STORE=sqlite`; the deletion test passes.
 
-#### T82 — Voice verification mock endpoint
+#### T82 â€” Voice verification mock endpoint
 - **Requirements:** FR-9.
 - **Build:** `POST /verify` accepts a student ID and audio and returns `{match, score, method}`
   through `SpeakerVerifier` selected by `SPEAKER_VERIFIER`. The stub always matches.
 - **Acceptance:** a conformance test any verifier must pass (score in [0, 1], stable shape).
 
-#### T83 — Content swap proof
-- **Requirements:** FR-10 ("swap … without code changes"), NFR maintainability.
+#### T83 â€” Content swap proof
+- **Requirements:** FR-10 ("swap â€¦ without code changes"), NFR maintainability.
 - **Build:** a second fixture pack `fixture_115_v2` *(new)* with a different attempt and one amended
   passage. Add a README section "Releasing a new attempt" listing the content-only steps.
 - **Acceptance:** tests switch `CONTENT_PACK` and show the new version in `/content`, the amended
   text in `/passages`, a changed grader prompt hash, and stable node IDs, with no code changes.
 
-#### T84 — Optional seeded job profile
+#### T84 â€” Optional seeded job profile
 - **Requirements:** REQUIREMENTS section 9 (only if it costs nothing).
 - **Build:** `content/packs/ind_as_115/job_profiles/*.json` with the section 9 shape; a
   "qualified" projection (every required node VERIFIED); an optional job-profile filter on the
   node selector that walks core nodes before adjacent ones.
 - **Acceptance:** projection and selector filter tests.
 
-#### T85 — Student flags and community check
+#### T85 â€” Student flags and community check
 - **Requirements:** FR-14, D7, NFR privacy, `QUALITY-AND-REVIEW.md` section 4,
   `HUMAN-DECISIONS.md` section 12.
 - **Build:**
@@ -983,7 +983,7 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
   minority result closes the case; disputed events are appended with no edits; deleting a student
   recomputes counts.
 
-#### T86 — Professional review queue and development report
+#### T86 â€” Professional review queue and development report
 - **Requirements:** FR-14, AC9, D6, D7.
 - **Build:**
   - Admin API, localhost only until authentication exists: `GET /admin/review-queue`,
@@ -1002,35 +1002,35 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
   and publishes the outcome; a rejection publishes its explanation; the report lists open cases;
   admin endpoints refuse non-localhost requests.
 
-### M9 — Acceptance and docs
+### M9 â€” Acceptance and docs
 
-#### T90 — Demo-script acceptance test
-- **Requirements:** AC1–AC8.
+#### T90 â€” Demo-script acceptance test
+- **Requirements:** AC1â€“AC8.
 - **Build:** `services/tutor/tests/test_demo_script.py` *(new)* drives the HTTP API with scripted
-  grader, tutor and task grader on the fixture pack. One test per criterion: `test_ac1_…` to
-  `test_ac8_…`, following REQUIREMENTS section 10 step by step.
+  grader, tutor and task grader on the fixture pack. One test per criterion: `test_ac1_â€¦` to
+  `test_ac8_â€¦`, following REQUIREMENTS section 10 step by step.
 - **Acceptance:** all eight tests pass in the default `pytest` run.
 
-#### T91 — Live demo runbook and latency benchmark
-- **Requirements:** NFR latency, AC1–AC8 on real models.
+#### T91 â€” Live demo runbook and latency benchmark
+- **Requirements:** NFR latency, AC1â€“AC8 on real models.
 - **Build:** `tests/evals/latency/bench_turn.py` *(new)* measures grade plus first text delta over
   HTTP. A README "Demo" section gives the live demo steps with voice.
 - **Acceptance:** the benchmark results table is in the README; the live demo has been walked
   through once with the configured models, or the commit says which steps could not be run.
 
-#### T92 — README architecture update
+#### T92 â€” README architecture update
 - **Requirements:** REQUIREMENTS section 13.
 - **Build:** replace "Why there is no RAG in the MVP" with the node-linked retrieval design
   (grading uses node-linked passages and stays deterministic; similarity search only serves
   questions and practice). Document content packs, the review flow and the new endpoints.
 - **Acceptance:** every command in the README runs as written.
 
-### M10 — Long-term: personalised learning beyond exams (post-MVP)
+### M10 â€” Long-term: personalised learning beyond exams (post-MVP)
 
 Owner decision D2 in `HUMAN-DECISIONS.md`: Teach is not limited to exams. Do not start these tasks
 before H6 (owner acceptance of the MVP). They are specified here so earlier work does not block them.
 
-#### T100 — Course graph: course-agnostic packs and prerequisite edges
+#### T100 â€” Course graph: course-agnostic packs and prerequisite edges
 - **Requirements:** REQUIREMENTS section 9 (personalised learning beyond exams), D2.
 - **Read first:** T10 and T83 output, `HUMAN-DECISIONS.md` section 10.
 - **Build:**
@@ -1042,14 +1042,14 @@ before H6 (owner acceptance of the MVP). They are specified here so earlier work
 - **Acceptance:** tests load two fixture packs with cross-pack prerequisites; a cycle is rejected;
   existing single-pack behaviour and node IDs are unchanged.
 
-#### T101 — Learner profile and consent
+#### T101 â€” Learner profile and consent
 - **Requirements:** REQUIREMENTS section 9, NFR privacy, `HUMAN-DECISIONS.md` section 10.
 - **Build:** a `LearnerProfile` {student_id, graduation_degree, subjects[], interests[], goals[],
   language, consents{}} store behind an interface, with endpoints to read, update and delete it.
   Collect only these fields. Deletion is part of `DELETE /students/{id}` (T80).
 - **Acceptance:** tests for create, update, consent flags and deletion together with the ledger.
 
-#### T102 — Placement diagnostic from graduation profile
+#### T102 â€” Placement diagnostic from graduation profile
 - **Requirements:** REQUIREMENTS section 9 ("start from what the student knows").
 - **Build:** a deterministic placement plan: from the profile's degree and subjects, choose which
   prerequisite nodes to check first, then run the existing diagnostic and teach-back loop on them.
@@ -1057,7 +1057,7 @@ before H6 (owner acceptance of the MVP). They are specified here so earlier work
 - **Acceptance:** tests show two profiles get different placement orders, and no node becomes
   VERIFIED without a graded ledger event.
 
-#### T103 — Goals and next-topic recommender
+#### T103 â€” Goals and next-topic recommender
 - **Requirements:** REQUIREMENTS section 9, section 2 rules 1 and 2 of this file.
 - **Build:**
   - Goals generalise T84 job profiles: `{goal_id, kind: exam|job|interest, required[{node_id,
@@ -1073,7 +1073,7 @@ before H6 (owner acceptance of the MVP). They are specified here so earlier work
   due revision appears as "strengthen", identical inputs give identical rankings, and every item has
   at least one reason.
 
-#### T104 — Signed portable ledger export
+#### T104 â€” Signed portable ledger export
 - **Requirements:** REQUIREMENTS section 9 and roadmap Phase 3, NFR privacy.
 - **Build:** export the student's ledger projection with evidence references as a signed document
   the student owns and can share; include a verification endpoint and key rotation notes.
@@ -1106,7 +1106,7 @@ done.
 
 | Wave | Tasks |
 |---|---|
-| 1 | T00 → T01 → T02 (one agent, in order) |
+| 1 | T00 â†’ T01 â†’ T02 (one agent, in order) |
 | 2 | T10, T60, T82 |
 | 3 | T11, T20 |
 | 4 | T21 |
@@ -1122,8 +1122,8 @@ done.
 | 14 | T65, then T91 |
 | 15 (post-MVP, after H6) | T100, T101, T104, then T102, T103 |
 
-**Critical path:** T00 → T01 → T02 → T10 → T20 → T21 → T22 → T30 → T31 → T40 → T41 → T42 →
-T53 → T54 → T90 → T91.
+**Critical path:** T00 â†’ T01 â†’ T02 â†’ T10 â†’ T20 â†’ T21 â†’ T22 â†’ T30 â†’ T31 â†’ T40 â†’ T41 â†’ T42 â†’
+T53 â†’ T54 â†’ T90 â†’ T91.
 
 **Serialised file:** `tutor/state_machine.py` is changed by T40, T41, T42, T53, T70 and T71. The
 dependencies already force them into that order. Do not start one of them in parallel with another.
@@ -1148,13 +1148,13 @@ dependencies already force them into that order. Do not start one of them in par
 | FR-12 Skills | T50, T51, T52, T53, T54, T63, T64, T23, H3 |
 | FR-13 Mastery, revision, practice | T53, T61, T64, T70, T71 |
 | FR-14 Student flags and community review | T85, T86, T66 |
-| NFR Flow owned by code | T40, T42, T53 (rules 1–2) |
+| NFR Flow owned by code | T40, T42, T53 (rules 1â€“2) |
 | NFR Auditability | T31, T32 |
 | NFR Determinism | T30, T32, T51 |
 | NFR Accuracy and review | T11, T23, H2, H3, H6 |
 | NFR Traceability | T31, T54 |
 | NFR Latency and efficiency | T30, T91 |
-| NFR Distraction-free | T61–T64 (rule 10) |
+| NFR Distraction-free | T61â€“T64 (rule 10) |
 | NFR Portability | baseline speech interfaces, T82 |
 | NFR Maintainability | T10, T83 |
 | NFR Privacy | T80, T81 |
@@ -1189,7 +1189,7 @@ dependencies already force them into that order. Do not start one of them in par
 | 8 | `ledger.py` | A focused teach-back verdict can overwrite VERIFIED. | Keep as an explicit, evidence-linked downgrade; document it (T31). |
 | 9 | `ind_as_115.cross_cutting.onerous` | Cites Ind AS 37, which is outside Ind AS 115. | Include those paragraphs in the corpus (H1) or the validator flags the node (T21). |
 | 10 | `models.py` `Session.ledger` | Ledger is per session; FR-7 and FR-13 need a per-student ledger. | T31. |
-| 11 | `state_machine.py` sentinel | The tutor LLM can move INSTRUCT→TEACH_BACK on any turn; NFR says the LLM never chooses the phase. | Code gates the sentinel (T40). |
+| 11 | `state_machine.py` sentinel | The tutor LLM can move INSTRUCTâ†’TEACH_BACK on any turn; NFR says the LLM never chooses the phase. | Code gates the sentinel (T40). |
 | 12 | `integrity.py` | Code has `verify(student_id, audio)`; FR-9 says `verify(audio)`. | Keep `student_id`, since a real verifier needs to know whose voice to compare (T82). |
 
 ---
@@ -1200,7 +1200,7 @@ Agents append rows here. Humans answer them. Do not delete answered rows; mark t
 
 | # | Raised by | Task | Question | Status |
 |---|---|---|---|---|
-| Q1 | planning | H1 | Which exam attempt and which one or two chapters does the MVP cover? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` 5.1, 5.2): CA Final May 2027; Ind AS 115 plus Ind AS 37 paras 66–69 |
+| Q1 | planning | H1 | Which exam attempt and which one or two chapters does the MVP cover? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` 5.1, 5.2): CA Final May 2027; Ind AS 115 plus Ind AS 37 paras 66â€“69 |
 | Q2 | planning | H1 | May ICAI study material, RTP and MTP text be committed to this repository, or must it stay local? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` 5.4): ICAI material and extracts stay out of git; MCA text may be committed; ICAI licence before any pilot |
 | Q3 | planning | T53 | Should a failed task downgrade the concept to PARTIAL (the planned default) or only schedule a review? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` 7.4): no automatic downgrade; review plus teach-back; arithmetic slips retry only |
 | Q4 | planning | T80 | Authentication is needed before any non-local deployment, since student data endpoints are open. Who owns it and when? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` 11.1): localhost only until auth; OIDC provider such as Supabase Auth before any pilot; implementer to be named |
@@ -1210,3 +1210,4 @@ Agents append rows here. Humans answer them. Do not delete answered rows; mark t
 | Q8 | planning | T23 | Which reviewer models go in `REVIEW_MODELS`? | superseded 2026-09-27 by D6: the reviewer is Claude (session or API); `REVIEW_MODELS` is replaced by `REVIEWER` |
 | Q9 | planning | T100 | Which course comes second: Advanced Auditing or a graduation-level bridge course? | answered 2026-09-27 (owner confirmed `HUMAN-DECISIONS.md` section 10): Advanced Auditing is the second course |
 | Q10 | owner | T85 | Confirm the community-check thresholds after the first 10 flags (confirmations, majority, closing rules). | recommended in `HUMAN-DECISIONS.md` section 12; awaiting owner |
+

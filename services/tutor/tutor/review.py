@@ -60,6 +60,7 @@ def _atomic_write(path: Path, value: object) -> None:
     temp.write_text(
         json.dumps(value, sort_keys=isinstance(value, dict), indent=2, ensure_ascii=False) + "\n",
         encoding="utf-8",
+        newline="\n",
     )
     os.replace(temp, path)
 

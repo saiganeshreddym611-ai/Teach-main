@@ -26,11 +26,15 @@ owner approves them (D5, D8). Claude approves the others.
 | 1 | [T01](T01.md) | Baseline green and housekeeping | T00 (done) | Copilot | done |
 | 2 | [T02](T02.md) | Shared contracts module | T01 | Copilot | done |
 | 3 | [T10](T10.md) | Content pack layout and loader | T02 | Copilot | done |
-| 4 | [T82](T82.md) | Voice verification mock endpoint | T01 | Copilot | no |
+| 4 | [T82](T82.md) | Voice verification mock endpoint | T01 | Copilot | done |
 | 5 | [T11](T11.md) | Review gate | T10 | Copilot | done |
 | 6 | [T20](T20.md) | Ingestion pipeline | T10 | Copilot | done |
-| 7 | [T21](T21.md) | Source-ref resolver and passage API | T20 | Copilot | no |
-| 8 | [T22](T22.md) | Retriever (node-linked + BM25) | T21 | Copilot | no |
+| 7 | [T21](T21.md) | Source-ref resolver and passage API | T20 | Copilot | done |
+| 8 | [T22](T22.md) | Retriever (node-linked + BM25) | T21 | Copilot | done |
+| 9 | [T60](T60.md) | Web client types and SSE handling | T02 | Copilot | no |
+| 10 | [T30](T30.md) | Grader v2: claims and citations | T22 | Claude | yes (demo) |
+| 11 | [T23](T23.md) | Grounded Claude review pipeline (T23a: concept nodes) | T22, T11 | Claude | yes (demo) |
+| 12 | [T50](T50.md) | Skill and task schema, validator, draft templates | T10, T21 | Claude | yes (content) |
 
 T01 to T22 and T82 were specified before D8, so they keep their full specs and stay with Copilot.
 From T23 on, the "Coder" column is set when the batch is written.

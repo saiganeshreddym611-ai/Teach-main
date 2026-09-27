@@ -409,81 +409,22 @@ marked *(new)* do not exist yet.
 - **Human gate:** H5 signs off the threshold for the real pack.
 
 #### T23 — Grounded Claude review pipeline
-- **Requirements:** FR-2, FR-12, NFR accuracy and review, owner decisions D1 and D6 and the
-  safeguards in `HUMAN-DECISIONS.md` section 2.
-- **Read first:** `HUMAN-DECISIONS.md` sections 1 and 2, `QUALITY-AND-REVIEW.md` section 3, T11 and
-  T22 output, `tutor/grader.py` (the Claude structured-output pattern in `ClaudeGrader`).
-- **Build:**
-  - `services/tutor/scripts/content_review.py --pack <id> [--items ...]` *(new)* reviews every item
-    whose status is `draft` or whose hash changed: concept nodes now, task templates after T50,
-    practice items after T71, eval expectations after T33.
-  - Claim split: code splits each item into claims (each rubric item, each sentence of the
-    explanation and example, each misconception, each task answer step). Misconceptions are
-    checked as "the source contradicts this".
-  - Evidence: for each claim, code collects candidate passages from the item's `source_refs`
-    first, then `search()` restricted to sources of equal or higher `authority_rank`, and writes an
-    evidence packet (claims plus passages with IDs).
-  - **The reviewer is Claude only (D6).** `REVIEWER` selects how:
-    - `session` (default, development): packets are written to
-      `services/tutor/data/reviews/pending/` as Markdown plus a JSON answer file. Claude fills the
-      answers in a Claude Code session with the owner; `content_review.py --ingest` validates and
-      applies them.
-    - `claude-api` (scale): the same packets go to the Anthropic API (`REVIEWER_MODEL`) with
-      structured output at temperature 0.
-    - Any Ollama model or provider is refused with an error. There is no Ollama code path.
-  - Per claim the answer is `supported | contradicted | not_found`, a passage ID and a verbatim
-    quote. Code checks the quote appears word for word, after whitespace normalisation, in that
-    passage; a failed check makes the claim `not_found`.
-  - An item becomes `claude_reviewed` only if every claim is supported with a verified quote.
-    Otherwise it becomes `needs_expert`, with the reasons in the report.
-  - Coverage check for concept nodes: the reviewer lists any rule in the node's cited passages that
-    the rubric omits and a student would need; any gap makes the node `needs_expert`.
-  - Answer keys: for each calculator, run the official worked illustrations in
-    `tests/skills/reference_cases/`; a mismatch makes the task `needs_expert`.
-  - Every run writes a report under `services/tutor/data/reviews/` and updates `reviews.json`
-    through T11's code path only.
-  - Reviewer test set `tests/evals/review/` *(new)*: fixture nodes with planted errors (wrong
-    paragraph, reversed rule, invented exception, missing rubric item). `--self-test` produces
-    packets (session) or runs them (API); Claude must catch at least 95% before its reviews count.
-- **Acceptance:** on the fixture pack with a scripted reviewer: clean items become
-  `claude_reviewed`, planted-error items become `needs_expert`, a fabricated quote fails the quote
-  check, the session round trip (packet, filled answers, `--ingest`) works, and configuring an
-  Ollama reviewer fails. A mock reviewer keeps the path runnable with `MOCK_LLM=1`.
-- **Out of scope:** changing content to fix what the reviewer finds; that is a drafting step.
+- **Requirements:** FR-2, FR-12, NFR accuracy and review, owner decisions D1 and D6. **Spec:**
+  [specs/T23.md](specs/T23.md) (binding; the detail lives there).
+- **Summary:** Claim split, evidence packets, Claude-only reviewer (session or API), verbatim quote
+  check, coverage check; `claude_reviewed` or `needs_expert` through T11. T23a covers concept nodes
+  now; T23b adds task templates and answer keys after T50 and T51.
 - **Human gate:** H2: the owner reads the report, checks the sample and every `needs_expert` item,
   and records the release sign-off.
 
 ### M3 — Cited, claim-level grading
 
 #### T30 — Grader v2: claims and citations
-- **Requirements:** FR-3, FR-6, AC2, AC4, AC7.
-- **Read first:** `tutor/grader.py`, `tutor/prompts.py`, `tests/evals/grader/`,
-  `contracts/grading.py`.
-- **Build:**
-  - Add a second cached system block after the tree block: every passage linked to any node, in
-    stable order, each wrapped as `<passage id="...">text</passage>`. Instructions stay after the
-    cache breakpoint. Measure its token size. If it exceeds about 30k tokens, send only the focus
-    node's passages on teach-back calls and record the decision in the Open Questions log.
-  - Rewrite `GRADER_INSTRUCTIONS`: split the student's speech into claims; judge each claim only
-    against the passages and rubric; list the rubric items met, the misconceptions matched and the
-    supporting passage IDs per verdict; flag off-syllabus claims without grading them. Keep the
-    existing strictness rules verbatim, including "name-dropping is not evidence".
-  - Switch all three graders to `GraderOutput`: `ClaudeGrader` via `messages.parse`,
-    `OllamaGrader` via schema plus an updated `OLLAMA_OUTPUT_CONTRACT`, and `MockGrader` which
-    emits one claim per matched node with `node_link` citations.
-  - Extend `_finalise()`: drop passage IDs outside the node's linked set; attach the node's first
-    linked passage with `citation_origin="node_link"` when a graded verdict has none; drop rubric
-    and misconception indexes out of range; count every correction for the audit log.
-  - Code computes omissions after a diagnostic: every L1 node with no evidence, with its node
-    citations. The `grade` SSE event carries `claims` and `omissions`.
-  - Bump `PROMPT_VERSION`.
-- **Acceptance:**
-  - Unit tests for `_finalise()` with unknown nodes, foreign passages and bad indexes.
-  - State-machine tests and the mock HTTP loop pass.
-  - `run_evals.py --repeat 3` on the configured model passes at least as many cases as before
-    (28/28 on `gemma4:31b-cloud`, per README). Record the numbers, or state that no model was
-    available and set the status to `review`, not `done`.
-- **Out of scope:** similarity retrieval inside grading.
+- **Requirements:** FR-3, FR-6, AC2, AC4, AC7. **Spec:** [specs/T30.md](specs/T30.md) (binding; the
+  detail lives there).
+- **Summary:** Cached passages block, claim-level `GraderOutput` from all three graders,
+  `_finalise()` corrections counted, omissions after a diagnostic, `PROMPT_VERSION` 2; evals must
+  not regress.
 
 #### T31 — Ledger v2: student-scoped, cited, exportable
 - **Requirements:** FR-7, FR-13, NFR traceability.
@@ -604,6 +545,9 @@ marked *(new)* do not exist yet.
 - **Acceptance:** tests show an out-of-syllabus question streams the fixed sentence with no
   citations and writes the log; an in-scope question puts retrieved passages in the directive;
   soft mode carries the label and writes no ledger event; the threshold comes from the environment.
+- **Calibration (T22 review finding):** the calibration set must include reworded in-syllabus
+  questions ("painted" for "paints", filler words). With exact-wording queries every confidence
+  was 1.0, so the 0.5 placeholder threshold is unproven; reworded queries scored 0.39 to 0.57.
 
 #### T43 — Tutor bench update
 - **Requirements:** FR-5, NFR latency.
@@ -617,35 +561,10 @@ marked *(new)* do not exist yet.
 ### M5 — Skills
 
 #### T50 — Skill and task schema, validator, draft templates
-- **Requirements:** FR-12.
-- **Read first:** section 3.5, `REQUIREMENTS.md` FR-12, the concept map node list.
-- **Build:**
-  - `content/packs/ind_as_115/skills/revenue_recognition_services.json` *(new)*: one skill,
-    "Revenue recognition for a service-based company", with four task IDs.
-  - Four draft task templates in `tasks/` *(new)*, all `review.status = "draft"`, with narrative,
-    rubric and model-answer text drafted for T23 review. Use one fictional mid-size Indian IT
-    services company across all four tasks (see `HUMAN-DECISIONS.md` section 7):
-    1. `rr_fixed_price_cost_to_cost` — fixed-price implementation contract, cost-to-cost input
-       method, revenue to date and contract asset or liability at period end. Nodes include
-       `step_5.over_time_criteria`, `step_5.measuring_progress`, `cross_cutting.presentation`.
-    2. `rr_contract_modification` — scope change mid-contract; separate contract, prospective or
-       cumulative catch-up. Nodes include `step_1.modification`.
-    3. `rr_variable_consideration` — performance bonus or SLA penalty; expected value versus most
-       likely amount; the constraint. Nodes include `step_3.variable_consideration`,
-       `step_3.constraint`.
-    4. `rr_discrepancy_hunt` — an invoice register and GL extract with planted premature revenue,
-       duplicate billing, a missing credit note and wrong-period recognition.
-    The owner may swap in time-and-materials billing or an onerous contract later; that is a
-    content change only. Use the grading defaults in `HUMAN-DECISIONS.md` section 7.3 unless the
-    owner changed them.
-  - Extend `validate_pack.py`: node IDs exist, passage IDs resolve, the calculator is registered,
-    rubric weights sum to 1.0, planted discrepancies point at real document rows, every narrative
-    placeholder has a parameter, and constraints parse.
-  - Constraints use a tiny safe expression evaluator (comparison and arithmetic on parameters).
-    Never Python `eval`.
-- **Acceptance:** schema tests; the validator passes on the drafts (passage checks are skipped with
-  a warning while the real corpus is missing) and fails on broken fixtures.
-- **Human gate:** T23 reviews the drafts; H3 supplies official worked illustrations and triages
+- **Requirements:** FR-12. **Spec:** [specs/T50.md](specs/T50.md) (binding; the detail lives there).
+- **Summary:** One skill and four draft task templates for one fictional Indian IT services company
+  (section 7 of `HUMAN-DECISIONS.md`), a safe expression evaluator, and validator checks.
+- **Human gate:** T23b reviews the drafts; H3 supplies official worked illustrations and triages
   `needs_expert` items.
 
 #### T51 — Deterministic calculators and variant generator
@@ -735,11 +654,11 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
 (section 1, Commands).
 
 #### T60 — Web client types and SSE handling
-- **Requirements:** FR-1, FR-8.
-- **Build:** switch `apps/web/lib/api.ts` to the `contracts.ts` types; handle the new SSE kinds and
-  ignore unknown ones; add `getPassage`, `getStudentLedger` and `getSkills`; add the new phases to
-  `PHASE_LABEL` in `app/page.tsx`. Develop against recorded SSE fixtures until the backend lands.
-- **Acceptance:** lint and build pass; a test or fixture replay shows unknown events are ignored.
+- **Requirements:** FR-1, FR-8. **Spec:** [specs/T60.md](specs/T60.md) (binding; the detail lives
+  there).
+- **Summary:** `lib/sse.ts` with known and planned SSE kinds (unknown ones ignored), `api.ts` on
+  `contracts.ts` types, `getPassage`, `getStudentLedger`, `getSkills`, new phase labels,
+  fixture-replay tests.
 
 #### T61 — Mastery dashboard v2
 - **Requirements:** FR-8, FR-13 ("mastery by chapter"), AC2.

@@ -21,9 +21,11 @@ decisions D5, D6 and D8 in `HUMAN-DECISIONS.md`.
    - Real problems: `python tools/task_runner.py reject <ID> --reason "..."` with concrete, numbered
      fixes. Then go to step 3 for the same task.
    - Otherwise: `python tools/task_runner.py approve <ID> --by "Claude" --note "..."`.
-3. **Nothing in review:** pick the first eligible task that has `specs/<ID>.md`.
+3. **Nothing in review:** pick the first eligible task whose `specs/<ID>.md` does not say
+   `Coder: Claude` (D8). `run` without `--task` does this, and uses the spec's `Verify:` line as
+   the test command.
    - Commit your own uncommitted edits first; `run` refuses a dirty tree.
-   - Start it in the background: `python tools/task_runner.py run --task <ID>` with
+   - Start it in the background: `python tools/task_runner.py run` with
      `run_in_background`. End the iteration; the finished run wakes you.
 4. Log one line per iteration in your reply: task, action, result.
 
@@ -34,8 +36,8 @@ decisions D5, D6 and D8 in `HUMAN-DECISIONS.md`.
 - a finished task has output the owner can see: show it (run the app or give a concrete example)
   with a short "try this" list;
 - the same task was rejected twice, or `run` ends `blocked`;
-- no eligible task has a spec: the next spec batch is Claude's design work, done in the main
-  session, not in the loop;
+- no eligible task is delegated: tasks marked `Coder: Claude` and the next spec batch are
+  Claude's work in the main session, not in the loop;
 - only human tasks (H1 to H6) remain eligible.
 
 The report is one short summary: what landed (commits), what to try, and what needs the owner, with

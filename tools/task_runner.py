@@ -229,10 +229,28 @@ def feedback_file(task_id: str) -> Path:
     return RUNS_DIR / task_id / "feedback.md"
 
 
+def spec_text(task_id: str) -> str | None:
+    path = REPO / "specs" / f"{task_id}.md"
+    return path.read_text(encoding="utf-8") if path.exists() else None
+
+
+def delegated(task_id: str) -> bool:
+    """True when specs/<ID>.md exists and does not reserve the task for Claude (D8)."""
+    text = spec_text(task_id)
+    return text is not None and "**Coder: Claude**" not in text
+
+
+def spec_verify(task_id: str) -> str | None:
+    """The command on the spec's **Verify:** line, if any."""
+    m = re.search(r"^\*\*Verify:\*\*\s*`([^`]+)`", spec_text(task_id) or "", flags=re.M)
+    return m.group(1) if m else None
+
+
 def build_prompt(text: str, row: dict, result_file: Path, agent: str = "claude") -> str:
     if agent == "copilot":
-        if not (REPO / "specs" / f"{row['id']}.md").exists():
-            sys.exit(f"{row['id']} has no specs/{row['id']}.md; Copilot only takes specified tasks.")
+        if not delegated(row["id"]):
+            sys.exit(f"{row['id']} is not delegated: it needs specs/{row['id']}.md without "
+                     "'Coder: Claude' (D8).")
         prompt = COPILOT_TEMPLATE.format(repo=REPO, id=row["id"], title=row["title"],
                                          result_file=result_file)
     else:
@@ -516,6 +534,7 @@ def run_one(args, row: dict) -> bool:
 
     ok = kind == "DONE"
     if ok:
+        args.verify = args.verify or spec_verify(row["id"])
         passed, tail = verify(args, log_dir)
         print(f"    verify: {'pass' if passed else 'FAIL'} - {tail}")
         if not passed:
@@ -556,8 +575,10 @@ def cmd_run(args) -> int:
             sys.exit(f"{args.task} is a human task")
     else:
         el = eligible(rows)
+        if args.agent == "copilot":
+            el = [r for r in el if delegated(r["id"])]
         if not el:
-            print("Nothing eligible. Run `status` to see what is blocked or waiting.")
+            print("Nothing eligible for this agent. Run `status` to see what is blocked or waiting.")
             return 0
         row = el[0]
     return 0 if run_one(args, row) else 1

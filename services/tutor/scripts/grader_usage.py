@@ -37,16 +37,16 @@ def summarise(records: list[dict]) -> dict[str, dict[str, float | int]]:
         if r.get("memo_hit"):
             p["memo_hits"] += 1
         usage = r.get("usage") or {}
-        # Claude keys
+        # Claude keys - use get(key) or 0 to handle null values
         if "input_tokens" in usage:
-            p["input"] += usage.get("input_tokens", 0)
-            p["cache_read"] += usage.get("cache_read_input_tokens", 0)
-            p["cache_write"] += usage.get("cache_creation_input_tokens", 0)
-            p["output"] += usage.get("output_tokens", 0)
+            p["input"] += usage.get("input_tokens") or 0
+            p["cache_read"] += usage.get("cache_read_input_tokens") or 0
+            p["cache_write"] += usage.get("cache_creation_input_tokens") or 0
+            p["output"] += usage.get("output_tokens") or 0
         # Ollama keys
         elif "prompt_eval_count" in usage:
-            p["input"] += usage.get("prompt_eval_count", 0)
-            p["output"] += usage.get("eval_count", 0)
+            p["input"] += usage.get("prompt_eval_count") or 0
+            p["output"] += usage.get("eval_count") or 0
         p["latency_sum"] += r.get("latency_ms", 0)
 
     result: dict[str, dict[str, float | int]] = {}

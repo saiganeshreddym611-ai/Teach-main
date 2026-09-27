@@ -88,7 +88,20 @@ def test_grade_memo_clear():
 async def test_memo_hit_skips_second_call(curriculum):
     """Two identical calls: inner called once; equal outputs; 2 capture files; second has memo_hit true."""
     from tutor.grader_audit import grade_memo
-    inner = MockGrader()
+
+    class CountingGrader:
+        def __init__(self, inner):
+            self.inner = inner
+            self.call_count = 0
+
+        async def grade(self, curriculum, transcript, *, focus_node_id, prior_context, session_id, student_id: str = "", call_id: str | None = None):
+            self.call_count += 1
+            return await self.inner.grade(
+                curriculum, transcript, focus_node_id=focus_node_id, prior_context=prior_context,
+                session_id=session_id, student_id=student_id, call_id=call_id
+            )
+
+    inner = CountingGrader(MockGrader())
     from tutor.grader import MemoGrader
     memo_grader = MemoGrader(inner, "mock")
 
@@ -98,7 +111,8 @@ async def test_memo_hit_skips_second_call(curriculum):
     # Second call - should hit memo
     res2 = await memo_grader.grade(curriculum, transcript, focus_node_id=None, prior_context="", session_id="s1", student_id="stu1")
 
-    # Inner grader should only have been called once (MockGrader doesn't track calls, but we can check captures)
+    # Inner grader should only have been called once
+    assert inner.call_count == 1
     # Check capture files
     files = list(settings.grader_capture_dir.glob("*.json"))
     assert len(files) == 2
@@ -321,6 +335,33 @@ def test_offered_ids_match_block(curriculum):
     assert found == offered
 
 
+def test_offered_ids_focus_only_when_over_limit(curriculum, monkeypatch):
+    """When focus_node_id is given and the full block exceeds the token limit,
+    offered_passage_ids returns only the focus node's passage ids."""
+    from tutor.grading_links import node_links, offered_passage_ids, PASSAGES_BLOCK_TOKEN_LIMIT
+
+    # Force the limit to 0 so any content exceeds it
+    monkeypatch.setattr("tutor.grading_links.PASSAGES_BLOCK_TOKEN_LIMIT", 0)
+
+    links = node_links(curriculum)
+    if not links.passages:
+        pytest.skip("No passages in pack")
+
+    # Pick a node that has linked passages
+    focus_node = None
+    for node_id, passages in links.passages.items():
+        if passages:
+            focus_node = node_id
+            break
+    if focus_node is None:
+        pytest.skip("No node with passages in pack")
+
+    offered = offered_passage_ids(curriculum, links, focus_node_id=focus_node)
+    # Should only contain the focus node's passage ids
+    expected = links.ids(focus_node)
+    assert offered == expected
+
+
 def test_citation_diffs():
     """Same status and different passage ids give one line naming the node; identical runs give []."""
     v1 = NodeVerdictV2(node_id="n1", status=NodeStatus.VERIFIED, confidence=0.9, evidence="e", passage_ids=["p1"])
@@ -359,13 +400,15 @@ async def test_ledger_events_carry_call_id(curriculum):
         events.append(ev)
 
     # Check that ledger events have grader_call_id matching the grader's call
-    for ev in events:
-        if ev.kind == "done":
-            for ledger_ev in ev.payload["ledger_delta"]:
-                assert ledger_ev["grader_call_id"] is not None
-                # The call_id should match one of the calls the grader received
-                call_ids = [c["call_id"] for c in scripted_grader.calls]
-                assert ledger_ev["grader_call_id"] in call_ids
+    done_events = [ev for ev in events if ev.kind == "done"]
+    assert done_events, "Expected at least one done event"
+    for ev in done_events:
+        ledger_delta = ev.payload["ledger_delta"]
+        assert ledger_delta, "Expected non-empty ledger_delta"
+        for ledger_ev in ledger_delta:
+            assert ledger_ev["grader_call_id"] is not None
+            # The call_id should match the first call the grader received (diagnostic)
+            assert ledger_ev["grader_call_id"] == scripted_grader.calls[0]["call_id"]
 
 
 async def test_grader_usage_totals():
@@ -384,14 +427,16 @@ async def test_grader_usage_totals():
         {"phase": "diagnostic", "memo_hit": True, "usage": None, "latency_ms": 0},
         # Another Ollama teach_back
         {"phase": "teach_back", "memo_hit": False, "usage": {"prompt_eval_count": 150, "eval_count": 60}, "latency_ms": 150},
+        # Claude with null cache fields
+        {"phase": "diagnostic", "memo_hit": False, "usage": {"input_tokens": 50, "cache_read_input_tokens": None, "cache_creation_input_tokens": None, "output_tokens": 25}, "latency_ms": 50},
     ]
     summary = summarise(records)
-    assert summary["diagnostic"]["calls"] == 2
+    assert summary["diagnostic"]["calls"] == 3
     assert summary["diagnostic"]["memo_hits"] == 1
-    assert summary["diagnostic"]["input"] == 100
+    assert summary["diagnostic"]["input"] == 150
     assert summary["diagnostic"]["cache_read"] == 10
     assert summary["diagnostic"]["cache_write"] == 5
-    assert summary["diagnostic"]["output"] == 50
+    assert summary["diagnostic"]["output"] == 75
     assert summary["teach_back"]["calls"] == 2
     assert summary["teach_back"]["memo_hits"] == 0
     assert summary["teach_back"]["input"] == 350

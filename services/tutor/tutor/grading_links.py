@@ -52,9 +52,10 @@ def offered_passage_ids(curriculum: Curriculum, links: NodeLinks, focus_node_id:
     if focus_node_id:
         # In teach-back, if we're over the token limit, only focus node's passages are sent
         # We need to check if the full block would exceed the limit
-        # For simplicity, we just return the ids that would be in the block
-        # The actual block rendering logic handles the token limit
-        pass
+        body = _render_passages(links, node_ids)
+        if estimate_tokens(body) > PASSAGES_BLOCK_TOKEN_LIMIT:
+            # Return only focus node's passage ids
+            return links.ids(focus_node_id)
     seen: set[str] = set()
     result: list[str] = []
     for node_id in node_ids:
@@ -63,6 +64,18 @@ def offered_passage_ids(curriculum: Curriculum, links: NodeLinks, focus_node_id:
                 seen.add(p.passage_id)
                 result.append(p.passage_id)
     return result
+
+
+def _render_passages(links: NodeLinks, node_ids: list[str]) -> str:
+    """Render passages for the given node ids, deduplicated by passage_id."""
+    seen: set[str] = set()
+    parts: list[str] = []
+    for node_id in node_ids:
+        for p in links.passages.get(node_id, []):
+            if p.passage_id not in seen:
+                seen.add(p.passage_id)
+                parts.append(f'<passage id="{p.passage_id}">\n{p.text}\n</passage>')
+    return "\n".join(parts)
 
 
 def estimate_tokens(text: str) -> int:
@@ -77,19 +90,17 @@ def passages_block(curriculum: Curriculum, links: NodeLinks, focus_node_id: str 
     PASSAGES_BLOCK_TOKEN_LIMIT and a focus node is given (teach-back), only that node's passages
     are sent.
     """
-    def render(node_ids: list[str]) -> str:
-        seen: set[str] = set()
-        parts: list[str] = []
-        for node_id in node_ids:
-            for p in links.passages.get(node_id, []):
-                if p.passage_id not in seen:
-                    seen.add(p.passage_id)
-                    parts.append(f'<passage id="{p.passage_id}">\n{p.text}\n</passage>')
-        return "\n".join(parts)
-
-    body = render([n.id for n in curriculum.tree.nodes])
-    if focus_node_id and estimate_tokens(body) > PASSAGES_BLOCK_TOKEN_LIMIT:
-        body = render([focus_node_id])
+    offered_ids = offered_passage_ids(curriculum, links, focus_node_id)
+    # Build body from offered_ids to ensure consistency
+    # We need to find the node_ids that correspond to offered_ids
+    # Since offered_ids are in node order then document order, we can render from the same node_ids
+    node_ids = [n.id for n in curriculum.tree.nodes]
+    if focus_node_id:
+        body = _render_passages(links, node_ids)
+        if estimate_tokens(body) > PASSAGES_BLOCK_TOKEN_LIMIT:
+            body = _render_passages(links, [focus_node_id])
+    else:
+        body = _render_passages(links, node_ids)
     if not body:
         return None
     text = f"<source_passages>\n{body}\n</source_passages>"

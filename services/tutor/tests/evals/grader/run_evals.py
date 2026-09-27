@@ -47,7 +47,7 @@ async def main(repeat: int, only: str | None, use_memo: bool) -> int:
     if only:
         cases = [c for c in cases if only in c.name]
     failures = 0
-    inconsistent = 0
+    citation_inconsistent = 0
     for path in cases:
         case = json.loads(path.read_text(encoding="utf-8"))
         runs: list[dict[str, str]] = []
@@ -72,7 +72,8 @@ async def main(repeat: int, only: str | None, use_memo: bool) -> int:
                 if not ok:
                     failures += 1
                 if not consistent:
-                    inconsistent += 1
+                    # Status inconsistency is still a failing expectation (counted in N)
+                    failures += 1
             shown = actuals[0] if consistent else f"INCONSISTENT {Counter(a or 'NOT_MENTIONED' for a in actuals)}"
             print(f"  [{mark}] {node_id:<48} expect {expect:<14} got {shown}")
         # Citation diffs
@@ -81,8 +82,9 @@ async def main(repeat: int, only: str | None, use_memo: bool) -> int:
             diffs = citation_diffs(grader_outputs, node_ids)
             for d in diffs:
                 print(d)
-    print(f"\n{failures} failing expectation(s), {inconsistent} inconsistent citation(s) across {len(cases)} case(s), {repeat} run(s) each.")
-    return 1 if failures or inconsistent else 0
+            citation_inconsistent += len(diffs)
+    print(f"\n{failures} failing expectation(s), {citation_inconsistent} inconsistent citation(s) across {len(cases)} case(s), {repeat} run(s) each.")
+    return 1 if failures > 0 or citation_inconsistent > 0 else 0
 
 
 if __name__ == "__main__":

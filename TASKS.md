@@ -293,7 +293,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T26 | Hybrid retrieval: vector search that keeps passage IDs | A | T22 | todo |
 | T30 | Grader v2: claims and citations | B | T22 | done (9c236a2, reviewed by Claude + owner) |
 | T31 | Ledger v2: student-scoped, cited, exportable | B | T30 | todo |
-| T32 | Grader audit log and determinism | B | T30 | todo |
+| T32 | Grader audit log and determinism | B | T30 | review (OpenCode (nemotron-3-ultra-550b-a55b), 2026-09-28, log .task-runs/T32/20260928-023908) |
 | T33 | Grader eval expansion | B | T30, T32 | todo |
 | T34 | Context budget: section-scoped grading (triggered) | B | T32, T100 | todo |
 | T40 | Socratic probe-first flow | C | T31 | todo |

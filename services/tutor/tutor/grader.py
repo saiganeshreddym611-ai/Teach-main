@@ -345,6 +345,8 @@ def _capture(
     usage: dict | None,
     latency_ms: int,
     phase: str,
+    memo_hit: bool = False,
+    memo_of: str | None = None,
 ) -> None:
     """Every grader call is an eval candidate. Write it to disk."""
     if not settings.capture_grader_calls:
@@ -373,8 +375,8 @@ def _capture(
             "corrections": fixes,
             "latency_ms": latency_ms,
             "usage": usage,
-            "memo_hit": False,
-            "memo_of": None,
+            "memo_hit": memo_hit,
+            "memo_of": memo_of,
         }
         (settings.grader_capture_dir / f"{call_id}.json").write_text(
             json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8"
@@ -391,7 +393,6 @@ class MemoGrader:
         self.backend = backend
 
     async def grade(self, curriculum, transcript, *, focus_node_id, prior_context, session_id, student_id: str = "", call_id: str | None = None) -> GraderOutput:
-        from .llm import describe_grader
         links = node_links(curriculum)
         user = _user_content(curriculum, transcript, focus_node_id, prior_context)
         system_text = _system_text(curriculum, links, focus_node_id)
@@ -418,45 +419,14 @@ class MemoGrader:
                 result=output,
                 fixes={},
                 provider=self.backend,
-                model=describe_grader(),
+                model=self.backend,
                 request_id=None,
                 usage=None,
                 latency_ms=0,
                 phase="teach_back" if focus_node_id else "diagnostic",
+                memo_hit=True,
+                memo_of=original_call_id,
             )
-            # The capture above is handled differently for memo hits
-            # We need to write a special capture with memo_hit=True
-            if settings.capture_grader_calls:
-                try:
-                    settings.grader_capture_dir.mkdir(parents=True, exist_ok=True)
-                    payload = {
-                        "grader_call_id": call_id,
-                        "ts": datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ"),
-                        "session_id": session_id,
-                        "student_id": student_id,
-                        "phase": "teach_back" if focus_node_id else "diagnostic",
-                        "focus_node_id": focus_node_id,
-                        "focus_rubric": curriculum.node(focus_node_id).rubric if focus_node_id and focus_node_id in curriculum.by_id else [],
-                        "provider": self.backend,
-                        "model": describe_grader(),
-                        "request_id": None,
-"prompt_version": prompts.PROMPT_VERSION,
-                        "content_hash": getattr(curriculum, "content_hash", None),
-                        "system_sha256": sha256_text(system_text),
-                        "offered_passage_ids": offered_passage_ids(curriculum, links, focus_node_id),
-                        "input": user,
-                        "output": output.model_dump(mode="json"),
-                        "corrections": {},
-                        "latency_ms": 0,
-                        "usage": None,
-                        "memo_hit": True,
-                        "memo_of": original_call_id,
-                    }
-                    (settings.grader_capture_dir / f"{call_id}.json").write_text(
-                        json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8"
-                    )
-                except Exception:
-                    pass
             return output
 
         # Miss: call inner grader with the same call_id

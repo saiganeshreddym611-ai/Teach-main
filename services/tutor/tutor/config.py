@@ -46,6 +46,11 @@ class Settings:
     # Tutor pacing knobs (code-enforced, not prompt-enforced)
     max_instruct_turns_per_node: int = int(os.getenv("MAX_INSTRUCT_TURNS", "3"))
     max_teach_back_attempts: int = int(os.getenv("MAX_TEACH_BACK_ATTEMPTS", "2"))
+    # Content review (T23): "session" (the Claude Code session answers packets) or "claude-api".
+    # Ollama models are refused (D6).
+    reviewer: str = os.getenv("REVIEWER", "session").lower()
+    reviewer_model: str = os.getenv("REVIEWER_MODEL") or os.getenv("TUTOR_MODEL", "claude-opus-5")
+    review_dir: Path = Path(os.getenv("REVIEW_DIR", str(Path(__file__).resolve().parents[1] / "data" / "reviews")))
     # Where grader calls are captured for the eval set
     capture_dir: Path = Path(__file__).resolve().parents[1] / "tests" / "evals" / "grader" / "captured"
 

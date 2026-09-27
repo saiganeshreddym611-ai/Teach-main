@@ -1,0 +1,166 @@
+{
+  "_about": "T23 self-test. Nodes written against the fixture_115 corpus (fictional text). Two are clean; eight carry one planted error each. Expectations map node ID to the planted error type, or null for a clean node. The packets never show this file.",
+  "expectations": {
+    "fixture_115.p01": null,
+    "fixture_115.p02": "reversed_rule",
+    "fixture_115.p03": "missing_rubric_item",
+    "fixture_115.p04": "invented_exception",
+    "fixture_115.p05": "wrong_paragraph",
+    "fixture_115.p06": null,
+    "fixture_115.p07": "invented_exception",
+    "fixture_115.p08": "reversed_rule",
+    "fixture_115.p09": "wrong_paragraph",
+    "fixture_115.p10": "missing_rubric_item"
+  },
+  "tree": {
+    "topic_id": "fixture_115",
+    "subject": "TEST SUBJECT",
+    "standard": "Synthetic fixture topic",
+    "opening_prompt": "Describe the imaginary fixture topic.",
+    "nodes": [
+      {
+        "id": "fixture_115.p01",
+        "level": 1,
+        "parent": null,
+        "title": "The wooden token",
+        "rubric": [
+          "A fictional box contains a widget-shaped wooden token.",
+          "Fixture Co paints a green stripe on the wooden token.",
+          "The imaginary stripe has no effect outside this fixture."
+        ],
+        "canonical_explanation": "The stripe on the wooden token matters only inside this fixture.",
+        "example": "",
+        "misconceptions": ["The stripe on the wooden token is painted red."],
+        "source_refs": ["IndAS115.para.B28-B30"]
+      },
+      {
+        "id": "fixture_115.p02",
+        "level": 1,
+        "parent": null,
+        "title": "The cabinet bell",
+        "rubric": [
+          "Fixture Co keeps a pretend orange widget in a glass cabinet.",
+          "The bell stays silent when the cabinet is opened.",
+          "The bell sound is represented by a paper star.",
+          "Fixture Co stores that star in an imaginary drawer."
+        ],
+        "canonical_explanation": "The glass cabinet holds the orange widget.",
+        "example": "",
+        "misconceptions": [],
+        "source_refs": ["IndAS37.para.66-69"]
+      },
+      {
+        "id": "fixture_115.p03",
+        "level": 1,
+        "parent": null,
+        "title": "Widget notes",
+        "rubric": [
+          "Fixture Co groups its imaginary widget notes.",
+          "The first note describes a pretend brass widget."
+        ],
+        "canonical_explanation": "The widget notes are grouped by Fixture Co.",
+        "example": "",
+        "misconceptions": [],
+        "source_refs": ["IndAS115.para.22"]
+      },
+      {
+        "id": "fixture_115.p04",
+        "level": 1,
+        "parent": null,
+        "title": "Painting the token",
+        "rubric": [
+          "A fictional box contains a widget-shaped wooden token.",
+          "Fixture Co paints a green stripe on the wooden token, except on tokens stored in a cardboard moon.",
+          "The imaginary stripe has no effect outside this fixture."
+        ],
+        "canonical_explanation": "The wooden token carries a green stripe.",
+        "example": "",
+        "misconceptions": [],
+        "source_refs": ["IndAS115.para.B28-B30"]
+      },
+      {
+        "id": "fixture_115.p05",
+        "level": 1,
+        "parent": null,
+        "title": "The purple label",
+        "rubric": ["A made-up label identifies a purple widget."],
+        "canonical_explanation": "A label is used to identify the purple widget.",
+        "example": "",
+        "misconceptions": [],
+        "source_refs": ["IndAS115.para.IE3"]
+      },
+      {
+        "id": "fixture_115.p06",
+        "level": 1,
+        "parent": null,
+        "title": "The glass cabinet",
+        "rubric": [
+          "Fixture Co keeps a pretend orange widget in a glass cabinet.",
+          "A fictional bell rings when the cabinet is opened.",
+          "The bell sound is represented by a paper star.",
+          "Fixture Co stores that star in an imaginary drawer."
+        ],
+        "canonical_explanation": "Opening the glass cabinet makes the fictional bell ring.",
+        "example": "",
+        "misconceptions": ["The paper star is stored in the glass cabinet."],
+        "source_refs": ["IndAS37.para.66-69"]
+      },
+      {
+        "id": "fixture_115.p07",
+        "level": 1,
+        "parent": null,
+        "title": "When the bell rings",
+        "rubric": [
+          "Fixture Co keeps a pretend orange widget in a glass cabinet.",
+          "A fictional bell rings when the cabinet is opened, unless the orange widget has been removed.",
+          "The bell sound is represented by a paper star.",
+          "Fixture Co stores that star in an imaginary drawer."
+        ],
+        "canonical_explanation": "The bell marks each opening of the cabinet.",
+        "example": "",
+        "misconceptions": [],
+        "source_refs": ["IndAS37.para.66-69"]
+      },
+      {
+        "id": "fixture_115.p08",
+        "level": 1,
+        "parent": null,
+        "title": "The stripe's effect",
+        "rubric": [
+          "A fictional box contains a widget-shaped wooden token.",
+          "Fixture Co paints a green stripe on the wooden token.",
+          "The imaginary stripe changes the token's effect outside this fixture."
+        ],
+        "canonical_explanation": "The stripe is painted on the token in the box.",
+        "example": "",
+        "misconceptions": [],
+        "source_refs": ["IndAS115.para.B28-B30"]
+      },
+      {
+        "id": "fixture_115.p09",
+        "level": 1,
+        "parent": null,
+        "title": "The bell",
+        "rubric": ["A fictional bell rings when the cabinet is opened."],
+        "canonical_explanation": "The cabinet has a fictional bell.",
+        "example": "",
+        "misconceptions": [],
+        "source_refs": ["IndAS37.para.66"]
+      },
+      {
+        "id": "fixture_115.p10",
+        "level": 1,
+        "parent": null,
+        "title": "Cabinet contents",
+        "rubric": [
+          "Fixture Co keeps a pretend orange widget in a glass cabinet.",
+          "A fictional bell rings when the cabinet is opened."
+        ],
+        "canonical_explanation": "The orange widget is kept in the glass cabinet.",
+        "example": "",
+        "misconceptions": [],
+        "source_refs": ["IndAS37.para.66-69"]
+      }
+    ]
+  }
+}

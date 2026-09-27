@@ -14,6 +14,8 @@ from pydantic import BaseModel
 
 from .content import ContentPack
 from .contracts.content import (
+    ReviewClaim,
+    ReviewerInfo,
     ReviewMeta,
     ReviewStatus,
     ReleaseSignoff,
@@ -165,6 +167,41 @@ def record_pass(pack: ContentPack, item_ids: list[str], by: str, note: str = "")
             signed_off_at=now,
             notes=_append_note(existing.notes if existing else "", note) if note else (existing.notes if existing else ""),
         )
+    save_reviews(pack, reviews)
+
+
+def record_claude_review(
+    pack: ContentPack,
+    item_id: str,
+    status: ReviewStatus,
+    claims: list[ReviewClaim],
+    reviewer: ReviewerInfo,
+    report_id: str,
+    notes: str = "",
+    expected_sha256: str | None = None,
+) -> None:
+    """The only writer of Claude review verdicts to reviews.json (T23).
+
+    `expected_sha256` is the item hash the evidence packet was built from; an item edited since then
+    is refused. A human sign-off on the current content is never overwritten by Claude."""
+    if status not in {"claude_reviewed", "needs_expert"}:
+        raise ReviewGateError(f"Claude may record only claude_reviewed or needs_expert, not {status}")
+    hashes = _validated_items(pack, [item_id])
+    current = hashes[item_id]
+    if expected_sha256 is not None and expected_sha256 != current:
+        raise ReviewGateError(f"{item_id} changed since its evidence packet was built; review it again")
+    reviews = load_reviews(pack)
+    if effective_status(item_id, current, reviews) == "signed_off":
+        raise ReviewGateError(f"{item_id} is signed off; Claude does not overwrite a sign-off")
+    existing = reviews.get(item_id)
+    reviews[item_id] = ReviewMeta(
+        status=status,
+        content_sha256=current,
+        reviewer=reviewer,
+        claims=claims,
+        report_id=report_id,
+        notes=_append_note(existing.notes if existing else "", notes) if notes else (existing.notes if existing else ""),
+    )
     save_reviews(pack, reviews)
 
 

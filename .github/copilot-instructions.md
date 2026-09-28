@@ -48,6 +48,16 @@ ledger. A Next.js kiosk (`apps/web`) talks to it over SSE.
   stores, and check with a clean export: `git archive HEAD services/tutor | tar -x -C <tmp>`, then
   run the tests there.
 - Paths are built from `Path(__file__)`, never from the current working directory.
+- FastAPI: keep routes thin (validate, call a module function, map errors to HTTP codes); logic
+  lives in `tutor/` modules where tests reach it without HTTP. Every route that returns JSON
+  declares a typed `response_model`, so no extra field (student data) leaks out.
+- Never block the event loop: inside `async def`, wrap sync work that can take time (a sync
+  `ollama.Client` call such as the T26 embedder, TTS synthesis, file parsing) in
+  `await asyncio.to_thread(...)`, as `/tts` does.
+- Tests: one behaviour per test, named for the behaviour. Table-driven cases use
+  `@pytest.mark.parametrize(..., ids=[...])` so a failure names the case. Mocks use
+  `autospec=True` (or a real class with scripted outputs, like `tests/conftest.py`) so a renamed
+  method fails the test. Use `tmp_path` for files; never write into the repo from a test.
 - Create and edit files with your file-edit tools, never from the terminal (`Set-Content`,
   `Out-File`, `Add-Content`, `>`). Terminal writes need the owner's approval and skip the diff
   review.

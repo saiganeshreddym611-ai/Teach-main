@@ -313,6 +313,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T64 | Skills panel | E | T60, T54 | todo |
 | T65 | UI smoke test | E | T61, T62, T63, T64, T42 | todo |
 | T66 | Flag and community-check screens | E | T60, T61, T85 | todo |
+| T67 | Settings panel (AI backends, voice, search mode) | E | T60, T82 | todo |
 | T70 | Spaced repetition and REVIEW phase | F | T53 | todo |
 | T71 | Exam-style practice from RTP/MTP/past papers | F | T70, T52, T20 | todo |
 | T80 | Student data deletion and retention | F | T31, T32, T42 | todo |
@@ -700,6 +701,19 @@ All UI tasks: keep one talk affordance, no navigation, no links out. Read the Ne
 - **Acceptance:** lint and build pass; the T65 Playwright test is extended with a flag and a vote
   against the mock backend.
 
+#### T67 — Settings panel (AI backends, voice, search mode)
+- **Asked by:** the owner, 2026-09-28. **Order:** start after the M5 skills milestone (owner).
+  Coder: Claude (runtime config reload and the access gate).
+- **Build:**
+  - A ⚙ button in the kiosk header opens a panel to choose the grader and tutor backend (`mock`,
+    `ollama`, `claude`), the Ollama model, the TTS engine and voice, and `RETRIEVAL_MODE`.
+  - Backend `GET` and `PUT /settings`. Overrides are saved to `services/tutor/data/settings.json`
+    and apply from the next session without a restart (grader and tutor factories re-read them).
+  - API keys are never entered or shown in the browser; the panel shows only "key set" or "not set".
+  - Access gate: see Q14.
+- **Acceptance:** tests for the settings round trip and for a new session using the changed
+  backend; lint and build pass; owner demo switching mock, Ollama and Claude.
+
 ### M7 — Revision and practice
 
 #### T70 — Spaced repetition and REVIEW phase
@@ -1027,3 +1041,4 @@ Agents append rows here. Humans answer them. Do not delete answered rows; mark t
 | Q11 | planning | T30 | Does the cached passages block fit? Every linked passage goes in the grader's system prompt; above about 30k tokens, teach-back calls send only the focus node's passages. | open: the fixture pack is about 1.1k tokens; measure the real pack after H1 with `tutor.grading_links.estimate_tokens` |
 | Q12 | owner | T34 | Should the grader get headings first and details only for the covered sections, to cut tokens? | answered 2026-09-27: not at the current size. The full Ind AS 115 map is about 12.3k tokens and cached (about 1.2k token-equivalents per call); staging would send about 6k uncached tokens for three sections, add a second call and risk missed topics. Recorded as T34, triggered by T32 usage data |
 | Q13 | owner | T25 | Can the FR tree scripts (`Teach/FR`, 71 files, 13 topics) be used? | answered 2026-09-27: they are AI-generated, so they may be committed as drafts, never as sources or citations. Every statement passes the T23 review before reaching students (a first read of `Ind_AS_37/Tree_3` already misses the para 68A amendment). First use: the Ind AS 37 pack (T25) |
+| Q14 | Claude | T67 | Who may open the settings panel on a student kiosk? Proposal: an admin PIN set in `.env` (`SETTINGS_PIN`); alternative: only from the machine running the API (localhost). | open: the owner decides before T67 starts |

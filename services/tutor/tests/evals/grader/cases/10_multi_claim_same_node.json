@@ -1,0 +1,11 @@
+{
+  "name": "Diagnostic: accurate and inaccurate claims on one node",
+  "pack": "ind_as_115",
+  "status": "draft",
+  "focus_node_id": null,
+  "prior_context": "",
+  "transcript": "For variable amounts in the deal, like rebates or a delivery bonus, we estimate what we expect to get. But if there's any uncertainty at all, I'd still put the whole bonus into revenue straight away, even if there is a big chance we'd have to reverse it later.",
+  "expect": {
+    "ind_as_115.step_3.constraint": "!VERIFIED"
+  }
+}

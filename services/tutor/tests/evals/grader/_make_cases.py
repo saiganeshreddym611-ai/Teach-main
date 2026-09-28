@@ -144,11 +144,100 @@ CASES = [
         ),
         "expect": {"ind_as_115.step_4.ssp": "VERIFIED"},
     },
+    {
+        "file": "09_ac1_diagnostic_invoicing.json",
+        "name": "Diagnostic: recognizes invoicing misconception and omits allocation",
+        "pack": "ind_as_115",
+        "status": "draft",
+        "focus_node_id": None,
+        "prior_context": "",
+        "transcript": (
+            "I think step one is getting an agreement with the customer, and step two is working out "
+            "what distinct things we promised them. Step three is the amount we expect to receive, "
+            "before the tax we collect for the government. I get stuck after that. For step five, I "
+            "would book the sale once we send the invoice, even if we've not handed anything over yet. "
+            "Outside those steps, if we pay a salesperson only for landing a deal, that cost might "
+            "sit as an asset and get expensed as we do the work. And if a customer pays me up front, "
+            "the books show a contract liability, not income yet, until we've delivered."
+        ),
+        "expect": {
+            "ind_as_115.step_5": "GAP",
+            "ind_as_115.step_4": "NOT_MENTIONED",
+        },
+        "expect_omissions": ["ind_as_115.step_4"],
+    },
+    {
+        "file": "10_multi_claim_same_node.json",
+        "name": "Diagnostic: accurate and inaccurate claims on one node",
+        "pack": "ind_as_115",
+        "status": "draft",
+        "focus_node_id": None,
+        "prior_context": "",
+        "transcript": (
+            "For variable amounts in the deal, like rebates or a delivery bonus, we estimate what we "
+            "expect to get. But if there's any uncertainty at all, I'd still put the whole bonus into "
+            "revenue straight away, even if there is a big chance we'd have to reverse it later."
+        ),
+        "expect": {"ind_as_115.step_3.constraint": "!VERIFIED"},
+    },
+    {
+        "file": "11_ind_as_37_teach_back_recognition.json",
+        "name": "Teach-back: three conditions for recognising a provision",
+        "pack": "ind_as_37",
+        "status": "draft",
+        "focus_node_id": "ind_as_37.recognition",
+        "prior_context": "Tutor asked: When would a company record a provision? Explain each condition.",
+        "transcript": (
+            "First something already happened that leaves the company owing something, either by law "
+            "or because people have a fair reason to expect the company to act. Then it's more likely "
+            "than not that resources will have to go out to settle it. And the amount has to be "
+            "estimated reliably enough. You need all three; if one is missing, no provision."
+        ),
+        "expect": {"ind_as_37.recognition": "VERIFIED"},
+        "expect_citations": {"ind_as_37.recognition": ["IndAS37.para.14"]},
+    },
+    {
+        "file": "12_ind_as_37_contingent_liability_wrong.json",
+        "name": "Teach-back: incorrectly recognises a contingent liability",
+        "pack": "ind_as_37",
+        "status": "draft",
+        "focus_node_id": "ind_as_37.contingencies.contingent_liability",
+        "prior_context": "Tutor asked: What does a company do with a contingent liability?",
+        "transcript": (
+            "If a possible claim could cost us money, I'd put it down as a provision as soon as "
+            "there's any chance it might happen. If the other side wins the case we already have the "
+            "liability on our books."
+        ),
+        "expect": {"ind_as_37.contingencies.contingent_liability": "GAP"},
+        "expect_citations": {
+            "ind_as_37.contingencies.contingent_liability": ["IndAS37.para.27"]
+        },
+    },
+    {
+        "file": "13_ind_as_37_stt_noise.json",
+        "name": "Diagnostic: noisy speech still explains provision measurement",
+        "pack": "ind_as_37",
+        "status": "draft",
+        "focus_node_id": None,
+        "prior_context": "",
+        "transcript": (
+            "Um, for a provision I think you use the best, uh, best estimate of what it would take "
+            "to settle the obligation at the reporting date. In other words, what the business would "
+            "sensibly pay then to settle it or hand it over to someone else. Not just the worst-case "
+            "number."
+        ),
+        "expect": {"ind_as_37.measurement": "VERIFIED"},
+        "expect_citations": {"ind_as_37.measurement": ["IndAS37.para.36", "IndAS37.para.37"]},
+    },
 ]
 
 out = Path(__file__).resolve().parent / "cases"
 out.mkdir(exist_ok=True)
 for c in CASES:
     fname = c.pop("file")
-    (out / fname).write_text(json.dumps(c, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (out / fname).write_text(
+        json.dumps(c, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+        newline="\n",
+    )
     print("wrote", fname)

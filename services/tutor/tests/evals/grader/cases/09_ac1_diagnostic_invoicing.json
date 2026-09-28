@@ -1,0 +1,15 @@
+{
+  "name": "Diagnostic: recognizes invoicing misconception and omits allocation",
+  "pack": "ind_as_115",
+  "status": "draft",
+  "focus_node_id": null,
+  "prior_context": "",
+  "transcript": "I think step one is getting an agreement with the customer, and step two is working out what distinct things we promised them. Step three is the amount we expect to receive, before the tax we collect for the government. I get stuck after that. For step five, I would book the sale once we send the invoice, even if we've not handed anything over yet. Outside those steps, if we pay a salesperson only for landing a deal, that cost might sit as an asset and get expensed as we do the work. And if a customer pays me up front, the books show a contract liability, not income yet, until we've delivered.",
+  "expect": {
+    "ind_as_115.step_5": "GAP",
+    "ind_as_115.step_4": "NOT_MENTIONED"
+  },
+  "expect_omissions": [
+    "ind_as_115.step_4"
+  ]
+}

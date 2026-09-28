@@ -1,0 +1,17 @@
+{
+  "name": "Diagnostic: noisy speech still explains provision measurement",
+  "pack": "ind_as_37",
+  "status": "draft",
+  "focus_node_id": null,
+  "prior_context": "",
+  "transcript": "Um, for a provision I think you use the best, uh, best estimate of what it would take to settle the obligation at the reporting date. In other words, what the business would sensibly pay then to settle it or hand it over to someone else. Not just the worst-case number.",
+  "expect": {
+    "ind_as_37.measurement": "VERIFIED"
+  },
+  "expect_citations": {
+    "ind_as_37.measurement": [
+      "IndAS37.para.36",
+      "IndAS37.para.37"
+    ]
+  }
+}

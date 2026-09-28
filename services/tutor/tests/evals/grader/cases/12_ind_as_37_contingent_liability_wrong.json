@@ -1,0 +1,16 @@
+{
+  "name": "Teach-back: incorrectly recognises a contingent liability",
+  "pack": "ind_as_37",
+  "status": "draft",
+  "focus_node_id": "ind_as_37.contingencies.contingent_liability",
+  "prior_context": "Tutor asked: What does a company do with a contingent liability?",
+  "transcript": "If a possible claim could cost us money, I'd put it down as a provision as soon as there's any chance it might happen. If the other side wins the case we already have the liability on our books.",
+  "expect": {
+    "ind_as_37.contingencies.contingent_liability": "GAP"
+  },
+  "expect_citations": {
+    "ind_as_37.contingencies.contingent_liability": [
+      "IndAS37.para.27"
+    ]
+  }
+}

@@ -11,7 +11,7 @@ from datetime import datetime
 from .contracts.api import StudentLedger, LedgerNodeExport
 from .curriculum import Curriculum
 from .contracts.grading import NodeVerdictV2
-from .models import LedgerEvent, MasteryEntry, NodeStatus, Phase, Session
+from .models import LedgerEvent, LedgerSource, MasteryEntry, NodeStatus, Phase, Session
 from .retrieval.corpus import Corpus
 from .store import LedgerStore, ledger_store
 
@@ -37,6 +37,7 @@ def append_verdicts(
     focus_node_ids: set[str] | None = None,
     grader_call_id: str | None = None,
     content_version: str | None = None,
+    source: str | None = None,
     store: LedgerStore | None = None,
 ) -> list[LedgerEvent]:
     """Write one event per verdict that carries evidence (NOT_MENTIONED is skipped).
@@ -74,7 +75,7 @@ def append_verdicts(
             passage_ids=list(v.passage_ids),
             grader_call_id=grader_call_id,
             content_version=content_version,
-            source=SOURCE_BY_PHASE.get(phase),
+            source=source if source is not None else SOURCE_BY_PHASE.get(phase),
         )
         session.ledger.append(ev)
         target_store.append([ev])

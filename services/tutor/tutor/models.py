@@ -97,12 +97,16 @@ class LedgerEvent(BaseModel):
     source: LedgerSource | None = None
 
 
+InstructStep = Literal["PROBE", "EXPLAIN", "CONTINUE"]
+
+
 class Session(BaseModel):
     id: str = Field(default_factory=_uid)
     student_id: str
     topic_id: str
     phase: Phase = Phase.DIAGNOSTIC
     target_node: str | None = None
+    instruct_step: InstructStep | None = None
     instruct_turns_on_node: int = 0
     teach_back_attempts: dict[str, int] = {}
     parked_nodes: list[str] = []          # gave up after max attempts; revisit later

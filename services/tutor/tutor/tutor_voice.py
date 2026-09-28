@@ -107,6 +107,14 @@ class MockTutor:
             )
         elif node is None:
             text = "Thanks. Let's begin. What would you like to start with?"
+        elif "ACTION=PROBE" in directive:
+            text = f"Before I explain, a question: how would you describe {_short_title(node.title)} in your own words?"
+        elif "ACTION=EXPLAIN" in directive:
+            example = node.example if node.example else "Think of any contract you know."
+            text = (
+                f"Let's look at {_short_title(node.title)}. {node.canonical_explanation} "
+                f"For example: {example} Does that make sense so far?"
+            )
         elif "ACTION=REQUEST_TEACH_BACK" in directive or "ACTION=CONTINUE" in directive:
             text = (
                 f"Good. Now explain {_short_title(node.title)} back to me in your own words, "

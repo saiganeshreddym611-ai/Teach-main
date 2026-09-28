@@ -145,6 +145,7 @@ class MasteryEntry(BaseModel):
     title: str
     level: int
     parent: str | None
+    chapter: str | None = None
     status: NodeStatus
     confidence: float | None = None
 

@@ -14,6 +14,7 @@ export type MasteryEntry = {
   title: string;
   level: 1 | 2 | 3;
   parent: string | null;
+  chapter?: string | null;
   status: NodeStatus;
   confidence: number | null;
 };

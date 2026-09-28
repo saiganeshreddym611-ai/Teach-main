@@ -113,6 +113,7 @@ def mastery_view(session: Session, curriculum: Curriculum, store: LedgerStore | 
             title=n.title,
             level=n.level,
             parent=n.parent,
+            chapter=n.chapter,
             status=status.get(n.id, NodeStatus.NOT_MENTIONED),
             confidence=conf.get(n.id),
         )

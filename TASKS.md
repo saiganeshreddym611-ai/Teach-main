@@ -290,13 +290,13 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T23 | Grounded Claude review pipeline | A | T22, T11 | done (cfb4df7, reviewed by Claude + owner) |
 | T24 | Grounded review of tasks and answer keys (T23b) | A | T23, T50, T51 | todo |
 | T25 | Second topic pack: Ind AS 37 from the FR trees | A | T23 | done (bfa787a, reviewed by Claude + owner) |
-| T26 | Hybrid retrieval: vector search that keeps passage IDs | A | T22 | blocked (tests failed after agent reported DONE: 2 failed, 231 passed, 1 skipped in 18.03s; log .task-runs/T26/20260928-070756) |
+| T26 | Hybrid retrieval: vector search that keeps passage IDs | A | T22 | done (5b16c4e, reviewed by Claude + owner) |
 | T30 | Grader v2: claims and citations | B | T22 | done (9c236a2, reviewed by Claude + owner) |
 | T31 | Ledger v2: student-scoped, cited, exportable | B | T30 | done (ae13612, reviewed by Claude + owner) |
 | T32 | Grader audit log and determinism | B | T30 | done (4e7309e, reviewed by Claude + owner) |
-| T33 | Grader eval expansion | B | T30, T32 | review (Copilot CLI (auto), 2026-09-28, log .task-runs/T33/20260928-044808) |
+| T33 | Grader eval expansion | B | T30, T32 | done (2e6ce89, reviewed by Claude + owner) |
 | T34 | Context budget: section-scoped grading (triggered) | B | T32, T100 | todo |
-| T40 | Socratic probe-first flow | C | T31 | blocked (tests failed after agent reported DONE: 3 failed, 223 passed, 1 skipped in 19.11s; log .task-runs/T40/20260928-065707) |
+| T40 | Socratic probe-first flow | C | T31 | done (be8ba71, reviewed by Claude + owner) |
 | T41 | Tutor grounding and spoken citations | C | T40, T21 | todo |
 | T42 | Syllabus boundary and confidence guard | C | T41, T22 | todo |
 | T43 | Tutor bench update | C | T42 | todo |
@@ -307,7 +307,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T53 | TASK phase in the state machine | D | T52, T42, T31 | todo |
 | T54 | Skill projection and API | D | T53 | todo |
 | T60 | Web client types and SSE handling | E | T02 | done (95570df, reviewed by Claude) |
-| T61 | Mastery dashboard v2 | E | T60, T31 | review (Copilot CLI (auto), 2026-09-28, log .task-runs/T61/20260928-035059) |
+| T61 | Mastery dashboard v2 | E | T60, T31 | done (380d94e, reviewed by Claude + owner) |
 | T62 | Citation chips on tutor turns | E | T60, T41 | todo |
 | T63 | Task workspace | E | T60, T53 | todo |
 | T64 | Skills panel | E | T60, T54 | todo |
@@ -319,7 +319,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T81 | Optional SQLite store | F | T80 | todo |
 | T82 | Voice verification mock endpoint | F | T01 | done (18c4895, reviewed by Claude) |
 | T83 | Content swap proof | A | T22, T50 | todo |
-| T84 | Optional seeded job profile | F | T31 | review (Copilot CLI (auto), 2026-09-28, log .task-runs/T84/20260928-032104) |
+| T84 | Optional seeded job profile | F | T31 | done (a37f7b0, reviewed by Claude + owner) |
 | T85 | Student flags and community check | F | T31, T41, T80 | todo |
 | T86 | Professional review queue and development report | F | T85, T11 | todo |
 | T90 | Demo-script acceptance test | G | T54, T42 | todo |

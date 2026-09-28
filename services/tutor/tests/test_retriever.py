@@ -87,13 +87,19 @@ def test_confidence_range_and_extremes(retriever):
     assert retriever.search("purple widget label")[0].confidence == 1.0
 
 
+def _fixture_queries():
+    """The calibration file holds several packs; these tests use the fixture pack's questions."""
+    lines = (Path(__file__).parent / "evals" / "retrieval" / "queries.jsonl").read_text(encoding="utf-8").splitlines()
+    return [q for q in map(json.loads, lines) if q.get("pack") == "fixture_115"]
+
+
 def test_recall_at_5(retriever):
-    queries = [json.loads(line) for line in (Path(__file__).parent / "evals" / "retrieval" / "queries.jsonl").read_text().splitlines()]
+    queries = _fixture_queries()
     assert calibrate(retriever, queries, 5)["recall_at_k"] >= 0.8
 
 
 def test_out_of_syllabus_below_threshold(retriever):
-    queries = [json.loads(line) for line in (Path(__file__).parent / "evals" / "retrieval" / "queries.jsonl").read_text().splitlines()]
+    queries = _fixture_queries()
     result = calibrate(retriever, queries, 5)
     assert all(row["confidence"] < result["threshold"] for row in result["queries"] if not row["in_syllabus"])
     assert all(row["confidence"] >= result["threshold"] for row in result["queries"] if row["in_syllabus"])

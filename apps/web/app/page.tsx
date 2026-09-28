@@ -156,7 +156,9 @@ export default function Kiosk() {
       await streamTurn(sessionId, transcript, {
         onGrade: (g) => {
           if (g.summary) setSummary(g.summary);
-          setOmissions((g.omissions ?? []).map((o) => o.node_id));
+          // Only the diagnostic grade carries omissions; later grades keep the marks, and the grid
+          // clears each one as soon as the ledger has evidence for that heading.
+          if (g.omissions?.length) setOmissions(g.omissions.map((o) => o.node_id));
         },
         onText: (delta) => {
           if (!started) {
@@ -175,7 +177,6 @@ export default function Kiosk() {
           speaker?.flush();
           if (!speaker?.supported) setVoice("idle");
           else maybeIdle();
-          setOmissions([]);
           await refreshMastery(sessionId);
         },
         onError: async (m) => {

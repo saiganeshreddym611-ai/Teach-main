@@ -42,7 +42,6 @@ export default function EvidencePanel({
 
   const event = latestByNode[entry.node_id];
   const statusText = STATUS_TEXT[entry.status];
-  const hasEvent = Boolean(event);
 
   useEffect(() => {
     headingRef.current?.focus();
@@ -166,11 +165,7 @@ export default function EvidencePanel({
               );
             })}
           </div>
-        ) : (
-          !hasEvent && (
-            <p className="text-sm text-zinc-400">Assessed in an earlier session.</p>
-          )
-        )}
+        ) : null}
       </div>
     </section>
   );

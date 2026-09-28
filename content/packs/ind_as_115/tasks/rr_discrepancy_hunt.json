@@ -1,0 +1,328 @@
+{
+  "task_id": "rr_discrepancy_hunt",
+  "skill_id": "revenue_recognition_services",
+  "title": "Year-end invoice register: find the cut-off and revenue errors",
+  "kind": "discrepancy_hunt",
+  "node_ids": [
+    "ind_as_115.step_3",
+    "ind_as_115.step_3.variable_consideration",
+    "ind_as_115.step_5",
+    "ind_as_115.step_5.licences",
+    "ind_as_115.cross_cutting.presentation"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "You are reviewing {company_name}'s revenue cut-off for FY 2025-26 before the audit. Below are the sales invoice register for March 2026 (an extract; amounts in rupees, excluding GST) and the delivery and customer correspondence log. Every invoice in the register was recorded as revenue for FY 2025-26.\n\nWhat to produce: (1) each invoice that is wrong, with its row and what is wrong; (2) the net adjustment to FY 2025-26 revenue (negative if revenue falls); (3) the correcting treatment for each issue, with the paragraph that supports it. Some unusual-looking rows are correct. A false alarm costs no marks, but say why you flag a row.\n\nAnswer rules: state amounts in rupees rounded to the nearest rupee (an answer within 0.5% or ₹1,000 of the key, whichever is larger, counts as correct); state percentages to one decimal place, and use the unrounded percentage when you compute amounts; the financial year runs from 1 April to 31 March. All names are fictional.",
+  "params": {},
+  "constraints": [],
+  "documents": [
+    {
+      "doc_id": "invoice_register",
+      "title": "Sales invoice register, March 2026 (extract)",
+      "columns": [
+        "invoice_no",
+        "invoice_date",
+        "customer",
+        "description",
+        "amount_inr"
+      ],
+      "rows": [
+        {
+          "row_id": "R01",
+          "invoice_no": "KT/2526/0412",
+          "invoice_date": "2026-03-02",
+          "customer": "Veloria Retail Ltd",
+          "description": "Managed services, February 2026",
+          "amount_inr": "1840000"
+        },
+        {
+          "row_id": "R02",
+          "invoice_no": "KT/2526/0418",
+          "invoice_date": "2026-03-06",
+          "customer": "Korvani Freight Ltd",
+          "description": "Milestone 3: data migration",
+          "amount_inr": "3200000"
+        },
+        {
+          "row_id": "R03",
+          "invoice_no": "KT/2526/0431",
+          "invoice_date": "2026-03-15",
+          "customer": "Medhavi Care Ltd",
+          "description": "Annual support, 1 April 2026 to 31 March 2027",
+          "amount_inr": "2400000"
+        },
+        {
+          "row_id": "R04",
+          "invoice_no": "KT/2526/0440",
+          "invoice_date": "2026-03-31",
+          "customer": "Zenara Finance Ltd",
+          "description": "Milestone 4: go-live",
+          "amount_inr": "5000000"
+        },
+        {
+          "row_id": "R05",
+          "invoice_no": "KT/2526/0441",
+          "invoice_date": "2026-03-31",
+          "customer": "Veloria Retail Ltd",
+          "description": "Managed services, March 2026",
+          "amount_inr": "1840000"
+        },
+        {
+          "row_id": "R06",
+          "invoice_no": "KT/2526/0425",
+          "invoice_date": "2026-03-10",
+          "customer": "Pashmi Foods Ltd",
+          "description": "PO 7781, milestone 2: design sign-off",
+          "amount_inr": "1250000"
+        },
+        {
+          "row_id": "R07",
+          "invoice_no": "KT/2526/0437",
+          "invoice_date": "2026-03-24",
+          "customer": "Pashmi Foods Ltd",
+          "description": "PO 7781, milestone 2: design sign-off",
+          "amount_inr": "1250000"
+        },
+        {
+          "row_id": "R08",
+          "invoice_no": "KT/2526/CN019",
+          "invoice_date": "2026-03-20",
+          "customer": "Korvani Freight Ltd",
+          "description": "Credit note: SLA service credit, February 2026",
+          "amount_inr": "-210000"
+        },
+        {
+          "row_id": "R09",
+          "invoice_no": "KT/2526/0433",
+          "invoice_date": "2026-03-18",
+          "customer": "Tarvesh Textiles Ltd",
+          "description": "Managed services, March 2026",
+          "amount_inr": "960000"
+        },
+        {
+          "row_id": "R10",
+          "invoice_no": "KT/2526/0444",
+          "invoice_date": "2026-03-30",
+          "customer": "Orvinda Stores Ltd",
+          "description": "Perpetual licence, warehouse software",
+          "amount_inr": "2700000"
+        },
+        {
+          "row_id": "R11",
+          "invoice_no": "KT/2526/0446",
+          "invoice_date": "2026-03-31",
+          "customer": "Zenara Finance Ltd",
+          "description": "Change request CR-12",
+          "amount_inr": "680000"
+        }
+      ]
+    },
+    {
+      "doc_id": "operations_log",
+      "title": "Delivery and customer correspondence log",
+      "columns": [
+        "date",
+        "customer",
+        "event"
+      ],
+      "rows": [
+        {
+          "row_id": "L01",
+          "date": "2026-03-05",
+          "customer": "Korvani Freight Ltd",
+          "event": "Milestone 3 (data migration) acceptance signed by the customer."
+        },
+        {
+          "row_id": "L02",
+          "date": "2026-03-08",
+          "customer": "Pashmi Foods Ltd",
+          "event": "Design sign-off received. PO 7781 schedule: milestone 2 is billed once, ₹12,50,000."
+        },
+        {
+          "row_id": "L03",
+          "date": "2026-03-12",
+          "customer": "Tarvesh Textiles Ltd",
+          "event": "Uptime report: 98.7% for 9 to 11 March. Clause 9.2 gives a service credit of 15% of the monthly fee for any month below 99.5%."
+        },
+        {
+          "row_id": "L04",
+          "date": "2026-03-15",
+          "customer": "Medhavi Care Ltd",
+          "event": "Support renewal signed for FY 2026-27; invoice raised in advance and paid by the customer on 25 March 2026."
+        },
+        {
+          "row_id": "L05",
+          "date": "2026-03-16",
+          "customer": "Tarvesh Textiles Ltd",
+          "event": "Customer letter claiming the March service credit under clause 9.2. No credit note raised yet."
+        },
+        {
+          "row_id": "L06",
+          "date": "2026-03-20",
+          "customer": "Korvani Freight Ltd",
+          "event": "February service credit agreed with the customer; credit note CN019 issued."
+        },
+        {
+          "row_id": "L07",
+          "date": "2026-03-29",
+          "customer": "Zenara Finance Ltd",
+          "event": "Go-live acceptance certificate for milestone 4 signed by the customer."
+        },
+        {
+          "row_id": "L08",
+          "date": "2026-03-31",
+          "customer": "Zenara Finance Ltd",
+          "event": "CR-12 work performed 16 to 27 March and accepted; timesheets attached."
+        },
+        {
+          "row_id": "L09",
+          "date": "2026-04-06",
+          "customer": "Orvinda Stores Ltd",
+          "event": "Licence keys issued; the customer can use the warehouse software from today."
+        }
+      ]
+    }
+  ],
+  "calculator": "cutoff_check",
+  "answer_fields": [
+    "net_revenue_adjustment"
+  ],
+  "rubric": [
+    {
+      "id": "h1",
+      "text": "Finds R03: support for FY 2026-27 billed in advance and recorded as revenue.",
+      "weight": 0.125,
+      "node_id": "ind_as_115.cross_cutting.presentation",
+      "passage_ids": [
+        "IndAS115.para.31",
+        "IndAS115.para.106"
+      ],
+      "required": false,
+      "check": {
+        "type": "discrepancy",
+        "discrepancy_id": "d1"
+      }
+    },
+    {
+      "id": "h2",
+      "text": "Finds R07: milestone 2 of PO 7781 billed twice.",
+      "weight": 0.125,
+      "node_id": "ind_as_115.step_3",
+      "passage_ids": [
+        "IndAS115.para.47"
+      ],
+      "required": false,
+      "check": {
+        "type": "discrepancy",
+        "discrepancy_id": "d2"
+      }
+    },
+    {
+      "id": "h3",
+      "text": "Finds R09: the March service credit the customer is owed has no credit note.",
+      "weight": 0.125,
+      "node_id": "ind_as_115.step_3.variable_consideration",
+      "passage_ids": [
+        "IndAS115.para.50",
+        "IndAS115.para.51"
+      ],
+      "required": false,
+      "check": {
+        "type": "discrepancy",
+        "discrepancy_id": "d3"
+      }
+    },
+    {
+      "id": "h4",
+      "text": "Finds R10: a licence recorded in March that the customer could use only from 6 April 2026.",
+      "weight": 0.125,
+      "node_id": "ind_as_115.step_5.licences",
+      "passage_ids": [
+        "IndAS115.para.B61"
+      ],
+      "required": false,
+      "check": {
+        "type": "discrepancy",
+        "discrepancy_id": "d4"
+      }
+    },
+    {
+      "id": "h5",
+      "text": "Net adjustment to FY 2025-26 revenue for the four issues.",
+      "weight": 0.2,
+      "node_id": "ind_as_115.step_5",
+      "passage_ids": [
+        "IndAS115.para.31"
+      ],
+      "required": false,
+      "check": {
+        "type": "numeric",
+        "field": "net_revenue_adjustment",
+        "tolerance": "0.5%|1000"
+      }
+    },
+    {
+      "id": "h6",
+      "text": "Gives the right correction for each issue: the advance billing is a contract liability, not revenue (para 106); the duplicate invoice is reversed; revenue is reduced by the service credit owed (paras 50-51); the licence revenue moves to FY 2026-27 because the customer could not use the licence before 6 April 2026 (para B61).",
+      "weight": 0.3,
+      "node_id": "ind_as_115.step_5",
+      "passage_ids": [
+        "IndAS115.para.50",
+        "IndAS115.para.51",
+        "IndAS115.para.106",
+        "IndAS115.para.B61"
+      ],
+      "required": true,
+      "check": {
+        "type": "judgement"
+      }
+    }
+  ],
+  "planted_discrepancies": [
+    {
+      "id": "d1",
+      "row_id": "R03",
+      "issue_type": "premature_revenue",
+      "node_id": "ind_as_115.cross_cutting.presentation",
+      "passage_ids": [
+        "IndAS115.para.31",
+        "IndAS115.para.106"
+      ]
+    },
+    {
+      "id": "d2",
+      "row_id": "R07",
+      "issue_type": "duplicate_billing",
+      "node_id": "ind_as_115.step_3",
+      "passage_ids": [
+        "IndAS115.para.47"
+      ]
+    },
+    {
+      "id": "d3",
+      "row_id": "R09",
+      "issue_type": "missing_credit_note",
+      "node_id": "ind_as_115.step_3.variable_consideration",
+      "passage_ids": [
+        "IndAS115.para.50",
+        "IndAS115.para.51"
+      ]
+    },
+    {
+      "id": "d4",
+      "row_id": "R10",
+      "issue_type": "wrong_period",
+      "node_id": "ind_as_115.step_5.licences",
+      "passage_ids": [
+        "IndAS115.para.B61"
+      ]
+    }
+  ],
+  "model_answer_template": "R03: support for FY 2026-27 was billed and paid in advance; no service has been transferred, so it is a contract liability (para 106), not revenue (para 31). R07: a second invoice for the same PO 7781 milestone; reverse it. R09: the customer is owed a March service credit of 15% of ₹9,60,000 = ₹1,44,000; reduce revenue (paras 50-51) and raise the credit note. R10: the customer could use the licence only from 6 April 2026, so the revenue belongs to FY 2026-27 (para B61). R04, R08 and R11 look unusual but are supported by the log. Net adjustment to FY 2025-26 revenue: ₹{net_revenue_adjustment}.",
+  "pass_threshold": 0.75,
+  "template_version": "0.1.0"
+}

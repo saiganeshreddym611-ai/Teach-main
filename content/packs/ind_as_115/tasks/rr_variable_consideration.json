@@ -1,0 +1,164 @@
+{
+  "task_id": "rr_variable_consideration",
+  "skill_id": "revenue_recognition_services",
+  "title": "Managed services with an uptime bonus and service credits",
+  "kind": "calculation",
+  "node_ids": [
+    "ind_as_115.step_3",
+    "ind_as_115.step_3.variable_consideration",
+    "ind_as_115.step_3.constraint"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "{company_name} signed a one-year managed-services contract with {customer} for 1 April 2025 to 31 March 2026. The customer pays a fixed fee of ₹{monthly_fee} a month. Two clauses change the price: (a) a bonus of ₹{bonus_amount}, paid once at year-end if average uptime for the year is at least 99.9%; (b) a service credit of ₹{penalty_per_breach} for each month in which uptime falls below 99.5%.\n\n{company_short} has run 40 similar contracts on the same infrastructure. It earned the same bonus on every comparable contract in the last three years, and its delivery head puts the chance of earning it this year at {p_bonus}%. For service credits, the history of similar contracts gives these chances for a year: no breach month {p_zero}%, one breach month {p_one}%, two breach months {p_two}%.\n\nWhat to produce, as estimated when the contract starts: (1) the estimate of service credits for the year; (2) the bonus included in the transaction price; (3) the transaction price for the year; (4) the estimation method for each clause and why, and whether the constraint limits what you include.\n\nAnswer rules: state amounts in rupees rounded to the nearest rupee (an answer within 0.5% or ₹1,000 of the key, whichever is larger, counts as correct); state percentages to one decimal place, and use the unrounded percentage when you compute amounts; the financial year runs from 1 April to 31 March. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    },
+    "monthly_fee": {
+      "type": "money",
+      "min": "500000",
+      "max": "2000000",
+      "step": "10000"
+    },
+    "bonus_amount": {
+      "type": "money",
+      "min": "200000",
+      "max": "1900000",
+      "step": "10000"
+    },
+    "penalty_per_breach": {
+      "type": "money",
+      "min": "100000",
+      "max": "500000",
+      "step": "10000"
+    },
+    "p_bonus": {
+      "type": "percent",
+      "min": "85",
+      "max": "95",
+      "step": "5"
+    },
+    "p_zero": {
+      "type": "percent",
+      "min": "50",
+      "max": "80",
+      "step": "5"
+    },
+    "p_one": {
+      "type": "percent",
+      "min": "10",
+      "max": "40",
+      "step": "5"
+    },
+    "p_two": {
+      "type": "percent",
+      "min": "5",
+      "max": "20",
+      "step": "5"
+    }
+  },
+  "constraints": [
+    "p_zero + p_one + p_two == 100",
+    "bonus_amount <= monthly_fee * 12 * 0.08",
+    "penalty_per_breach <= monthly_fee * 0.25"
+  ],
+  "documents": [],
+  "calculator": "variable_consideration",
+  "answer_fields": [
+    "expected_service_credits",
+    "bonus_included",
+    "transaction_price"
+  ],
+  "rubric": [
+    {
+      "id": "v1",
+      "text": "Service credits by the expected value: the sum of each outcome's credits times its probability.",
+      "weight": 0.15,
+      "node_id": "ind_as_115.step_3.variable_consideration",
+      "passage_ids": [
+        "IndAS115.para.50",
+        "IndAS115.para.51",
+        "IndAS115.para.53"
+      ],
+      "required": false,
+      "check": {
+        "type": "numeric",
+        "field": "expected_service_credits",
+        "tolerance": "0.5%|1000"
+      }
+    },
+    {
+      "id": "v2",
+      "text": "Bonus by the most likely amount: the whole bonus, since earning it is the most likely outcome.",
+      "weight": 0.15,
+      "node_id": "ind_as_115.step_3.variable_consideration",
+      "passage_ids": [
+        "IndAS115.para.53"
+      ],
+      "required": false,
+      "check": {
+        "type": "numeric",
+        "field": "bonus_included",
+        "tolerance": "0.5%|1000"
+      }
+    },
+    {
+      "id": "v3",
+      "text": "Transaction price: twelve months' fixed fees plus the bonus included less the expected service credits.",
+      "weight": 0.2,
+      "node_id": "ind_as_115.step_3",
+      "passage_ids": [
+        "IndAS115.para.47",
+        "IndAS115.para.50"
+      ],
+      "required": false,
+      "check": {
+        "type": "numeric",
+        "field": "transaction_price",
+        "tolerance": "0.5%|1000"
+      }
+    },
+    {
+      "id": "v4",
+      "text": "Chooses the method per clause (para 53): the most likely amount for the all-or-nothing bonus, and the expected value for the service credits, which have several possible outcomes and a large set of similar contracts; uses each method consistently for the contract (para 54).",
+      "weight": 0.3,
+      "node_id": "ind_as_115.step_3.variable_consideration",
+      "passage_ids": [
+        "IndAS115.para.53",
+        "IndAS115.para.54"
+      ],
+      "required": true,
+      "check": {
+        "type": "judgement"
+      }
+    },
+    {
+      "id": "v5",
+      "text": "Assesses the constraint for both clauses (paras 56-57): includes the bonus because the track record makes a significant reversal highly unlikely, names what could still cause one (uptime partly depends on factors outside the company's control), and says the estimate is updated at each reporting date (para 59).",
+      "weight": 0.2,
+      "node_id": "ind_as_115.step_3.constraint",
+      "passage_ids": [
+        "IndAS115.para.56",
+        "IndAS115.para.57",
+        "IndAS115.para.59"
+      ],
+      "required": false,
+      "check": {
+        "type": "judgement"
+      }
+    }
+  ],
+  "model_answer_template": "Service credits have several outcomes and a large set of similar contracts, so the expected value fits (para 53(a)): ₹{expected_service_credits}. The bonus is all or nothing, so the most likely amount fits (para 53(b)): ₹{bonus_included}. With a consistent record of earning it on the same infrastructure, it is highly probable that including it will not cause a significant reversal (paras 56-57), though uptime is partly outside the company's control, so the estimate is revisited at each reporting date (para 59). Transaction price = 12 x monthly fee + bonus - expected credits = ₹{transaction_price}.",
+  "pass_threshold": 0.75,
+  "template_version": "0.1.0"
+}

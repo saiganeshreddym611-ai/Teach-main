@@ -115,12 +115,14 @@ def test_validator_fails_on_broken_ref(tmp_path):
     assert validate_pack.main(["--pack", "fixture_115", "--packs-dir", str(destination)]) == 1
 
 
-def test_validator_without_corpus(tmp_path):
+def test_validator_without_corpus(tmp_path, capsys):
+    # T50: a pack without a corpus still validates its other content; the ref check is skipped with a warning.
     destination = tmp_path / "packs"
     shutil.copytree(FIXTURES, destination)
     shutil.rmtree(destination / "fixture_115" / "corpus")
     clear_pack_cache()
-    assert validate_pack.main(["--pack", "fixture_115", "--packs-dir", str(destination)]) == 2
+    assert validate_pack.main(["--pack", "fixture_115", "--packs-dir", str(destination)]) == 0
+    assert "WARNING: No corpus for fixture_115" in capsys.readouterr().out
 
 
 def test_real_pack_refs_resolve():

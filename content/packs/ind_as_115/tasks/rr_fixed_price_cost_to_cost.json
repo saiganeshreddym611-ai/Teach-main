@@ -1,0 +1,202 @@
+{
+  "task_id": "rr_fixed_price_cost_to_cost",
+  "skill_id": "revenue_recognition_services",
+  "title": "Fixed-price implementation: revenue by cost-to-cost progress",
+  "kind": "calculation",
+  "node_ids": [
+    "ind_as_115.step_5.over_time_criteria",
+    "ind_as_115.step_5.measuring_progress",
+    "ind_as_115.step_5.uninstalled_materials",
+    "ind_as_115.cross_cutting.presentation"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "{company_name} ({company_city}) signed a fixed-price contract with {customer} on {contract_date} to build an order-management system to the customer's specification for ₹{contract_price}. The system is built on the customer's own cloud tenancy. If the customer ends the contract for convenience, the contract lets {company_short} keep payment for the work done to date plus a reasonable margin.\n\nAt 31 March 2026 the project team reports the figures in the cost report. The rework line is the cost of rebuilding a module that {company_short}'s own developers built wrongly; it was not in the budget and the price does not change for it. The latest estimate of total contract cost excludes the rework. Billing follows the milestone schedule.\n\nWhat to produce: (1) the measure of progress at 31 March 2026 (cost-to-cost); (2) the revenue to recognise for FY 2025-26 (the contract started this year); (3) the contract asset or contract liability at 31 March 2026 (positive for an asset, negative for a liability); (4) why revenue is recognised over time, and how you treated the rework.\n\nAnswer rules: state amounts in rupees rounded to the nearest rupee (an answer within 0.5% or ₹1,000 of the key, whichever is larger, counts as correct); state percentages to one decimal place, and use the unrounded percentage when you compute amounts; the financial year runs from 1 April to 31 March. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    },
+    "contract_date": {
+      "type": "date",
+      "choices": [
+        "2025-04-15",
+        "2025-05-02",
+        "2025-06-10"
+      ]
+    },
+    "contract_price": {
+      "type": "money",
+      "min": "20000000",
+      "max": "80000000",
+      "step": "100000"
+    },
+    "estimated_total_cost": {
+      "type": "money",
+      "min": "12000000",
+      "max": "68000000",
+      "step": "100000"
+    },
+    "costs_to_date": {
+      "type": "money",
+      "min": "3000000",
+      "max": "60000000",
+      "step": "10000"
+    },
+    "rework_cost": {
+      "type": "money",
+      "min": "200000",
+      "max": "3000000",
+      "step": "10000"
+    },
+    "billed_to_date": {
+      "type": "money",
+      "min": "2000000",
+      "max": "64000000",
+      "step": "100000"
+    }
+  },
+  "constraints": [
+    "estimated_total_cost >= contract_price * 0.6",
+    "estimated_total_cost <= contract_price * 0.85",
+    "costs_to_date - rework_cost >= estimated_total_cost * 0.25",
+    "costs_to_date - rework_cost <= estimated_total_cost * 0.85",
+    "rework_cost <= costs_to_date * 0.08",
+    "billed_to_date >= contract_price * 0.1",
+    "billed_to_date <= contract_price * 0.8"
+  ],
+  "documents": [
+    {
+      "doc_id": "cost_report",
+      "title": "Project cost report at 31 March 2026: {customer} order-management system",
+      "columns": [
+        "line",
+        "amount_inr"
+      ],
+      "rows": [
+        {
+          "row_id": "C1",
+          "line": "Contract price (fixed)",
+          "amount_inr": "{contract_price}"
+        },
+        {
+          "row_id": "C2",
+          "line": "Latest estimate of total contract cost, excluding rework",
+          "amount_inr": "{estimated_total_cost}"
+        },
+        {
+          "row_id": "C3",
+          "line": "Costs incurred to date, including rework",
+          "amount_inr": "{costs_to_date}"
+        },
+        {
+          "row_id": "C4",
+          "line": "of which: rework of a defective module (not in the budget or the price)",
+          "amount_inr": "{rework_cost}"
+        },
+        {
+          "row_id": "C5",
+          "line": "Billed to date under the milestone schedule",
+          "amount_inr": "{billed_to_date}"
+        }
+      ]
+    }
+  ],
+  "calculator": "cost_to_cost",
+  "answer_fields": [
+    "progress_percent",
+    "revenue_for_year",
+    "contract_balance"
+  ],
+  "rubric": [
+    {
+      "id": "r1",
+      "text": "Measure of progress: costs incurred that depict performance (costs to date less the rework) over the latest estimate of total cost.",
+      "weight": 0.15,
+      "node_id": "ind_as_115.step_5.measuring_progress",
+      "passage_ids": [
+        "IndAS115.para.39",
+        "IndAS115.para.B18",
+        "IndAS115.para.B19"
+      ],
+      "required": false,
+      "check": {
+        "type": "numeric",
+        "field": "progress_percent",
+        "tolerance": "0.1"
+      }
+    },
+    {
+      "id": "r2",
+      "text": "Revenue for FY 2025-26: contract price times the measure of progress.",
+      "weight": 0.2,
+      "node_id": "ind_as_115.step_5.measuring_progress",
+      "passage_ids": [
+        "IndAS115.para.39",
+        "IndAS115.para.B18"
+      ],
+      "required": false,
+      "check": {
+        "type": "numeric",
+        "field": "revenue_for_year",
+        "tolerance": "0.5%|1000"
+      }
+    },
+    {
+      "id": "r3",
+      "text": "Contract asset (positive) or contract liability (negative): revenue to date less billing to date.",
+      "weight": 0.15,
+      "node_id": "ind_as_115.cross_cutting.presentation",
+      "passage_ids": [
+        "IndAS115.para.105",
+        "IndAS115.para.106",
+        "IndAS115.para.107"
+      ],
+      "required": false,
+      "check": {
+        "type": "numeric",
+        "field": "contract_balance",
+        "tolerance": "0.5%|1000"
+      }
+    },
+    {
+      "id": "r4",
+      "text": "Recognises revenue over time and names a paragraph 35 criterion that the facts meet: the customer controls the system as it is built on its own cloud tenancy (35(b)), or the system has no alternative use and the termination clause gives an enforceable right to payment for work to date (35(c)).",
+      "weight": 0.3,
+      "node_id": "ind_as_115.step_5.over_time_criteria",
+      "passage_ids": [
+        "IndAS115.para.35",
+        "IndAS115.para.36",
+        "IndAS115.para.37"
+      ],
+      "required": true,
+      "check": {
+        "type": "judgement"
+      }
+    },
+    {
+      "id": "r5",
+      "text": "Leaves the rework out of the measure of progress, because it is a significant inefficiency not reflected in the price and does not depict the transfer of control (B19(a)), and expenses it as incurred.",
+      "weight": 0.2,
+      "node_id": "ind_as_115.step_5.uninstalled_materials",
+      "passage_ids": [
+        "IndAS115.para.B19"
+      ],
+      "required": false,
+      "check": {
+        "type": "judgement"
+      }
+    }
+  ],
+  "model_answer_template": "Progress = (costs to date less the rework) / latest estimate of total cost = {progress_percent}%. Revenue for FY 2025-26 = contract price x progress = ₹{revenue_for_year}. Contract asset (a liability if negative) = revenue to date less billing to date = ₹{contract_balance}. Revenue is recognised over time: the customer controls the system as it is built on its own tenancy (para 35(b)); the system also has no alternative use and the termination clause gives an enforceable right to payment for work to date (para 35(c)). The rework is a significant inefficiency not reflected in the price, so it is left out of the cost-to-cost measure (para B19(a)) and expensed as incurred.",
+  "pass_threshold": 0.75,
+  "template_version": "0.1.0"
+}

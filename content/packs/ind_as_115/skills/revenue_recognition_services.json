@@ -1,0 +1,12 @@
+{
+  "skill_id": "revenue_recognition_services",
+  "title": "Revenue recognition for a service-based company",
+  "description": "Apply Ind AS 115 to the contracts of one fictional mid-size Indian IT services company: progress on a fixed-price build, a change order, variable consideration in managed services, and a year-end cut-off review.",
+  "task_ids": [
+    "rr_fixed_price_cost_to_cost",
+    "rr_contract_modification",
+    "rr_variable_consideration",
+    "rr_discrepancy_hunt"
+  ],
+  "unlock_rule": "all_tasks_passed"
+}

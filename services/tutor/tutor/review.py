@@ -13,6 +13,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 from .content import ContentPack
+from .skills.loader import load_skills, load_tasks
 from .contracts.content import (
     ReviewClaim,
     ReviewerInfo,
@@ -39,10 +40,16 @@ def canonical_sha256(data: BaseModel | dict | list) -> str:
 
 
 def pack_items(pack: ContentPack) -> dict[str, tuple[ItemKind, dict]]:
-    return {
+    """Every reviewable item. Skills count as tasks: both are authored exercise content (D5)."""
+    items: dict[str, tuple[ItemKind, dict]] = {
         node.id: ("node", node.model_dump(mode="json"))
         for node in pack.curriculum.tree.nodes
     }
+    for skill_id, skill in load_skills(pack).items():
+        items[f"skill:{skill_id}"] = ("task", skill.model_dump(mode="json"))
+    for task_id, task in load_tasks(pack).items():
+        items[f"task:{task_id}"] = ("task", task.model_dump(mode="json"))
+    return items
 
 
 def item_hashes(pack: ContentPack) -> dict[str, str]:

@@ -13,6 +13,7 @@ from tutor.content import load_pack
 from tutor.review import (
     current_release,
     load_reviews,
+    pack_items,
     review_counts,
     sample_for_signoff,
     status_table,
@@ -106,7 +107,7 @@ def build_report(pack, seed: int | None = None) -> str:
 
 
 def pack_items_for_report(pack, item_id: str) -> dict:
-    return pack.curriculum.node(item_id).model_dump(mode="json")
+    return pack_items(pack)[item_id][1]
 
 
 def main(argv: list[str] | None = None) -> int:

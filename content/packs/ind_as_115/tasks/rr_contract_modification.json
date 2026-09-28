@@ -1,0 +1,153 @@
+{
+  "task_id": "rr_contract_modification",
+  "skill_id": "revenue_recognition_services",
+  "title": "Change order mid-project: cumulative catch-up",
+  "kind": "calculation",
+  "node_ids": [
+    "ind_as_115.step_1.modification",
+    "ind_as_115.step_2.distinct",
+    "ind_as_115.step_5.measuring_progress"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "On 1 May 2025 {company_name} agreed a fixed-price contract with {customer} to build and roll out a payroll platform for ₹{original_price}. It is one performance obligation satisfied over time, and progress is measured cost-to-cost. The original estimate of total cost was ₹{original_est_cost}.\n\nOn 1 November 2025, when costs incurred to date were ₹{costs_at_mod}, the parties signed change order CO-1: {company_short} will add a leave-management module for an extra ₹{change_price}, expected to cost ₹{change_cost}. The module is built into the same platform and shares its data model, so the customer cannot use it on its own. The extra price was negotiated; it is not the module's standalone selling price.\n\nWhat to produce: (1) the measure of progress immediately after the modification; (2) the cumulative catch-up adjustment to revenue on 1 November 2025 (negative if it reduces revenue); (3) the cumulative revenue on the contract at 1 November 2025 after the adjustment; (4) how CO-1 is accounted for, and why.\n\nAnswer rules: state amounts in rupees rounded to the nearest rupee (an answer within 0.5% or ₹1,000 of the key, whichever is larger, counts as correct); state percentages to one decimal place, and use the unrounded percentage when you compute amounts; the financial year runs from 1 April to 31 March. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    },
+    "original_price": {
+      "type": "money",
+      "min": "30000000",
+      "max": "90000000",
+      "step": "100000"
+    },
+    "original_est_cost": {
+      "type": "money",
+      "min": "19500000",
+      "max": "76500000",
+      "step": "100000"
+    },
+    "costs_at_mod": {
+      "type": "money",
+      "min": "5850000",
+      "max": "53550000",
+      "step": "10000"
+    },
+    "change_price": {
+      "type": "money",
+      "min": "2000000",
+      "max": "20000000",
+      "step": "100000"
+    },
+    "change_cost": {
+      "type": "money",
+      "min": "1200000",
+      "max": "19000000",
+      "step": "100000"
+    }
+  },
+  "constraints": [
+    "original_est_cost >= original_price * 0.65",
+    "original_est_cost <= original_price * 0.85",
+    "costs_at_mod >= original_est_cost * 0.3",
+    "costs_at_mod <= original_est_cost * 0.7",
+    "change_price <= original_price * 0.3",
+    "change_cost >= change_price * 0.6",
+    "change_cost <= change_price * 0.95"
+  ],
+  "documents": [],
+  "calculator": "contract_modification",
+  "answer_fields": [
+    "progress_after_modification",
+    "catch_up_adjustment",
+    "revenue_to_date_after_modification"
+  ],
+  "rubric": [
+    {
+      "id": "m1",
+      "text": "Progress after CO-1: costs to date over the new total estimate (original estimate plus the module's cost).",
+      "weight": 0.15,
+      "node_id": "ind_as_115.step_5.measuring_progress",
+      "passage_ids": [
+        "IndAS115.para.21"
+      ],
+      "required": false,
+      "check": {
+        "type": "numeric",
+        "field": "progress_after_modification",
+        "tolerance": "0.1"
+      }
+    },
+    {
+      "id": "m2",
+      "text": "Cumulative catch-up: revenue to date on the modified contract less the revenue recognised before CO-1.",
+      "weight": 0.2,
+      "node_id": "ind_as_115.step_1.modification",
+      "passage_ids": [
+        "IndAS115.para.21"
+      ],
+      "required": false,
+      "check": {
+        "type": "numeric",
+        "field": "catch_up_adjustment",
+        "tolerance": "0.5%|1000"
+      }
+    },
+    {
+      "id": "m3",
+      "text": "Cumulative revenue after the adjustment: the modified price times the new measure of progress.",
+      "weight": 0.15,
+      "node_id": "ind_as_115.step_1.modification",
+      "passage_ids": [
+        "IndAS115.para.21"
+      ],
+      "required": false,
+      "check": {
+        "type": "numeric",
+        "field": "revenue_to_date_after_modification",
+        "tolerance": "0.5%|1000"
+      }
+    },
+    {
+      "id": "m4",
+      "text": "Accounts for CO-1 as part of the existing contract (para 21(b)): the transaction price and the measure of progress are both updated, and the effect is recognised as a cumulative catch-up adjustment to revenue on the modification date.",
+      "weight": 0.3,
+      "node_id": "ind_as_115.step_1.modification",
+      "passage_ids": [
+        "IndAS115.para.18",
+        "IndAS115.para.21"
+      ],
+      "required": true,
+      "check": {
+        "type": "judgement"
+      }
+    },
+    {
+      "id": "m5",
+      "text": "Explains why the module is not distinct from the platform (it is integrated into one combined output and highly interdependent, paras 27 and 29), so CO-1 is neither a separate contract (para 20) nor treated prospectively (para 21(a)).",
+      "weight": 0.2,
+      "node_id": "ind_as_115.step_2.distinct",
+      "passage_ids": [
+        "IndAS115.para.20",
+        "IndAS115.para.27",
+        "IndAS115.para.29"
+      ],
+      "required": false,
+      "check": {
+        "type": "judgement"
+      }
+    }
+  ],
+  "model_answer_template": "CO-1 adds work that is not distinct from the platform already being built, so it is part of the existing contract (para 21(b)); it is not a separate contract (para 20) and not prospective (para 21(a)). The new total estimated cost is the original estimate plus the module's cost, so progress after CO-1 = costs to date / new total = {progress_after_modification}%. Revenue to date = (original price + change price) x new progress = ₹{revenue_to_date_after_modification}. Revenue recognised before CO-1 was original price x costs to date / original estimate, so the cumulative catch-up recognised on 1 November 2025 is ₹{catch_up_adjustment}.",
+  "pass_threshold": 0.75,
+  "template_version": "0.1.0"
+}

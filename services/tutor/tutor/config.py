@@ -25,7 +25,13 @@ class Settings:
     # Per-role overrides (default to OLLAMA_MODEL) so grader and tutor can differ.
     ollama_grader_model: str = os.getenv("OLLAMA_GRADER_MODEL") or os.getenv("OLLAMA_MODEL", "gemma4:31b-cloud")
     ollama_tutor_model: str = os.getenv("OLLAMA_TUTOR_MODEL") or os.getenv("OLLAMA_MODEL", "gemma4:31b-cloud")
+    # Per-role overrides (default to OLLAMA_MODEL) so grader and tutor can differ.
+    ollama_grader_model: str = os.getenv("OLLAMA_GRADER_MODEL") or os.getenv("OLLAMA_MODEL", "gemma4:31b-cloud")
+    ollama_tutor_model: str = os.getenv("OLLAMA_TUTOR_MODEL") or os.getenv("OLLAMA_MODEL", "gemma4:31b-cloud")
     ollama_host: str = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+    retrieval_mode: str = os.getenv("RETRIEVAL_MODE", "bm25").lower()   # bm25 | hybrid
+    hybrid_weight: float = float(os.getenv("HYBRID_WEIGHT", "0.5"))      # weight of the vector score
+    embed_model: str = os.getenv("EMBED_MODEL", "")                       # "" = the model in vectors_manifest.json
     # Grader "thinking": unset -> model default (nemotron thinks, gemma does not).
     # Measured: nemotron needs it (22 s/grade, 28/28); with it off it becomes
     # unreliable (5 s, 23/28). gemma passes 28/28 without it at 0.8 s.

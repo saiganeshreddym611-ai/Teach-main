@@ -13,3 +13,20 @@
 {"id":"out03","pack":"fixture_115","query":"US GAAP LIFO inventory","in_syllabus":false,"expected":[]}
 {"id":"out04","pack":"fixture_115","query":"deferred tax revaluation","in_syllabus":false,"expected":[]}
 {"id":"out05","pack":"fixture_115","query":"foreign exchange hedge","in_syllabus":false,"expected":[]}
+{"id":"ind37_rew01","pack":"ind_as_37","query":"What happens if a new law is about to be passed?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.22"]}
+{"id":"ind37_rew02","pack":"ind_as_37","query":"When is a provision recognized for a past event?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.14"]}
+{"id":"ind37_rew03","pack":"ind_as_37","query":"Can we recognize a contingent asset?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.31"]}
+{"id":"ind37_rew04","pack":"ind_as_37","query":"What is the best estimate for a provision?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.36"]}
+{"id":"ind37_rew05","pack":"ind_as_37","query":"Does this standard apply to financial instruments?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.2"]}
+{"id":"ind37_rew06","pack":"ind_as_37","query":"What is a constructive obligation?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.10"]}
+{"id":"ind37_rew07","pack":"ind_as_37","query":"What is an onerous contract?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.10"]}
+{"id":"ind37_rew08","pack":"ind_as_37","query":"What are the conditions for a provision?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.14"]}
+{"id":"ind37_rew09","pack":"ind_as_37","query":"How to handle reimbursements?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.53"]}
+{"id":"ind37_rew10","pack":"ind_as_37","query":"What is a contingent liability?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.10"]}
+{"id":"ind37_rew11","pack":"ind_as_37","query":"What is an obligating event?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.17"]}
+{"id":"ind37_rew12","pack":"ind_as_37","query":"How to measure a provision?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.36"]}
+{"id":"ind37_out01","pack":"ind_as_37","query":"What is the accounting for leases?","in_syllabus":false,"reworded":true,"expected":[]}
+{"id":"ind37_out02","pack":"ind_as_37","query":"How to account for income taxes?","in_syllabus":false,"reworded":true,"expected":[]}
+{"id":"ind37_out03","pack":"ind_as_37","query":"What is the standard for revenue?","in_syllabus":false,"reworded":true,"expected":[]}
+{"id":"ind37_out04","pack":"ind_as_37","query":"What is the standard for employee benefits?","in_syllabus":false,"reworded":true,"expected":[]}
+{"id":"ind37_out05","pack":"ind_as_37","query":"How to value a biological asset?","in_syllabus":false,"reworded":true,"expected":[]}

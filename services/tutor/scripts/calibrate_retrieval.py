@@ -77,13 +77,25 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--k", type=int, default=5)
     parser.add_argument("--min-recall", type=float, default=0.8)
     parser.add_argument("--json", action="store_true")
+    parser.add_argument("--mode", choices=["bm25", "hybrid"], default="bm25")
+    parser.add_argument("--reworded-only", action="store_true")
     args = parser.parse_args(argv)
     queries = [
         json.loads(line)
         for line in args.queries.read_text(encoding="utf-8").splitlines()
         if line.strip()
     ]
+    if args.reworded_only:
+        queries = [q for q in queries if q.get("reworded")]
     queries = [query for query in queries if query.get("pack") == args.pack]
+
+    from tutor.config import settings
+    import os
+    os.environ["RETRIEVAL_MODE"] = args.mode
+    # Note: settings is a singleton, so we need to update it or restart process.
+    # Since we are in a script, we can just patch settings.
+    settings.retrieval_mode = args.mode
+
     retriever = get_retriever(load_pack(args.pack, packs_dir=args.packs_dir))
     if retriever is None:
         parser.error(f"pack '{args.pack}' has no corpus")

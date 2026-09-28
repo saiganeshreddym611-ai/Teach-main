@@ -95,6 +95,8 @@ class LedgerEvent(BaseModel):
     grader_call_id: str | None = None
     content_version: str | None = None
     source: LedgerSource | None = None
+    rubric_items_met: list[int] = Field(default_factory=list)
+    misconception_ids: list[int] = Field(default_factory=list)
 
 
 InstructStep = Literal["PROBE", "EXPLAIN", "CONTINUE"]

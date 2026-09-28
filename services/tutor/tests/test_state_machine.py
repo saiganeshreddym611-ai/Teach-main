@@ -53,7 +53,7 @@ async def test_diagnostic_grades_writes_ledger_and_targets_deepest_missing(sessi
     assert "STUDY_MODE=LEARN" in tutor.directives[0]
     assert session.phase == Phase.INSTRUCT
     assert session.target_node == "ind_as_115.step_1.criteria"
-    assert "ACTION=INTRODUCE_NODE" in tutor.directives[0]
+    assert "ACTION=PROBE" in tutor.directives[0]
     assert "ind_as_115.step_1.criteria" in tutor.directives[0]
     assert session.student_level_summary == "Knows steps 1-2, shaky on 3."
     assert events[-1].payload["phase"] == "INSTRUCT"
@@ -69,6 +69,7 @@ async def test_diagnostic_grades_writes_ledger_and_targets_deepest_missing(sessi
 async def test_instruct_turn_does_not_grade_and_sentinel_moves_to_teach_back(session, curriculum):
     session.phase = Phase.INSTRUCT
     session.target_node = "ind_as_115.step_4"
+    session.instruct_step = "CONTINUE"
     grader = ScriptedGrader([])  # any call would IndexError
     tutor = ScriptedTutor(["Right. Now explain allocation back to me with an example. " + SENT])
 
@@ -128,7 +129,7 @@ async def test_teach_back_verified_writes_ledger_and_advances(session, curriculu
     assert session.phase == Phase.INSTRUCT
     assert session.target_node == "ind_as_115.step_2"
     assert "is now VERIFIED" in tutor.directives[0]
-    assert "ACTION=INTRODUCE_NODE" in tutor.directives[0]
+    assert "ACTION=PROBE" in tutor.directives[0]
 
 
 async def test_teach_back_failed_retries_then_parks(session, curriculum, monkeypatch):
@@ -150,7 +151,8 @@ async def test_teach_back_failed_retries_then_parks(session, curriculum, monkeyp
     assert "ACTION=TEACH_BACK_FAILED" in tutor.directives[0]
     assert "Attempt 1 of 2" in tutor.directives[0]
     assert session.target_node == "ind_as_115.step_1"
-    assert session.phase == Phase.TEACH_BACK  # sentinel re-requested teach-back
+    assert session.phase == Phase.INSTRUCT  # back to instruct to give explanation
+    assert session.instruct_step == "EXPLAIN"
     assert session.teach_back_attempts["ind_as_115.step_1"] == 1
 
     # Attempt 2: fail -> park, move on

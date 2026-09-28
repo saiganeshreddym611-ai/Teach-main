@@ -114,7 +114,7 @@ def _probe(curriculum: Curriculum, session: Session, node_id: str, preface: str)
 def _explain(curriculum: Curriculum, session: Session, *, verdict: GraderOutput | None = None, partial: bool = False) -> str:
     target = session.target_node
     if target is None:
-        target = session.target_node
+        return "PHASE=INSTRUCT ACTION=EXPLAIN\nError: no target node."
     node = curriculum.node(target)
     latest = _latest_node_event(session, target)
     met = set()

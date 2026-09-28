@@ -37,7 +37,7 @@ def append_verdicts(
     focus_node_ids: set[str] | None = None,
     grader_call_id: str | None = None,
     content_version: str | None = None,
-    source: str | None = None,
+    source: LedgerSource | None = None,
     store: LedgerStore | None = None,
 ) -> list[LedgerEvent]:
     """Write one event per verdict that carries evidence (NOT_MENTIONED is skipped).
@@ -76,6 +76,8 @@ def append_verdicts(
             grader_call_id=grader_call_id,
             content_version=content_version,
             source=source if source is not None else SOURCE_BY_PHASE.get(phase),
+            rubric_items_met=v.rubric_items_met,
+            misconception_ids=v.misconception_ids,
         )
         session.ledger.append(ev)
         target_store.append([ev])

@@ -296,7 +296,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T32 | Grader audit log and determinism | B | T30 | done (4e7309e, reviewed by Claude + owner) |
 | T33 | Grader eval expansion | B | T30, T32 | todo |
 | T34 | Context budget: section-scoped grading (triggered) | B | T32, T100 | todo |
-| T40 | Socratic probe-first flow | C | T31 | blocked (copilot exited 1; log .task-runs/T40/20260928-053824) |
+| T40 | Socratic probe-first flow | C | T31 | blocked (tests failed after agent reported DONE: 3 failed, 223 passed, 1 skipped in 19.11s; log .task-runs/T40/20260928-065707) |
 | T41 | Tutor grounding and spoken citations | C | T40, T21 | todo |
 | T42 | Syllabus boundary and confidence guard | C | T41, T22 | todo |
 | T43 | Tutor bench update | C | T42 | todo |

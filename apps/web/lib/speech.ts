@@ -28,12 +28,19 @@ export interface Speaker {
 }
 
 // --------------------------------------------------------------------------- //
-// STT: Web Speech API (Chrome). Continuous until stop() so a 60s monologue works.
+// STT: Web Speech API (Chrome). Listens until the student taps stop: Chrome
+// ends a session on its own after a pause, so an unasked end restarts it and
+// keeps the words heard so far. stop() sends at once with the words on screen,
+// instead of waiting for Chrome's late (sometimes missing) end event.
 // --------------------------------------------------------------------------- //
 export class WebSpeechListener implements Listener {
   private rec: any = null;
-  private finalText = "";
+  private heard = ""; // final chunks from every restarted session
+  private interim = "";
   private lastError = "";
+  private restarts = 0;
+  private finish: ((text: string) => void) | null = null;
+  private static readonly MAX_RESTARTS = 20;
   readonly supported: boolean;
 
   constructor() {
@@ -47,43 +54,80 @@ export class WebSpeechListener implements Listener {
     onEnd: () => void,
     onError?: (code: string) => void,
   ) {
-    this.lastError = "";
+    this.abandon(); // never two recognisers at once
+    this.heard = "";
+    this.interim = "";
+    this.restarts = 0;
+    let done = false;
+    // Delivers the answer exactly once, whether the student tapped or Chrome gave up.
+    this.finish = (text: string) => {
+      if (done) return;
+      done = true;
+      this.abandon();
+      if (!text && this.lastError && onError) onError(this.lastError);
+      onFinal(text);
+      onEnd();
+    };
+    this.open(onInterim);
+  }
+
+  stop() {
+    this.finish?.(`${this.heard}${this.interim}`.trim());
+  }
+
+  private open(onInterim: (t: string) => void) {
     const w = window as any;
     const Ctor = w.SpeechRecognition || w.webkitSpeechRecognition;
     const rec = new Ctor();
     rec.lang = "en-IN";
     rec.continuous = true;
     rec.interimResults = true;
-    this.finalText = "";
+    this.lastError = "";
     rec.onresult = (e: any) => {
       let interim = "";
       for (let i = e.resultIndex; i < e.results.length; i++) {
         const chunk = e.results[i][0].transcript;
-        if (e.results[i].isFinal) this.finalText += chunk + " ";
+        if (e.results[i].isFinal) this.heard += chunk + " ";
         else interim += chunk;
       }
-      onInterim((this.finalText + interim).trim());
+      this.interim = interim;
+      onInterim(`${this.heard}${interim}`.trim());
     };
     rec.onerror = (e: any) => {
       this.lastError = String(e?.error ?? "unknown");
     };
     rec.onend = () => {
-      if (this.lastError && !this.finalText.trim() && onError) onError(this.lastError);
-      onFinal(this.finalText.trim());
-      onEnd();
+      if (this.rec !== rec) return; // stopped by the student or replaced
+      // Keep the words that never became final before this session closed.
+      if (this.interim) this.heard += this.interim + " ";
+      this.interim = "";
+      const recoverable = !this.lastError || this.lastError === "no-speech";
+      if (recoverable && this.restarts < WebSpeechListener.MAX_RESTARTS) {
+        this.restarts++;
+        this.open(onInterim);
+      } else {
+        this.finish?.(this.heard.trim());
+      }
     };
     this.rec = rec;
     try {
       rec.start();
     } catch (e) {
-      onError?.(String((e as Error)?.message ?? "start-failed"));
-      onEnd();
+      this.lastError = String((e as Error)?.message ?? "start-failed");
+      this.finish?.(this.heard.trim());
     }
   }
 
-  stop() {
-    this.rec?.stop();
+  private abandon() {
+    const rec = this.rec;
     this.rec = null;
+    if (!rec) return;
+    rec.onresult = rec.onerror = rec.onend = null;
+    try {
+      rec.abort();
+    } catch {
+      /* already ended */
+    }
   }
 }
 

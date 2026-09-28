@@ -38,6 +38,8 @@ export default function Kiosk() {
   const [studyMode, setStudyMode] = useState<"learn" | "revision" | null>(null);
 
   const speakingRef = useRef(false);
+  // True while the mic is open: tutor text still streaming in must not start speaking over the student.
+  const listeningRef = useRef(false);
   const streamDoneRef = useRef(false);
 
   const maybeIdle = useCallback(() => {
@@ -59,7 +61,7 @@ export default function Kiosk() {
     const listener = new WebSpeechListener();
     const speaker = new WebSpeechSpeaker((s) => {
       speakingRef.current = s;
-      if (s) setVoice("speaking");
+      if (s) setVoice((v) => (v === "listening" ? v : "speaking"));
       else maybeIdle();
     });
     listenerRef.current = listener;
@@ -117,7 +119,7 @@ export default function Kiosk() {
           API_BASE,
           (on) => {
             speakingRef.current = on;
-            if (on) setVoice("speaking");
+            if (on) setVoice((v) => (v === "listening" ? v : "speaking"));
             else maybeIdle();
           },
           chosen || null,
@@ -167,14 +169,14 @@ export default function Kiosk() {
             if (!speaker?.supported) setVoice("speaking");
           }
           setTurns((t) => t.map((x) => (x.id === tutorId ? { ...x, text: x.text + delta } : x)));
-          speaker?.feed(delta);
+          if (!listeningRef.current) speaker?.feed(delta);
         },
         onDone: async (d) => {
           setTurns((t) => t.map((x) => (x.id === tutorId ? { ...x, streaming: false, phase: d.phase } : x)));
           setPhase(d.phase);
           setTargetNode(d.target_node);
           streamDoneRef.current = true;
-          speaker?.flush();
+          if (!listeningRef.current) speaker?.flush();
           if (!speaker?.supported) setVoice("idle");
           else maybeIdle();
           await refreshMastery(sessionId);
@@ -198,12 +200,14 @@ export default function Kiosk() {
   const startListening = useCallback(() => {
     const listener = listenerRef.current;
     if (!listener?.supported) return;
+    listeningRef.current = true;
     speakerRef.current?.cancel();
     setError(null);
     setVoice("listening");
     listener.start(
       (t) => setInterim(t),
       (finalText) => {
+        listeningRef.current = false;
         if (finalText) void submit(finalText);
         else setVoice("idle");
       },

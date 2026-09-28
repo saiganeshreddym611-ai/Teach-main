@@ -48,6 +48,9 @@ kiosk uses the browser voice until it is ready. `TTS_AUTO_DOWNLOAD=0` turns the 
 | `CONTENT_PACK` | Active versioned content pack under `content/packs/`; defaults to `ind_as_115`. |
 | `REQUIRE_REVIEWED_CONTENT` | `1` refuses to teach unless every content item is reviewed and the release is signed off; defaults to `0`. |
 | `RETRIEVAL_MIN_CONFIDENCE` | Placeholder for the future out-of-syllabus gate; defaults to `0.5` until H5 signs off a calibrated value. |
+| `RETRIEVAL_MODE` | `bm25` (default) or `hybrid` (BM25 plus local embeddings; needs the pack's `corpus/vectors.jsonl`). Results are always passage IDs. |
+| `HYBRID_WEIGHT`, `HYBRID_FUSION` | Weight of the vector score (default `0.7`, measured best) and `weighted` (default) or `rrf`. |
+| `EMBED_MODEL`, `EMBED_NUM_GPU` | Embedding model (empty = the one in `vectors_manifest.json`); `EMBED_NUM_GPU=0` forces the CPU where the GPU crashes Ollama. |
 | `TTS_ENGINE` | `piper` (default, server-side `POST /tts`), `kokoro`, or `browser` (Web Speech API in the kiosk). `TTS_AUTO_DOWNLOAD=0` stops the first-start voice download. |
 | `PIPER_VOICE`, `KOKORO_VOICE`, `TTS_SPEED` | Default voice and rate. The kiosk header has a voice picker for any voice in `models/`. |
 | `GRADER_CAPTURE_DIR` | Directory for grader call captures (default `services/tutor/data/captures`). |
@@ -147,6 +150,24 @@ RAG earns its place in Phase 2 as a *grounding and scaling* layer, keyed by node
 - an **offline** pipeline that drafts nodes/rubrics from source material for a CA to review — how one topic becomes a syllabus.
 
 Suggested shape: chunk by standard paragraph number (stable IDs), pgvector on Supabase, hybrid BM25 + vector.
+
+### Hybrid retrieval measurement (T26, 2026-09-28)
+
+`scripts/calibrate_retrieval.py --pack ind_as_37`, recall@5. 12 plain questions, 12 reworded ones
+phrased the way a student speaks, 5 out-of-syllabus ones. Embeddings run locally on Ollama (CPU).
+
+| Mode | Reworded | All | Embed time (100 passages) |
+|---|---|---|---|
+| BM25 only | 0.33 | 0.46 | - |
+| `nomic-embed-text`, weighted, w 0.5 or 0.7 | 0.42 | 0.58 | 30 s |
+| `nomic-embed-text`, RRF | 0.33 | 0.54 | 30 s |
+| `embeddinggemma`, weighted, w 0.5 | 0.50 | 0.67 | 39 s |
+| **`embeddinggemma`, weighted, w 0.7** | **0.58** | **0.71** | 39 s |
+| `embeddinggemma`, RRF | 0.42 | 0.58 | 39 s |
+
+The committed vectors are `embeddinggemma`. Out-of-syllabus accuracy stays 0.65 in every mode with a
+negative margin, so `RETRIEVAL_MIN_CONFIDENCE` is still not a usable gate (H5). The default mode stays
+`bm25` until the owner switches it.
 
 ## Phase 2 hooks already in the code
 

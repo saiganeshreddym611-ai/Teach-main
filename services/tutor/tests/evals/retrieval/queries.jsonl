@@ -13,20 +13,32 @@
 {"id":"out03","pack":"fixture_115","query":"US GAAP LIFO inventory","in_syllabus":false,"expected":[]}
 {"id":"out04","pack":"fixture_115","query":"deferred tax revaluation","in_syllabus":false,"expected":[]}
 {"id":"out05","pack":"fixture_115","query":"foreign exchange hedge","in_syllabus":false,"expected":[]}
-{"id":"ind37_rew01","pack":"ind_as_37","query":"What happens if a new law is about to be passed?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.22"]}
-{"id":"ind37_rew02","pack":"ind_as_37","query":"When is a provision recognized for a past event?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.14"]}
-{"id":"ind37_rew03","pack":"ind_as_37","query":"Can we recognize a contingent asset?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.31"]}
-{"id":"ind37_rew04","pack":"ind_as_37","query":"What is the best estimate for a provision?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.36"]}
-{"id":"ind37_rew05","pack":"ind_as_37","query":"Does this standard apply to financial instruments?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.2"]}
-{"id":"ind37_rew06","pack":"ind_as_37","query":"What is a constructive obligation?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.10"]}
-{"id":"ind37_rew07","pack":"ind_as_37","query":"What is an onerous contract?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.10"]}
-{"id":"ind37_rew08","pack":"ind_as_37","query":"What are the conditions for a provision?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.14"]}
-{"id":"ind37_rew09","pack":"ind_as_37","query":"How to handle reimbursements?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.53"]}
-{"id":"ind37_rew10","pack":"ind_as_37","query":"What is a contingent liability?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.10"]}
-{"id":"ind37_rew11","pack":"ind_as_37","query":"What is an obligating event?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.17"]}
-{"id":"ind37_rew12","pack":"ind_as_37","query":"How to measure a provision?","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.36"]}
+{"id":"ind37_plain01","pack":"ind_as_37","query":"What happens if a new law is about to be passed?","in_syllabus":true,"reworded":false,"expected":["IndAS37.para.22"]}
+{"id":"ind37_plain02","pack":"ind_as_37","query":"When is a provision recognized for a past event?","in_syllabus":true,"reworded":false,"expected":["IndAS37.para.14"]}
+{"id":"ind37_plain03","pack":"ind_as_37","query":"Can we recognize a contingent asset?","in_syllabus":true,"reworded":false,"expected":["IndAS37.para.31"]}
+{"id":"ind37_plain04","pack":"ind_as_37","query":"What is the best estimate for a provision?","in_syllabus":true,"reworded":false,"expected":["IndAS37.para.36"]}
+{"id":"ind37_plain05","pack":"ind_as_37","query":"Does this standard apply to financial instruments?","in_syllabus":true,"reworded":false,"expected":["IndAS37.para.2"]}
+{"id":"ind37_plain06","pack":"ind_as_37","query":"What is a constructive obligation?","in_syllabus":true,"reworded":false,"expected":["IndAS37.para.10"]}
+{"id":"ind37_plain07","pack":"ind_as_37","query":"What is an onerous contract?","in_syllabus":true,"reworded":false,"expected":["IndAS37.para.10"]}
+{"id":"ind37_plain08","pack":"ind_as_37","query":"What are the conditions for a provision?","in_syllabus":true,"reworded":false,"expected":["IndAS37.para.14"]}
+{"id":"ind37_plain09","pack":"ind_as_37","query":"How to handle reimbursements?","in_syllabus":true,"reworded":false,"expected":["IndAS37.para.53"]}
+{"id":"ind37_plain10","pack":"ind_as_37","query":"What is a contingent liability?","in_syllabus":true,"reworded":false,"expected":["IndAS37.para.10"]}
+{"id":"ind37_plain11","pack":"ind_as_37","query":"What is an obligating event?","in_syllabus":true,"reworded":false,"expected":["IndAS37.para.17"]}
+{"id":"ind37_plain12","pack":"ind_as_37","query":"How to measure a provision?","in_syllabus":true,"reworded":false,"expected":["IndAS37.para.36"]}
 {"id":"ind37_out01","pack":"ind_as_37","query":"What is the accounting for leases?","in_syllabus":false,"reworded":true,"expected":[]}
 {"id":"ind37_out02","pack":"ind_as_37","query":"How to account for income taxes?","in_syllabus":false,"reworded":true,"expected":[]}
 {"id":"ind37_out03","pack":"ind_as_37","query":"What is the standard for revenue?","in_syllabus":false,"reworded":true,"expected":[]}
 {"id":"ind37_out04","pack":"ind_as_37","query":"What is the standard for employee benefits?","in_syllabus":false,"reworded":true,"expected":[]}
 {"id":"ind37_out05","pack":"ind_as_37","query":"How to value a biological asset?","in_syllabus":false,"reworded":true,"expected":[]}
+{"id":"ind37_rw01","pack":"ind_as_37","query":"our lawyers reckon we'll probably lose the court case, do we have to put something in the accounts now","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.16"]}
+{"id":"ind37_rw02","pack":"ind_as_37","query":"the board decided last month to shut a factory but hasn't told anyone yet, can we set money aside for it","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.75"]}
+{"id":"ind37_rw03","pack":"ind_as_37","query":"can I show the money I expect to win from suing a supplier","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.31"]}
+{"id":"ind37_rw04","pack":"ind_as_37","query":"we think we'll lose money next year, can we charge that to this year's results","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.63"]}
+{"id":"ind37_rw05","pack":"ind_as_37","query":"we signed a deal that now costs us more to deliver than we'll get paid for it","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.66"]}
+{"id":"ind37_rw06","pack":"ind_as_37","query":"the insurer will pay back part of what we spend, how do we show that","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.53"]}
+{"id":"ind37_rw07","pack":"ind_as_37","query":"the payment isn't due for ten years, do we record the full amount today","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.45"]}
+{"id":"ind37_rw08","pack":"ind_as_37","query":"we plan to sell some old machines at a profit, can that reduce the amount we set aside","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.51"]}
+{"id":"ind37_rw09","pack":"ind_as_37","query":"someone says we owe them but we'll most likely win, what do we tell readers of the accounts","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.28"]}
+{"id":"ind37_rw10","pack":"ind_as_37","query":"how much do we set aside when there are hundreds of small warranty claims","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.39"]}
+{"id":"ind37_rw11","pack":"ind_as_37","query":"which interest rate should we use to bring the future payment back to today","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.47"]}
+{"id":"ind37_rw12","pack":"ind_as_37","query":"can we use the restructuring money to pay for training the staff who are staying","in_syllabus":true,"reworded":true,"expected":["IndAS37.para.81"]}

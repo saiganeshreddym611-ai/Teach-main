@@ -88,7 +88,8 @@ class PackRetriever:
         if settings.retrieval_mode == "hybrid" and self._vector_index:
             try:
                 embedder = get_embedder(settings.embed_model or self._vector_index.model)
-                query_vec = embedder.embed([query])[0]
+                embed_query = getattr(embedder, "embed_query", None)
+                query_vec = embed_query(query) if embed_query else embedder.embed([query])[0]
 
                 hybrid_scored: list[ScoredPassage] = []
                 w = settings.hybrid_weight
@@ -123,6 +124,8 @@ class PackRetriever:
                             )
                         )
 
+                if settings.hybrid_fusion == "rrf":
+                    hybrid_scored = _rrf(hybrid_scored, bm25_map, self._passages, self._vector_index, query_vec)
                 hybrid_scored.sort(key=lambda item: (-item.score, item.passage.passage_id))
                 return hybrid_scored[: max(0, k)]
 
@@ -142,6 +145,22 @@ class PackRetriever:
                 )
         final_scored.sort(key=lambda item: (-item.score, item.passage.passage_id))
         return final_scored[: max(0, k)]
+
+
+def _rrf(candidates, bm25_map, passages, index, query_vec, k: int = 60):
+    """Rank candidates by reciprocal rank fusion of the BM25 and vector rankings; keep the
+    weighted blend as the confidence, so the out-of-scope threshold keeps its meaning."""
+    index_of = {p.passage_id: i for i, p in enumerate(passages)}
+    def ranks(key):
+        ordered = sorted(candidates, key=lambda c: (-key(c), c.passage.passage_id))
+        return {c.passage.passage_id: r for r, c in enumerate(ordered, start=1)}
+    by_bm25 = ranks(lambda c: bm25_map.get(index_of[c.passage.passage_id], (0.0, 0.0))[0])
+    by_vec = ranks(lambda c: index.similarity(query_vec, c.passage.passage_id))
+    return [
+        ScoredPassage(passage=c.passage, confidence=c.confidence,
+                      score=1 / (k + by_bm25[c.passage.passage_id]) + 1 / (k + by_vec[c.passage.passage_id]))
+        for c in candidates
+    ]
 
 
 _RETRIEVER_CACHE: dict[tuple[Path, str, str, str], PackRetriever] = {}

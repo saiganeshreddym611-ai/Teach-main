@@ -20,18 +20,38 @@ class Embedder(Protocol):
     name: str
     def embed(self, texts: list[str]) -> list[list[float]]: ...
 
+# Retrieval prefixes each model was trained with: (document, query). Without them recall drops.
+PREFIXES: dict[str, tuple[str, str]] = {
+    "nomic-embed-text": ("search_document: ", "search_query: "),
+    "embeddinggemma": ("title: none | text: ", "task: search result | query: "),
+}
+
+
+def _unit(vec: list[float]) -> list[float]:
+    norm = math.sqrt(sum(x * x for x in vec))
+    return [x / norm for x in vec] if norm > 0 else vec
+
+
 class OllamaEmbedder:
     def __init__(self, model: str):
         self.name = model
         self.client = Client(host=settings.ollama_host)
+        self.doc_prefix, self.query_prefix = PREFIXES.get(model.split(":", 1)[0], ("", ""))
+        self._options = {} if settings.embed_num_gpu is None else {"options": {"num_gpu": settings.embed_num_gpu}}
 
-    def embed(self, texts: list[str]) -> list[list[float]]:
+    def _embed(self, texts: list[str]) -> list[list[float]]:
         try:
-            responses = self.client.embed(model=self.name, input=texts)
-            return responses["embeddings"]
+            return [_unit(list(v)) for v in self.client.embed(model=self.name, input=texts, **self._options)["embeddings"]]
         except Exception as e:
             logging.warning("Ollama embed error (%s): %s", self.name, e)
             raise
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        """Passages (documents)."""
+        return self._embed([self.doc_prefix + t for t in texts])
+
+    def embed_query(self, text: str) -> list[float]:
+        return self._embed([self.query_prefix + text])[0]
 
 class HashEmbedder:
     def __init__(self):
@@ -118,7 +138,7 @@ def load_vectors(corpus: Corpus) -> VectorIndex | None:
     manifest_file = corpus_dir / "vectors_manifest.json"
     
     if not vectors_file.is_file() or not manifest_file.is_file():
-        logging.warning("Vector files missing in %s", corpus_dir)
+        logging.debug("No vectors in %s", corpus_dir)
         return None
         
     try:

@@ -238,17 +238,39 @@ async def run_turn(
         yield TurnEvent("grade", _grade_payload(result, missing))
         session.study_mode = "revision" if len(missing) <= settings.revision_max_missing_heads else "learn"
         directive = _advance_to_next_node(curriculum, session, preface=_mode_preface(curriculum, session, missing))
-        session.instruct_step = "PROBE"
+
+    elif session.phase == Phase.INSTRUCT and session.instruct_step == "PROBE":
+        # The reply to a probe is graded on the target node: verified advances, otherwise explain.
+        target = session.target_node
+        last_tutor = next((t.text for t in reversed(session.turns) if t.role == "tutor"), "")
+        call_id = new_call_id()
+        result = await grader.grade(
+            curriculum, transcript, focus_node_id=target, prior_context=f"Tutor asked: {last_tutor}",
+            session_id=session.id, student_id=session.student_id, call_id=call_id,
+        )
+        ledger_delta = append_verdicts(
+            session, result.verdicts, student_turn.id, Phase.INSTRUCT, focus_node_ids={target},
+            grader_call_id=call_id, content_version=curriculum.content_hash, source="probe",
+        )
+        yield TurnEvent("grade", _grade_payload(result, []))
+        verdict = next((v for v in result.verdicts if v.node_id == target), None)
+        if verdict and verdict.status == NodeStatus.VERIFIED:
+            title = curriculum.node(target).title
+            directive = _advance_to_next_node(
+                curriculum, session,
+                preface=f'Previous node "{title}" is VERIFIED on the probe. Congratulate in one sentence first.\n',
+            )
+        else:
+            session.instruct_step = "EXPLAIN"
+            partial = verdict is not None and verdict.status == NodeStatus.PARTIAL
+            directive = _explain(curriculum, session, verdict=result, partial=partial)
 
     elif session.phase == Phase.INSTRUCT:
+        # After the explanation the node is taught as before; only now may the tutor ask for a teach-back.
+        session.instruct_step = "CONTINUE"
         session.instruct_turns_on_node += 1
         force = session.instruct_turns_on_node >= settings.max_instruct_turns_per_node
-        if session.instruct_step == "PROBE":
-            directive = _probe(curriculum, session, session.target_node, _mode_preface(curriculum, session, []))
-        elif session.instruct_step == "EXPLAIN":
-            directive = _explain(curriculum, session)
-        else:
-            directive = _continue(curriculum, session, force_teach_back=force)
+        directive = _continue(curriculum, session, force_teach_back=force)
 
     elif session.phase == Phase.TEACH_BACK:
         target = session.target_node
@@ -268,7 +290,6 @@ async def run_turn(
             directive = _advance_to_next_node(
                 curriculum, session, preface=f'Previous node "{title}" is now VERIFIED. Congratulate in one sentence first.\n'
             )
-            session.instruct_step = "PROBE"
         else:
             attempts = session.teach_back_attempts.get(target, 0) + 1
             session.teach_back_attempts[target] = attempts
@@ -280,11 +301,10 @@ async def run_turn(
                     session,
                     preface=f'Previous node "{title}" is parked after {attempts} attempts. Say you will come back to it later - one sentence, no lecture.\n',
                 )
-                session.instruct_step = "PROBE"
             else:
                 session.phase = Phase.INSTRUCT
                 session.instruct_turns_on_node = 0
-                session.instruct_step = "EXPLAIN"
+                session.instruct_step = "CONTINUE"  # the retry directive asks for the teach-back again
                 directive = _teach_back_failed(curriculum, session, result, attempts)
 
     else:  # COMPLETE - keep chatting, no grading

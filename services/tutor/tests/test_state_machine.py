@@ -69,7 +69,6 @@ async def test_diagnostic_grades_writes_ledger_and_targets_deepest_missing(sessi
 async def test_instruct_turn_does_not_grade_and_sentinel_moves_to_teach_back(session, curriculum):
     session.phase = Phase.INSTRUCT
     session.target_node = "ind_as_115.step_4"
-    session.instruct_step = "CONTINUE"
     grader = ScriptedGrader([])  # any call would IndexError
     tutor = ScriptedTutor(["Right. Now explain allocation back to me with an example. " + SENT])
 
@@ -151,8 +150,7 @@ async def test_teach_back_failed_retries_then_parks(session, curriculum, monkeyp
     assert "ACTION=TEACH_BACK_FAILED" in tutor.directives[0]
     assert "Attempt 1 of 2" in tutor.directives[0]
     assert session.target_node == "ind_as_115.step_1"
-    assert session.phase == Phase.INSTRUCT  # back to instruct to give explanation
-    assert session.instruct_step == "EXPLAIN"
+    assert session.phase == Phase.TEACH_BACK  # sentinel re-requested teach-back
     assert session.teach_back_attempts["ind_as_115.step_1"] == 1
 
     # Attempt 2: fail -> park, move on
@@ -206,3 +204,90 @@ async def test_learn_mode_details_a_heading_before_the_next(session, curriculum)
     tutor = ScriptedTutor(["Good. Now the criteria in detail."])
     await drive(session, curriculum, grader, tutor, "a contract creates enforceable rights and obligations")
     assert session.target_node == curriculum.children("ind_as_115.step_1")[0].id
+
+
+# --------------------------------------------------------------------------- #
+# T40: probe first, then explain, then the teach-back (code gates the sentinel)
+# --------------------------------------------------------------------------- #
+SSP = "ind_as_115.step_4.ssp"
+
+
+def probing(session, node_id=SSP):
+    """A session whose tutor has just asked the probe question on `node_id`."""
+    session.phase, session.target_node, session.instruct_step = Phase.INSTRUCT, node_id, "PROBE"
+    return session
+
+
+def probe_verdict(status, **kw):
+    from tutor.contracts.grading import NodeVerdictV2
+    return NodeVerdictV2(node_id=SSP, status=NodeStatus(status), confidence=0.8, evidence="said it", **kw)
+
+
+async def test_first_turn_on_new_node_is_probe(session, curriculum):
+    tutor = ScriptedTutor(["What do you think?"])
+    await drive(session, curriculum, ScriptedGrader([result()]), tutor, "I know nothing yet")
+    node = curriculum.node(session.target_node)
+    assert session.instruct_step == "PROBE"
+    assert "ACTION=PROBE" in tutor.directives[0]
+    assert node.canonical_explanation not in tutor.directives[0]
+
+
+async def test_probe_verified_advances(session, curriculum):
+    grader = ScriptedGrader([result(probe_verdict("VERIFIED"))])
+    tutor = ScriptedTutor(["Well done. Next question?"])
+    events = await drive(probing(session), curriculum, grader, tutor, "SSP is the separate selling price...")
+    assert grader.calls[0]["focus"] == SSP
+    assert [(e.node_id, e.source) for e in session.ledger] == [(SSP, "probe")]
+    assert session.target_node != SSP and session.instruct_step == "PROBE"
+    assert "grade" in kinds(events) and "ACTION=PROBE" in tutor.directives[0]
+
+
+async def test_probe_partial_explains_missing_items_only(session, curriculum):
+    rubric = curriculum.node(SSP).rubric
+    grader = ScriptedGrader([result(probe_verdict("PARTIAL", rubric_items_met=[0]))])
+    tutor = ScriptedTutor(["Let me explain the rest."])
+    await drive(probing(session), curriculum, grader, tutor, "it's the price you'd sell it for alone")
+    directive = tutor.directives[0]
+    assert session.instruct_step == "EXPLAIN" and session.target_node == SSP
+    assert "ACTION=EXPLAIN" in directive
+    assert rubric[0] not in directive and rubric[1] in directive and rubric[2] in directive
+
+
+async def test_probe_gap_explains_and_corrects(session, curriculum):
+    misconception = curriculum.node(SSP).misconceptions[0]
+    grader = ScriptedGrader([result(probe_verdict("GAP", misconception_ids=[0]))])
+    tutor = ScriptedTutor(["Not quite. Here is how it works."])
+    await drive(probing(session), curriculum, grader, tutor, "just use the list price")
+    assert session.instruct_step == "EXPLAIN"
+    assert "ACTION=EXPLAIN" in tutor.directives[0] and misconception in tutor.directives[0]
+
+
+async def test_sentinel_ignored_during_probe(session, curriculum):
+    tutor = ScriptedTutor(["Explain it back to me. " + SENT])
+    events = await drive(session, curriculum, ScriptedGrader([result()]), tutor, "I know nothing yet")
+    assert session.instruct_step == "PROBE" and session.phase == Phase.INSTRUCT
+    assert "<<" not in spoken(events)
+
+
+async def test_sentinel_ignored_on_first_explain(session, curriculum):
+    grader = ScriptedGrader([result(probe_verdict("GAP"))])
+    tutor = ScriptedTutor(["Here is the rule. Now explain it back. " + SENT])
+    events = await drive(probing(session), curriculum, grader, tutor, "no idea")
+    assert session.instruct_step == "EXPLAIN" and session.phase == Phase.INSTRUCT
+    assert "<<" not in spoken(events)
+
+
+async def test_sentinel_honoured_in_continue(session, curriculum):
+    probing(session).instruct_step = "EXPLAIN"  # the tutor has explained; the student replies
+    tutor = ScriptedTutor(["Good. Explain it back with an example. " + SENT])
+    await drive(session, curriculum, ScriptedGrader([]), tutor, "that makes sense")
+    assert session.instruct_step == "CONTINUE" and session.phase == Phase.TEACH_BACK
+
+
+async def test_teach_back_retry_allows_sentinel(session, curriculum):
+    session.phase, session.target_node, session.instruct_step = Phase.TEACH_BACK, SSP, "CONTINUE"
+    grader = ScriptedGrader([result(probe_verdict("PARTIAL"))])
+    tutor = ScriptedTutor(["Close. The missing point is proportional allocation. Try again. " + SENT])
+    await drive(session, curriculum, grader, tutor, "SSP is the price alone")
+    assert session.teach_back_attempts[SSP] == 1
+    assert session.instruct_step == "CONTINUE" and session.phase == Phase.TEACH_BACK

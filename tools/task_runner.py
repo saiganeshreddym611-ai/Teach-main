@@ -5,7 +5,8 @@ Agents:
   copilot   (default) GitHub Copilot CLI in headless mode (npm install -g @github/copilot). It gets
             a short prompt pointing at specs/<ID>.md, so only tasks with a spec can run. It may
             use every tool except COPILOT_DENIED_TOOLS, and only on files inside the repository.
-  claude    Claude Code in headless mode, pointed at the local Ollama server.
+  claude    Claude Code in headless mode, pointed at the local Ollama server (gemma4 by default).
+            A task with specs/<ID>.md gets the same short spec prompt as opencode.
             It runs with --bare, so it never reads your Claude login or subscription: every
             model call goes to Ollama and counts against your Ollama plan only.
   openclaw  OpenClaw's embedded agent (`openclaw agent --local`), if installed.
@@ -227,7 +228,8 @@ COPILOT_TEMPLATE = """You are GitHub Copilot working in the repository at:
 
 Your task: {id} - {title}
 Implement specs/{id}.md exactly. Its "Prompt for Copilot" block is your instruction, and the spec
-is binding. Follow .github/copilot-instructions.md. Files from an earlier, unfinished attempt may
+is binding. Follow .github/copilot-instructions.md, except its "When you finish" section: in this
+run do not run task_runner.py submit or wait. Files from an earlier, unfinished attempt may
 already exist: check them against the spec, keep what fits and finish the rest.
 
 Rules for this run:
@@ -244,12 +246,12 @@ Rules for this run:
 """
 
 
-OPENCODE_TEMPLATE = """You are a coding agent working in the repository at:
+SPEC_TEMPLATE = """You are a coding agent working in the repository at:
 {repo}
 
 Your task: {id} - {title}
-Implement specs/{id}.md exactly. Its "Prompt for the agent" block is your instruction, and the spec
-is binding. Read .github/copilot-instructions.md first and follow its rules, except its "When you
+Implement specs/{id}.md exactly. Its closing prompt block ("Prompt for the agent" or "Prompt for
+Copilot") is your instruction, and the spec is binding. Read .github/copilot-instructions.md first and follow its rules, except its "When you
 finish" section: do not run task_runner.py submit or wait. Files from an earlier, unfinished
 attempt may already exist: check them against the spec, keep what fits and finish the rest.
 
@@ -290,11 +292,12 @@ def spec_verify(task_id: str) -> str | None:
 
 
 def build_prompt(text: str, row: dict, result_file: Path, agent: str = "claude") -> str:
-    if agent in SPEC_AGENTS:
+    # The claude agent (gemma on Ollama) also gets the short spec prompt when the task has a spec.
+    if agent in SPEC_AGENTS or (agent == "claude" and spec_text(row["id"]) is not None):
         if not delegated(row["id"]):
             sys.exit(f"{row['id']} is not delegated: it needs specs/{row['id']}.md without "
                      "'Coder: Claude' (D8).")
-        template = COPILOT_TEMPLATE if agent == "copilot" else OPENCODE_TEMPLATE
+        template = COPILOT_TEMPLATE if agent == "copilot" else SPEC_TEMPLATE
         prompt = template.format(repo=REPO, id=row["id"], title=row["title"], result_file=result_file)
     else:
         prompt = PROMPT_TEMPLATE.format(

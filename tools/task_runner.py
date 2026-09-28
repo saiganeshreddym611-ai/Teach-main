@@ -227,7 +227,8 @@ COPILOT_TEMPLATE = """You are GitHub Copilot working in the repository at:
 
 Your task: {id} - {title}
 Implement specs/{id}.md exactly. Its "Prompt for Copilot" block is your instruction, and the spec
-is binding. Follow .github/copilot-instructions.md. Files from an earlier, unfinished attempt may
+is binding. Follow .github/copilot-instructions.md, except its "When you finish" section: in this
+run do not run task_runner.py submit or wait. Files from an earlier, unfinished attempt may
 already exist: check them against the spec, keep what fits and finish the rest.
 
 Rules for this run:

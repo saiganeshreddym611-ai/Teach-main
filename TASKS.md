@@ -294,7 +294,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T30 | Grader v2: claims and citations | B | T22 | done (9c236a2, reviewed by Claude + owner) |
 | T31 | Ledger v2: student-scoped, cited, exportable | B | T30 | done (ae13612, reviewed by Claude + owner) |
 | T32 | Grader audit log and determinism | B | T30 | done (4e7309e, reviewed by Claude + owner) |
-| T33 | Grader eval expansion | B | T30, T32 | review (Copilot (Auto mode), 2026-09-28, log .task-runs/T33/20260928-050114) |
+| T33 | Grader eval expansion | B | T30, T32 | review (Copilot CLI (auto), 2026-09-28, log .task-runs/T33/20260928-044808) |
 | T34 | Context budget: section-scoped grading (triggered) | B | T32, T100 | todo |
 | T40 | Socratic probe-first flow | C | T31 | todo |
 | T41 | Tutor grounding and spoken citations | C | T40, T21 | todo |

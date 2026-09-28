@@ -290,7 +290,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T23 | Grounded Claude review pipeline | A | T22, T11 | done (cfb4df7, reviewed by Claude + owner) |
 | T24 | Grounded review of tasks and answer keys (T23b) | A | T23, T50, T51 | todo |
 | T25 | Second topic pack: Ind AS 37 from the FR trees | A | T23 | done (bfa787a, reviewed by Claude + owner) |
-| T26 | Hybrid retrieval: vector search that keeps passage IDs | A | T22 | todo |
+| T26 | Hybrid retrieval: vector search that keeps passage IDs | A | T22 | blocked (copilot exited 1; log .task-runs/T26/20260928-054953) |
 | T30 | Grader v2: claims and citations | B | T22 | done (9c236a2, reviewed by Claude + owner) |
 | T31 | Ledger v2: student-scoped, cited, exportable | B | T30 | done (ae13612, reviewed by Claude + owner) |
 | T32 | Grader audit log and determinism | B | T30 | done (4e7309e, reviewed by Claude + owner) |

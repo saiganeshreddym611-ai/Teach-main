@@ -79,15 +79,74 @@ def _verified_titles(session: Session, curriculum: Curriculum) -> str:
     return "; ".join(titles) if titles else "nothing yet"
 
 
-def _introduce(curriculum: Curriculum, session: Session, node_id: str, preface: str) -> str:
+def _latest_node_event(session: Session, node_id: str) -> LedgerEvent | None:
+    for ev in reversed(session.ledger):
+        if ev.node_id == node_id:
+            return ev
+    return None
+
+
+def _probe(curriculum: Curriculum, session: Session, node_id: str, preface: str) -> str:
+    node = curriculum.node(node_id)
+    latest = _latest_node_event(session, node_id)
+    met = set(latest.rubric_items_met) if latest else set()
+    unmet = [i for i in range(len(node.rubric)) if i not in met]
+    item_idx = unmet[0] if unmet else 0
+    item = node.rubric[item_idx]
+    evidence_bits: list[str] = []
+    if latest and latest.evidence:
+        evidence_bits.append(f'Known evidence: "{latest.evidence}".')
+    if latest and latest.misconception_ids:
+        idx = latest.misconception_ids[0]
+        evidence_bits.append(f'Known misconception: "{node.misconceptions[idx]}".')
+    extra = "\n".join(evidence_bits) + "\n" if evidence_bits else ""
     return (
-        "PHASE=INSTRUCT ACTION=INTRODUCE_NODE\n"
+        "PHASE=INSTRUCT ACTION=PROBE\n"
         f"{preface}"
         f"{_node_line(curriculum, node_id)}\n"
         f"Student level: {session.student_level_summary or 'unknown'}\n"
         f"Verified so far: {_verified_titles(session, curriculum)}\n"
-        "Do: teach the target node using its canonical_explanation and example, pitched to the student's level. "
-        "Under 120 words. End with one check question. Do NOT request a teach-back on this turn."
+        f"{extra}"
+        f"Do: ask one question that leads toward rubric item {item_idx} ('{item}') without stating a rule or definition, at most 60 words, no teach-back, end with a question."
+    )
+
+
+def _explain(curriculum: Curriculum, session: Session, *, verdict: GraderOutput | None = None, partial: bool = False) -> str:
+    target = session.target_node
+    if target is None:
+        return "PHASE=INSTRUCT ACTION=EXPLAIN\nError: no target node."
+    node = curriculum.node(target)
+    latest = _latest_node_event(session, target)
+    met = set()
+    if verdict:
+        v = next((v for v in verdict.verdicts if v.node_id == target), None)
+        if v is not None:
+            met = set(v.rubric_items_met)
+    elif latest:
+        met = set(latest.rubric_items_met)
+    if partial:
+        missing = [node.rubric[i] for i in range(len(node.rubric)) if i not in met]
+        missing_text = "; ".join(missing)
+        return (
+            "PHASE=INSTRUCT ACTION=EXPLAIN\n"
+            f"{_node_line(curriculum, target)}\n"
+            f"Rubric items not yet covered: {missing_text}\n"
+            "Do: explain only the missing rubric items, using the canonical explanation and example, under 120 words, end with one check question, do not request a teach-back."
+        )
+
+    misconceptions = []
+    if verdict:
+        v = next((v for v in verdict.verdicts if v.node_id == target), None)
+        if v is not None:
+            misconceptions.extend(f'"{node.misconceptions[idx]}"' for idx in v.misconception_ids)
+    if not misconceptions and latest:
+        misconceptions.extend(f'"{node.misconceptions[idx]}"' for idx in latest.misconception_ids)
+    correction = f"Correct each matched misconception: {', '.join(misconceptions)}.\n" if misconceptions else ""
+    return (
+        "PHASE=INSTRUCT ACTION=EXPLAIN\n"
+        f"{_node_line(curriculum, target)}\n"
+        f"{correction}"
+        f"Do: explain the concept from the canonical explanation and example: {node.canonical_explanation} For example: {node.example or 'Think of an ordinary contract.'} Under 120 words, end with one check question, do not request a teach-back."
     )
 
 
@@ -180,7 +239,35 @@ async def run_turn(
         session.study_mode = "revision" if len(missing) <= settings.revision_max_missing_heads else "learn"
         directive = _advance_to_next_node(curriculum, session, preface=_mode_preface(curriculum, session, missing))
 
+    elif session.phase == Phase.INSTRUCT and session.instruct_step == "PROBE":
+        # The reply to a probe is graded on the target node: verified advances, otherwise explain.
+        target = session.target_node
+        last_tutor = next((t.text for t in reversed(session.turns) if t.role == "tutor"), "")
+        call_id = new_call_id()
+        result = await grader.grade(
+            curriculum, transcript, focus_node_id=target, prior_context=f"Tutor asked: {last_tutor}",
+            session_id=session.id, student_id=session.student_id, call_id=call_id,
+        )
+        ledger_delta = append_verdicts(
+            session, result.verdicts, student_turn.id, Phase.INSTRUCT, focus_node_ids={target},
+            grader_call_id=call_id, content_version=curriculum.content_hash, source="probe",
+        )
+        yield TurnEvent("grade", _grade_payload(result, []))
+        verdict = next((v for v in result.verdicts if v.node_id == target), None)
+        if verdict and verdict.status == NodeStatus.VERIFIED:
+            title = curriculum.node(target).title
+            directive = _advance_to_next_node(
+                curriculum, session,
+                preface=f'Previous node "{title}" is VERIFIED on the probe. Congratulate in one sentence first.\n',
+            )
+        else:
+            session.instruct_step = "EXPLAIN"
+            partial = verdict is not None and verdict.status == NodeStatus.PARTIAL
+            directive = _explain(curriculum, session, verdict=result, partial=partial)
+
     elif session.phase == Phase.INSTRUCT:
+        # After the explanation the node is taught as before; only now may the tutor ask for a teach-back.
+        session.instruct_step = "CONTINUE"
         session.instruct_turns_on_node += 1
         force = session.instruct_turns_on_node >= settings.max_instruct_turns_per_node
         directive = _continue(curriculum, session, force_teach_back=force)
@@ -217,6 +304,7 @@ async def run_turn(
             else:
                 session.phase = Phase.INSTRUCT
                 session.instruct_turns_on_node = 0
+                session.instruct_step = "CONTINUE"  # the retry directive asks for the teach-back again
                 directive = _teach_back_failed(curriculum, session, result, attempts)
 
     else:  # COMPLETE - keep chatting, no grading
@@ -239,7 +327,7 @@ async def run_turn(
     tutor_turn = Turn(role="tutor", text=spoken, phase=session.phase)
     session.turns.append(tutor_turn)
 
-    if filt.found and session.phase == Phase.INSTRUCT:
+    if filt.found and session.phase == Phase.INSTRUCT and session.instruct_step == "CONTINUE":
         session.phase = Phase.TEACH_BACK
 
     yield TurnEvent(
@@ -270,8 +358,10 @@ def _advance_to_next_node(curriculum: Curriculum, session: Session, preface: str
     if nxt is None:
         session.phase = Phase.COMPLETE
         session.target_node = None
+        session.instruct_step = None
         return _complete(curriculum, session)
     session.target_node = nxt
     session.instruct_turns_on_node = 0
+    session.instruct_step = "PROBE"
     session.phase = Phase.INSTRUCT
-    return _introduce(curriculum, session, nxt, preface)
+    return _probe(curriculum, session, nxt, preface)

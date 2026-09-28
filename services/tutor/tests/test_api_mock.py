@@ -69,7 +69,14 @@ async def test_full_loop_over_http():
         assert len(view["ledger"]) >= 1
         assert view["ledger"][0]["evidence_turn_id"] == done["student_turn_id"]
 
-        # Instruct turn: mock tutor requests teach-back (sentinel) -> TEACH_BACK, no grade event.
+        # T40: the first tutor turn on a node was a probe. A vague reply is graded, not verified, and
+        # the tutor explains; the mock tutor's explanation never requests a teach-back.
+        events = await post_turn(client, sid, "no idea")
+        assert "grade" in [k for k, _ in events]
+        assert events[-1][1]["phase"] == "INSTRUCT"
+        assert events[-1][1]["target_node"] == target
+
+        # Reply to the explanation: mock tutor requests teach-back (sentinel) -> TEACH_BACK, no grade.
         events = await post_turn(client, sid, "ok I think I follow")
         assert "grade" not in [k for k, _ in events]
         assert events[-1][1]["phase"] == "TEACH_BACK"

@@ -95,6 +95,11 @@ class LedgerEvent(BaseModel):
     grader_call_id: str | None = None
     content_version: str | None = None
     source: LedgerSource | None = None
+    rubric_items_met: list[int] = Field(default_factory=list)
+    misconception_ids: list[int] = Field(default_factory=list)
+
+
+InstructStep = Literal["PROBE", "EXPLAIN", "CONTINUE"]
 
 
 class Session(BaseModel):
@@ -103,6 +108,7 @@ class Session(BaseModel):
     topic_id: str
     phase: Phase = Phase.DIAGNOSTIC
     target_node: str | None = None
+    instruct_step: InstructStep | None = None
     instruct_turns_on_node: int = 0
     teach_back_attempts: dict[str, int] = {}
     parked_nodes: list[str] = []          # gave up after max attempts; revisit later

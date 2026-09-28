@@ -124,10 +124,16 @@ Kokoro is wired in (`TTS_ENGINE=kokoro`) for machines with a GPU or a faster CPU
 The LLM is a component inside a **code-owned state machine** — it never decides the flow.
 
 ```
-DIAGNOSTIC ──(grade)──► node selector picks deepest unverified node ──► INSTRUCT
-INSTRUCT   ──(tutor turn; ends with <<TEACH_BACK>> when ready)──────► TEACH_BACK
-TEACH_BACK ──(grade target node)──► VERIFIED → ledger event, next node → INSTRUCT
-                                  └ not yet → retry (max 2), then park → INSTRUCT
+DIAGNOSTIC ──(grade)──► node selector picks the next unverified node ──► INSTRUCT/PROBE
+INSTRUCT/PROBE    ──(tutor asks one question, no rule; reply graded on the node)──►
+                    VERIFIED → ledger event (source=probe), next node → INSTRUCT/PROBE
+                    PARTIAL  → INSTRUCT/EXPLAIN (only the missing rubric points)
+                    GAP / not mentioned → INSTRUCT/EXPLAIN (full, corrects the misconception)
+INSTRUCT/EXPLAIN  ──(student replies)──► INSTRUCT/CONTINUE
+INSTRUCT/CONTINUE ──(tutor turn; ends with <<TEACH_BACK>> when ready)──► TEACH_BACK
+                    (code ignores the marker during PROBE and on the EXPLAIN turn)
+TEACH_BACK ──(grade target node)──► VERIFIED → ledger event, next node → INSTRUCT/PROBE
+                                  └ not yet → retry (max 2), then park → INSTRUCT/PROBE
 nothing left ──► COMPLETE
 ```
 

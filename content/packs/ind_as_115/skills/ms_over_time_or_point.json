@@ -1,0 +1,18 @@
+{
+  "skill_id": "ms_over_time_or_point",
+  "title": "Over time or at a point in time?",
+  "description": "Decide when control passes, and name the paragraph 35 criterion.",
+  "task_ids": [
+    "dr_ot_payroll_service",
+    "dr_ot_customer_erp",
+    "dr_ot_custom_platform_paid",
+    "dr_ot_custom_platform_unpaid"
+  ],
+  "unlock_rule": "all_tasks_passed",
+  "level": "micro",
+  "node_ids": [
+    "ind_as_115.step_5.over_time_criteria",
+    "ind_as_115.step_5.point_in_time_indicators"
+  ],
+  "requires": []
+}

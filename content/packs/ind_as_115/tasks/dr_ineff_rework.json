@@ -1,0 +1,69 @@
+{
+  "task_id": "dr_ineff_rework",
+  "skill_id": "ms_inefficiency_costs",
+  "title": "Rework of Kalmira's own mistake",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.step_5.uninstalled_materials"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "On a fixed-price build for {customer}, Kalmira spent ₹6,00,000 rewriting a module its own developers built wrongly. The rework was not in the budget, and the price does not change for it. How does this cost affect the cost-to-cost measure of progress?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    }
+  },
+  "constraints": [],
+  "documents": [],
+  "calculator": "choice",
+  "answer_fields": [
+    "choice"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Rework is left out of the measure of progress (B19(a)).",
+      "weight": 1.0,
+      "node_id": "ind_as_115.step_5.uninstalled_materials",
+      "passage_ids": [
+        "IndAS115.para.B19"
+      ],
+      "required": true,
+      "check": {
+        "type": "choice",
+        "field": "choice",
+        "correct": "Leave it out of the measure of progress"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "Leave it out; expense it.",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [
+    "Include it in costs to date",
+    "Leave it out of the measure of progress"
+  ],
+  "answer_exprs": {},
+  "explanation": "Costs that do not depict progress, such as wasted effort not reflected in the price, are left out of an input method (B19(a)).",
+  "mistakes": [
+    {
+      "choice": "Include it in costs to date",
+      "feedback": "Rework from Kalmira's own mistake is a significant inefficiency not reflected in the price. It does not move the customer's asset forward, so it stays out of the measure of progress and is expensed as incurred (B19(a)).",
+      "field": "choice"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd"
+  }
+}

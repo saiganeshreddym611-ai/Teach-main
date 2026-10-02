@@ -6,4 +6,6 @@ CALCULATOR_NAMES: tuple[str, ...] = (
     "contract_modification",   # cumulative catch-up for a modification that is part of the contract (para 21(b))
     "variable_consideration",  # expected value, most likely amount and the constraint (paras 50-59)
     "cutoff_check",            # the hunt: planted issues present, no unplanned ones, net revenue adjustment
+    "formula",                 # drills: each answer field is an expression of the params (`answer_exprs`)
+    "choice",                  # drills: the answer is the correct option
 )

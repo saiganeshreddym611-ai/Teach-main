@@ -1,0 +1,76 @@
+{
+  "task_id": "dr_cal_unbilled_milestone",
+  "skill_id": "ms_contract_asset_liability",
+  "title": "Work done, milestone not yet reached",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.cross_cutting.presentation"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "Kalmira has recognised ₹12,00,000 of revenue for work done on {customer}'s project. Under the contract it can invoice only when the next milestone is accepted, which has not happened yet. What does Kalmira show?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    }
+  },
+  "constraints": [],
+  "documents": [],
+  "calculator": "choice",
+  "answer_fields": [
+    "choice"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Right conditional on the milestone: contract asset.",
+      "weight": 1.0,
+      "node_id": "ind_as_115.cross_cutting.presentation",
+      "passage_ids": [
+        "IndAS115.para.107",
+        "IndAS115.para.108"
+      ],
+      "required": true,
+      "check": {
+        "type": "choice",
+        "field": "choice",
+        "correct": "Contract asset"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "A contract asset of ₹12,00,000.",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [
+    "Contract asset",
+    "Contract liability",
+    "Trade receivable"
+  ],
+  "answer_exprs": {},
+  "explanation": "A right to consideration that depends on something other than time, such as the next milestone, is a contract asset (para 107).",
+  "mistakes": [
+    {
+      "choice": "Trade receivable",
+      "feedback": "A receivable needs an unconditional right, where only the passage of time is left (para 108). Here the right still depends on the milestone, so it is a contract asset (para 107).",
+      "field": "choice"
+    },
+    {
+      "choice": "Contract liability",
+      "feedback": "A contract liability arises when the customer pays or is billed ahead of performance. Here performance is ahead of billing.",
+      "field": "choice"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd"
+  }
+}

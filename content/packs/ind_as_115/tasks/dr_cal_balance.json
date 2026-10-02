@@ -1,0 +1,88 @@
+{
+  "task_id": "dr_cal_balance",
+  "skill_id": "ms_contract_asset_liability",
+  "title": "Contract balance from revenue and billing",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.cross_cutting.presentation"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "On its contract with {customer}, Kalmira has recognised revenue of ₹{revenue_to_date} to date and billed ₹{billed_to_date} under the milestone schedule. What is the contract balance at 31 March 2026? Give a positive amount for a contract asset and a negative amount for a contract liability.\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    },
+    "revenue_to_date": {
+      "type": "money",
+      "min": "500000",
+      "max": "50000000",
+      "step": "10000"
+    },
+    "billed_to_date": {
+      "type": "money",
+      "min": "500000",
+      "max": "50000000",
+      "step": "10000"
+    }
+  },
+  "constraints": [
+    "billed_to_date >= revenue_to_date * 0.5",
+    "billed_to_date <= revenue_to_date * 1.5",
+    "billed_to_date != revenue_to_date"
+  ],
+  "documents": [],
+  "calculator": "formula",
+  "answer_fields": [
+    "contract_balance"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Contract balance = revenue to date - billed to date.",
+      "weight": 1.0,
+      "node_id": "ind_as_115.cross_cutting.presentation",
+      "passage_ids": [
+        "IndAS115.para.105",
+        "IndAS115.para.106",
+        "IndAS115.para.107"
+      ],
+      "required": true,
+      "check": {
+        "type": "numeric",
+        "field": "contract_balance",
+        "tolerance": "0.5%|1000"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "₹{contract_balance}",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [],
+  "answer_exprs": {
+    "contract_balance": "revenue_to_date - billed_to_date"
+  },
+  "explanation": "Contract balance = revenue to date - billing to date = ₹{contract_balance} (paras 105-107).",
+  "mistakes": [
+    {
+      "expr": "billed_to_date - revenue_to_date",
+      "feedback": "The sign is the wrong way round. When revenue is ahead of billing, the excess is a contract asset (positive); when billing is ahead, a contract liability (negative).",
+      "field": "contract_balance"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd",
+    "revenue_to_date": "7500000",
+    "billed_to_date": "6000000"
+  }
+}

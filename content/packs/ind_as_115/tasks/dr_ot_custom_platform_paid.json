@@ -1,0 +1,83 @@
+{
+  "task_id": "dr_ot_custom_platform_paid",
+  "skill_id": "ms_over_time_or_point",
+  "title": "Custom platform with payment for work done",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.step_5.over_time_criteria"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "Kalmira is building a custom claims platform for {customer} on Kalmira's own development servers, to be handed over at the end. The design is so specific to the customer that it could not be sold to anyone else without major rework. If the customer cancels, the contract makes it pay for the work done to date plus a reasonable margin.\n\nIs revenue recognised over time or at a point in time? If over time, which paragraph 35 criterion is met?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    }
+  },
+  "constraints": [],
+  "documents": [],
+  "calculator": "choice",
+  "answer_fields": [
+    "choice"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Over time under 35(c): no alternative use and an enforceable right to payment for work to date.",
+      "weight": 1.0,
+      "node_id": "ind_as_115.step_5.over_time_criteria",
+      "passage_ids": [
+        "IndAS115.para.35",
+        "IndAS115.para.36",
+        "IndAS115.para.37"
+      ],
+      "required": true,
+      "check": {
+        "type": "choice",
+        "field": "choice",
+        "correct": "Over time, 35(c)"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "Over time, 35(c).",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [
+    "Over time, 35(a)",
+    "Over time, 35(b)",
+    "Over time, 35(c)",
+    "At a point in time"
+  ],
+  "answer_exprs": {},
+  "explanation": "35(c) needs both: the asset has no alternative use to the entity (para 36), and the entity has an enforceable right to payment for performance completed to date, including a reasonable margin (para 37).",
+  "mistakes": [
+    {
+      "choice": "At a point in time",
+      "feedback": "Handover at the end does not decide it. The platform has no alternative use (para 36) and the contract gives an enforceable right to payment for work to date (para 37), so 35(c) is met.",
+      "field": "choice"
+    },
+    {
+      "choice": "Over time, 35(b)",
+      "feedback": "The platform sits on Kalmira's servers, so the customer does not control it while it is built and 35(b) fails. 35(c) is met instead.",
+      "field": "choice"
+    },
+    {
+      "choice": "Over time, 35(a)",
+      "feedback": "The customer gets no benefit until the platform is handed over, so 35(a) fails. 35(c) is met: no alternative use and a right to payment for work to date.",
+      "field": "choice"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd"
+  }
+}

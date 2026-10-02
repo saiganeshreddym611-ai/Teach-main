@@ -1,0 +1,81 @@
+{
+  "task_id": "dr_ot_customer_erp",
+  "skill_id": "ms_over_time_or_point",
+  "title": "Upgrading the customer's own ERP",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.step_5.over_time_criteria"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "Kalmira is upgrading {customer}'s existing ERP system, which runs on the customer's own servers. The customer owns and controls the system throughout, and Kalmira makes its changes directly in it.\n\nIs revenue recognised over time or at a point in time? If over time, which paragraph 35 criterion is met?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    }
+  },
+  "constraints": [],
+  "documents": [],
+  "calculator": "choice",
+  "answer_fields": [
+    "choice"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Over time under 35(b): the customer controls the ERP system as it is enhanced.",
+      "weight": 1.0,
+      "node_id": "ind_as_115.step_5.over_time_criteria",
+      "passage_ids": [
+        "IndAS115.para.35"
+      ],
+      "required": true,
+      "check": {
+        "type": "choice",
+        "field": "choice",
+        "correct": "Over time, 35(b)"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "Over time, 35(b).",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [
+    "Over time, 35(a)",
+    "Over time, 35(b)",
+    "Over time, 35(c)",
+    "At a point in time"
+  ],
+  "answer_exprs": {},
+  "explanation": "When the work creates or enhances an asset the customer controls as it is created, 35(b) is met and revenue is recognised over time.",
+  "mistakes": [
+    {
+      "choice": "Over time, 35(a)",
+      "feedback": "The customer is not just consuming a service: Kalmira is enhancing an asset, the ERP system, that the customer controls as it is enhanced. That is 35(b).",
+      "field": "choice"
+    },
+    {
+      "choice": "Over time, 35(c)",
+      "feedback": "You do not need 35(c) here. The customer already controls the system as Kalmira improves it, which meets 35(b) on its own.",
+      "field": "choice"
+    },
+    {
+      "choice": "At a point in time",
+      "feedback": "The customer controls the system all the way through, so control of the enhancements passes as Kalmira works. That is over time under 35(b).",
+      "field": "choice"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd"
+  }
+}

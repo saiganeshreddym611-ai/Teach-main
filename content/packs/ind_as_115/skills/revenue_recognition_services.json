@@ -8,5 +8,13 @@
     "rr_variable_consideration",
     "rr_discrepancy_hunt"
   ],
-  "unlock_rule": "all_tasks_passed"
+  "unlock_rule": "all_tasks_passed",
+  "level": "capstone",
+  "requires": [
+    "ms_over_time_or_point",
+    "ms_cost_to_cost_progress",
+    "ms_inefficiency_costs",
+    "ms_contract_asset_liability",
+    "ms_revenue_for_period"
+  ]
 }

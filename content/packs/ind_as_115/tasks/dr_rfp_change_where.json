@@ -1,0 +1,75 @@
+{
+  "task_id": "dr_rfp_change_where",
+  "skill_id": "ms_revenue_for_period",
+  "title": "Where a change in estimate goes",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.step_5.measuring_progress"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "In FY 2025-26 Kalmira raises its estimate of total cost on a two-year fixed-price contract with {customer}. How is the effect on revenue recognised?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    }
+  },
+  "constraints": [],
+  "documents": [],
+  "calculator": "choice",
+  "answer_fields": [
+    "choice"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Cumulative catch-up in the current year (para 43).",
+      "weight": 1.0,
+      "node_id": "ind_as_115.step_5.measuring_progress",
+      "passage_ids": [
+        "IndAS115.para.43"
+      ],
+      "required": true,
+      "check": {
+        "type": "choice",
+        "field": "choice",
+        "correct": "Adjust revenue in FY 2025-26 (cumulative catch-up)"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "Adjust revenue in FY 2025-26.",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [
+    "Restate FY 2024-25 revenue",
+    "Adjust revenue in FY 2025-26 (cumulative catch-up)",
+    "Spread it over the rest of the contract"
+  ],
+  "answer_exprs": {},
+  "explanation": "The measure of progress is updated, and the change is accounted for as a change in accounting estimate (para 43): revenue to date is caught up in the current year.",
+  "mistakes": [
+    {
+      "choice": "Restate FY 2024-25 revenue",
+      "feedback": "A revised cost estimate is a change in accounting estimate, not an error. Last year is not restated (para 43, Ind AS 8).",
+      "field": "choice"
+    },
+    {
+      "choice": "Spread it over the rest of the contract",
+      "feedback": "Revenue to date is recomputed with the new measure of progress at once, so the effect on revenue to date falls in the current year (para 43).",
+      "field": "choice"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "task_id": "dr_ineff_uninstalled_servers",
+  "skill_id": "ms_inefficiency_costs",
+  "title": "Servers delivered before installation",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.step_5.uninstalled_materials"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "Kalmira contracts to set up a data centre for {customer} for ₹{price}, including servers it buys from a supplier for ₹{hardware_cost}. Kalmira has no part in designing or making the servers. They were delivered to the customer's site, and the customer took control of them, before installation began. Total expected cost is ₹{total_cost}, including the servers. Other costs incurred so far, excluding the servers, are ₹{other_costs}. The servers are significant to the contract. Using cost-to-cost, how much revenue has Kalmira recognised to date?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    },
+    "price": {
+      "type": "money",
+      "min": "1000000",
+      "max": "100000000",
+      "step": "100000"
+    },
+    "hardware_cost": {
+      "type": "money",
+      "min": "100000",
+      "max": "40000000",
+      "step": "10000"
+    },
+    "total_cost": {
+      "type": "money",
+      "min": "600000",
+      "max": "90000000",
+      "step": "10000"
+    },
+    "other_costs": {
+      "type": "money",
+      "min": "100000",
+      "max": "60000000",
+      "step": "10000"
+    }
+  },
+  "constraints": [
+    "total_cost <= price * 0.9",
+    "total_cost >= price * 0.6",
+    "hardware_cost >= total_cost * 0.2",
+    "hardware_cost <= total_cost * 0.5",
+    "other_costs >= (total_cost - hardware_cost) * 0.1",
+    "other_costs <= (total_cost - hardware_cost) * 0.9"
+  ],
+  "documents": [],
+  "calculator": "formula",
+  "answer_fields": [
+    "revenue_to_date"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Servers excluded from progress; revenue for them at cost (B19(b)).",
+      "weight": 1.0,
+      "node_id": "ind_as_115.step_5.uninstalled_materials",
+      "passage_ids": [
+        "IndAS115.para.B19"
+      ],
+      "required": true,
+      "check": {
+        "type": "numeric",
+        "field": "revenue_to_date",
+        "tolerance": "0.5%|1000"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "₹{revenue_to_date}",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [],
+  "answer_exprs": {
+    "revenue_to_date": "hardware_cost + (price - hardware_cost) * other_costs / (total_cost - hardware_cost)"
+  },
+  "explanation": "Under B19(b), progress = other costs / (total cost - servers). Revenue = cost of the servers + (price - cost of the servers) x progress = ₹{revenue_to_date}.",
+  "mistakes": [
+    {
+      "expr": "price * (other_costs + hardware_cost) / total_cost",
+      "feedback": "You counted the servers in the measure of progress. Uninstalled goods the customer already controls are left out of the measure, and revenue for them is recognised at their cost, with no margin (B19(b)).",
+      "field": "revenue_to_date"
+    },
+    {
+      "expr": "price * other_costs / total_cost",
+      "feedback": "You left the servers out of costs to date but kept them in the total, and gave them no revenue. Take them out of both, measure progress on the rest, and recognise revenue equal to their cost (B19(b)).",
+      "field": "revenue_to_date"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd",
+    "price": "48000000",
+    "hardware_cost": "12000000",
+    "total_cost": "36000000",
+    "other_costs": "6000000"
+  }
+}

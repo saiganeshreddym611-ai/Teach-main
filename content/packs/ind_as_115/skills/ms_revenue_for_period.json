@@ -1,0 +1,19 @@
+{
+  "skill_id": "ms_revenue_for_period",
+  "title": "Revenue for the year on a long contract",
+  "description": "Split cumulative revenue between years, including a change in estimate.",
+  "task_ids": [
+    "dr_rfp_second_year",
+    "dr_rfp_estimate_revised",
+    "dr_rfp_change_where",
+    "dr_rfp_given_last_year"
+  ],
+  "unlock_rule": "all_tasks_passed",
+  "level": "micro",
+  "node_ids": [
+    "ind_as_115.step_5.measuring_progress"
+  ],
+  "requires": [
+    "ms_cost_to_cost_progress"
+  ]
+}

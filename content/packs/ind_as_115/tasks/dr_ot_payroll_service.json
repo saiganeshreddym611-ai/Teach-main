@@ -1,0 +1,83 @@
+{
+  "task_id": "dr_ot_payroll_service",
+  "skill_id": "ms_over_time_or_point",
+  "title": "Monthly payroll processing",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.step_5.over_time_criteria"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "Kalmira runs monthly payroll processing for {customer}. Each month's processing is used by the customer as it is done, and another provider could take over midway without redoing the months already processed.\n\nIs revenue recognised over time or at a point in time? If over time, which paragraph 35 criterion is met?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    }
+  },
+  "constraints": [],
+  "documents": [],
+  "calculator": "choice",
+  "answer_fields": [
+    "choice"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Over time under 35(a): the customer consumes the benefit as Kalmira performs.",
+      "weight": 1.0,
+      "node_id": "ind_as_115.step_5.over_time_criteria",
+      "passage_ids": [
+        "IndAS115.para.35",
+        "IndAS115.para.B3",
+        "IndAS115.para.B4"
+      ],
+      "required": true,
+      "check": {
+        "type": "choice",
+        "field": "choice",
+        "correct": "Over time, 35(a)"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "Over time, 35(a).",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [
+    "Over time, 35(a)",
+    "Over time, 35(b)",
+    "Over time, 35(c)",
+    "At a point in time"
+  ],
+  "answer_exprs": {},
+  "explanation": "A routine service that the customer uses as it is performed meets 35(a): another provider would not need to redo the work already done (para B4).",
+  "mistakes": [
+    {
+      "choice": "At a point in time",
+      "feedback": "The customer gets the benefit each month as Kalmira performs, and a new provider would not need to redo the work done so far. That is 35(a), so revenue is recognised over time (paras B3-B4).",
+      "field": "choice"
+    },
+    {
+      "choice": "Over time, 35(b)",
+      "feedback": "No asset is being built for the customer to control. The customer simply consumes the service as Kalmira performs it, which is 35(a).",
+      "field": "choice"
+    },
+    {
+      "choice": "Over time, 35(c)",
+      "feedback": "35(c) is about an asset with no alternative use. Here nothing is being built: the customer consumes the service as it is performed, which is 35(a).",
+      "field": "choice"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd"
+  }
+}

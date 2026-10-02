@@ -1,0 +1,104 @@
+{
+  "task_id": "dr_rfp_given_last_year",
+  "skill_id": "ms_revenue_for_period",
+  "title": "This year's revenue from last year's figure",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.step_5.measuring_progress"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "Kalmira's fixed-price contract with {customer} is for ₹{price}. At 31 March 2026 total expected cost is ₹{total_cost} and costs incurred to date are ₹{costs_to_date}. Revenue of ₹{revenue_last_year} was recognised on the contract in FY 2024-25. How much revenue does Kalmira recognise in FY 2025-26?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    },
+    "price": {
+      "type": "money",
+      "min": "1000000",
+      "max": "100000000",
+      "step": "100000"
+    },
+    "total_cost": {
+      "type": "money",
+      "min": "600000",
+      "max": "90000000",
+      "step": "10000"
+    },
+    "costs_to_date": {
+      "type": "money",
+      "min": "100000",
+      "max": "80000000",
+      "step": "10000"
+    },
+    "revenue_last_year": {
+      "type": "money",
+      "min": "100000",
+      "max": "60000000",
+      "step": "10000"
+    }
+  },
+  "constraints": [
+    "total_cost <= price * 0.9",
+    "total_cost >= price * 0.6",
+    "costs_to_date >= total_cost * 0.3",
+    "costs_to_date <= total_cost * 0.9",
+    "revenue_last_year >= price * costs_to_date / total_cost * 0.1",
+    "revenue_last_year <= price * costs_to_date / total_cost * 0.8"
+  ],
+  "documents": [],
+  "calculator": "formula",
+  "answer_fields": [
+    "revenue_this_year"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "This year's revenue = cumulative revenue less last year's.",
+      "weight": 1.0,
+      "node_id": "ind_as_115.step_5.measuring_progress",
+      "passage_ids": [
+        "IndAS115.para.39",
+        "IndAS115.para.43"
+      ],
+      "required": true,
+      "check": {
+        "type": "numeric",
+        "field": "revenue_this_year",
+        "tolerance": "0.5%|1000"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "₹{revenue_this_year}",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [],
+  "answer_exprs": {
+    "revenue_this_year": "price * costs_to_date / total_cost - revenue_last_year"
+  },
+  "explanation": "Revenue this year = price x progress - revenue recognised last year = ₹{revenue_this_year}.",
+  "mistakes": [
+    {
+      "expr": "price * costs_to_date / total_cost",
+      "feedback": "That is cumulative revenue. Subtract the ₹{revenue_last_year} recognised last year.",
+      "field": "revenue_this_year"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd",
+    "price": "9000000",
+    "total_cost": "7200000",
+    "costs_to_date": "5400000",
+    "revenue_last_year": "2250000"
+  }
+}

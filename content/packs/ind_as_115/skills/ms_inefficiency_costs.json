@@ -1,0 +1,19 @@
+{
+  "skill_id": "ms_inefficiency_costs",
+  "title": "Leave out costs that do not show progress",
+  "description": "Wasted effort and uninstalled goods in an input method (B19).",
+  "task_ids": [
+    "dr_ineff_rework",
+    "dr_ineff_extra_testing",
+    "dr_ineff_progress_ex_rework",
+    "dr_ineff_uninstalled_servers"
+  ],
+  "unlock_rule": "all_tasks_passed",
+  "level": "micro",
+  "node_ids": [
+    "ind_as_115.step_5.uninstalled_materials"
+  ],
+  "requires": [
+    "ms_cost_to_cost_progress"
+  ]
+}

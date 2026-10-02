@@ -1,0 +1,95 @@
+{
+  "task_id": "dr_ctc_cost_to_complete",
+  "skill_id": "ms_cost_to_cost_progress",
+  "title": "Progress from costs still to come",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.step_5.measuring_progress"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "Kalmira's fixed-price contract with {customer} is for ₹{price}. Costs incurred to date are ₹{costs_to_date}, and the project manager expects ₹{cost_to_complete} more to finish. What is the measure of progress by cost-to-cost?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    },
+    "price": {
+      "type": "money",
+      "min": "1000000",
+      "max": "100000000",
+      "step": "100000"
+    },
+    "costs_to_date": {
+      "type": "money",
+      "min": "100000",
+      "max": "80000000",
+      "step": "10000"
+    },
+    "cost_to_complete": {
+      "type": "money",
+      "min": "100000",
+      "max": "80000000",
+      "step": "10000"
+    }
+  },
+  "constraints": [
+    "costs_to_date + cost_to_complete <= price * 0.9",
+    "costs_to_date + cost_to_complete >= price * 0.6",
+    "costs_to_date >= cost_to_complete * 0.2",
+    "costs_to_date <= cost_to_complete * 4"
+  ],
+  "documents": [],
+  "calculator": "formula",
+  "answer_fields": [
+    "progress_percent"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Progress = costs to date / (costs to date + costs to complete).",
+      "weight": 1.0,
+      "node_id": "ind_as_115.step_5.measuring_progress",
+      "passage_ids": [
+        "IndAS115.para.39",
+        "IndAS115.para.B18"
+      ],
+      "required": true,
+      "check": {
+        "type": "numeric",
+        "field": "progress_percent",
+        "tolerance": "0.1"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "{progress_percent}%",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [],
+  "answer_exprs": {
+    "progress_percent": "costs_to_date / (costs_to_date + cost_to_complete) * 100"
+  },
+  "explanation": "Total expected cost = costs to date + costs to complete. Progress = costs to date / total = {progress_percent}%.",
+  "mistakes": [
+    {
+      "expr": "costs_to_date / cost_to_complete * 100",
+      "feedback": "You divided by the cost still to come. Divide by the total expected cost: costs to date plus costs to complete.",
+      "field": "progress_percent"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd",
+    "price": "8000000",
+    "costs_to_date": "2400000",
+    "cost_to_complete": "3600000"
+  }
+}

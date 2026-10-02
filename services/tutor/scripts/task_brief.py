@@ -19,7 +19,9 @@ if __name__ == "__main__":
 from tutor.content import load_pack
 from tutor.contracts.skills import ParamSpec, TaskTemplate
 from tutor.review import status_table
-from tutor.skills.loader import load_skills, load_tasks
+from tutor.jobs import load_job_profiles
+from tutor.skills.drills import choice_check, display, formula_answers, mistake_value, numeric_check
+from tutor.skills.loader import learning_order, load_skills, load_tasks
 
 SERVICE_ROOT = Path(__file__).resolve().parents[1]
 
@@ -64,8 +66,8 @@ def cell(text: str) -> str:
 
 
 def task_block(task: TaskTemplate, status: str) -> list[str]:
-    lines = [f"## {task.title}", "", f"`{task.task_id}` · {task.kind} · calculator `{task.calculator}` · "
-             f"pass mark {task.pass_threshold} · review status **{status}**", "", "### Brief (what the student sees)", ""]
+    lines = [f"### {task.title}", "", f"`{task.task_id}` · {task.kind} · calculator `{task.calculator}` · "
+             f"pass mark {task.pass_threshold} · review status **{status}**", "", "#### Brief (what the student sees)", ""]
     lines += [f"> {para}" if para else ">" for para in fill(task.narrative_template, task).split("\n")]
     for doc in task.documents:
         lines += ["", f"**{fill(doc.title, task)}**", "", "| Row | " + " | ".join(doc.columns) + " |",
@@ -78,7 +80,7 @@ def task_block(task: TaskTemplate, status: str) -> list[str]:
             lines.append(f"| {row.get('row_id', '')} | " + " | ".join(values) + " |")
     if task.constraints:
         lines += ["", "Parameter rules (every variant satisfies them): " + "; ".join(f"`{c}`" for c in task.constraints)]
-    lines += ["", "### Rubric (hidden from the student)", "", "| Item | Weight | Required | Check | What earns it | Concept | Paragraphs |",
+    lines += ["", "#### Rubric (hidden from the student)", "", "| Item | Weight | Required | Check | What earns it | Concept | Paragraphs |",
               "|---|---|---|---|---|---|---|"]
     for item in task.rubric:
         check = item.check.type + (f" `{item.check.field}` ±{item.check.tolerance}" if item.check.type == "numeric" else "")
@@ -86,13 +88,73 @@ def task_block(task: TaskTemplate, status: str) -> list[str]:
         lines.append(f"| {item.id} | {item.weight:g} | {'yes' if item.required else ''} | {cell(check)} | {cell(item.text)} | "
                      f"`{item.node_id.split('.', 1)[-1]}` | {paras} |")
     if task.planted_discrepancies:
-        lines += ["", "### Planted issues (hidden)", "", "| Id | Row | Issue | Concept | Paragraphs |", "|---|---|---|---|---|"]
+        lines += ["", "#### Planted issues (hidden)", "", "| Id | Row | Issue | Concept | Paragraphs |", "|---|---|---|---|---|"]
         for d in task.planted_discrepancies:
             paras = ", ".join(p.split(".para.")[-1] for p in d.passage_ids)
             lines.append(f"| {d.id} | {d.row_id} | {d.issue_type.replace('_', ' ')} | `{d.node_id.split('.', 1)[-1]}` | {paras} |")
     answers = {f: f"[{f.replace('_', ' ')}: computed by T51]" for f in task.answer_fields}
-    lines += ["", "### Model answer (hidden)", "", fill(task.model_answer_template, task, answers), ""]
+    lines += ["", "#### Model answer (hidden)", "", fill(task.model_answer_template, task, answers), ""]
     return lines
+
+
+def example_values(task: TaskTemplate) -> dict[str, str]:
+    """The worked example, formatted the way a student would read it."""
+    values = {}
+    for name, value in task.example_params.items():
+        kind = task.params[name].type
+        values[name] = rupees(value) if kind == "money" else f"{value}%" if kind == "percent" else value
+    return values
+
+
+def tolerance_words(tolerance: str) -> str:
+    if "|" in tolerance:
+        relative, absolute = tolerance.split("|")
+        return f"{relative} or ₹{rupees(absolute)}, whichever is larger"
+    return f"{tolerance} percentage points" if tolerance == "0.1" else tolerance
+
+
+def amount(value, tolerance: str) -> str:
+    text = display(value, tolerance)
+    return text if tolerance == "0.1" else rupees(text)
+
+
+def drill_block(task: TaskTemplate, status: str) -> list[str]:
+    example = example_values(task)
+    lines = [f"#### {task.title}", "", f"`{task.task_id}` · review status **{status}**", ""]
+    lines += [f"> {para}" if para else ">" for para in fill(task.narrative_template, task, example).split("\n")]
+    check = choice_check(task)
+    if check is not None:
+        lines += ["", "Options: " + " · ".join(f"**{o}**" if o == check.correct else o for o in task.options),
+                  "", f"Answer: **{check.correct}**"]
+        wrong = [(m.choice, m.feedback) for m in task.mistakes]
+        answers: dict[str, str] = {}
+    else:
+        (field,) = task.answer_fields
+        tolerance = numeric_check(task, field).tolerance
+        key = formula_answers(task, task.example_params)[field]
+        answers = {field: amount(key, tolerance)}
+        unit = "%" if tolerance == "0.1" else ""
+        lines += ["", f"Answer on this example: **{answers[field]}{unit}** (formula `{task.answer_exprs[field]}`, "
+                      f"accepted within {tolerance_words(tolerance)})"]
+        wrong = [(f"{amount(mistake_value(m, task.example_params), tolerance)}{unit}", m.feedback) for m in task.mistakes]
+    lines += ["", f"Teaching after any answer: {fill(task.explanation, task, {**example, **answers})}", "",
+              "| Wrong answer | Feedback |", "|---|---|"]
+    lines += [f"| {cell(w)} | {cell(fill(fb, task, {**example, **answers}))} |" for w, fb in wrong]
+    item = task.rubric[0]
+    paras = ", ".join(p.split(".para.")[-1] for p in item.passage_ids)
+    lines += ["", f"Concept `{item.node_id.split('.', 1)[-1]}` · paragraphs {paras}", ""]
+    return lines
+
+
+def skill_map(skills, jobs) -> list[str]:
+    lines = ["## Skill map", "", "| Skill | Level | Needs first | Tasks |", "|---|---|---|---|"]
+    for skill in learning_order(skills):
+        needs = ", ".join(skills[r].title for r in skill.requires if r in skills) or "-"
+        lines.append(f"| {skill.title} | {skill.level} | {needs} | {len(skill.task_ids)} |")
+    lines += ["", "| Job | Skills it needs |", "|---|---|"]
+    for job in jobs.values():
+        lines.append(f"| {job.title} | " + ", ".join(skills[s].title for s in job.skills if s in skills) + " |")
+    return lines + [""]
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -107,11 +169,14 @@ def main(argv: list[str] | None = None) -> int:
     skills, tasks = load_skills(pack), load_tasks(pack)
     table = status_table(pack)
     lines = [f"# Skill task briefs: {pack.pack_id} {pack.manifest.version}", ""]
-    for skill in skills.values():
-        lines += [f"**Skill:** {skill.title} (`{skill.skill_id}`, unlocks when all {len(skill.task_ids)} tasks pass). "
-                  f"{skill.description}", ""]
+    lines += skill_map(skills, load_job_profiles(pack))
+    for skill in learning_order(skills):
+        heading = "## Small skill" if skill.level == "micro" else "## Final case study"
+        lines += [f"{heading}: {skill.title}", "", f"`{skill.skill_id}` · {skill.description} Passed when all "
+                  f"{len(skill.task_ids)} tasks pass.", ""]
         for task_id in skill.task_ids:
-            lines += task_block(tasks[task_id], table[f"task:{task_id}"][1])
+            task, status = tasks[task_id], table[f"task:{task_id}"][1]
+            lines += drill_block(task, status) if task.kind == "drill" else task_block(task, status)
     out = args.out or SERVICE_ROOT / "data" / "reviews" / f"{pack.pack_id}-{pack.manifest.version}-task-briefs.md"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("\n".join(lines), encoding="utf-8", newline="\n")

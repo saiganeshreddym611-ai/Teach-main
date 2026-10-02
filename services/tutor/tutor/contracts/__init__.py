@@ -21,8 +21,10 @@ from .content import (
 from .grading import Claim, ClaimJudgment, GraderOutput, NodeVerdictV2, Omission
 from .ledger import LedgerEvent, LedgerSource, RubricItemResult, TaskAttemptEvent
 from .skills import (
+    ChoiceCheck,
     DiscrepancyCheck,
     JudgementCheck,
+    Mistake,
     NumericCheck,
     ParamSpec,
     ParamType,
@@ -45,7 +47,9 @@ __all__ = [
     "DiscrepancyCheck",
     "DocType",
     "GraderOutput",
+    "ChoiceCheck",
     "JudgementCheck",
+    "Mistake",
     "LedgerEvent",
     "LedgerSource",
     "NodeVerdictV2",

@@ -20,4 +20,5 @@ class JobProfile(BaseModel):
     sector: str
     required: list[JobRequirement]
     adjacent: list[JobRequirement] = []
+    skills: list[str] = []  # skill IDs the job needs (T55); a different set of skills makes a different job
     pay_band: str = ""

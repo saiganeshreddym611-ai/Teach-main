@@ -306,6 +306,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T52 | Task grader | D | T51, T30, T32 | todo |
 | T53 | TASK phase in the state machine | D | T52, T42, T31 | todo |
 | T54 | Skill projection and API | D | T53 | todo |
+| T55 | Micro skills and drills, batch 1 of about 4 | D | T50 | todo |
 | T60 | Web client types and SSE handling | E | T02 | done (95570df, reviewed by Claude) |
 | T61 | Mastery dashboard v2 | E | T60, T31 | done (380d94e, reviewed by Claude + owner) |
 | T62 | Citation chips on tutor turns | E | T60, T41 | todo |
@@ -632,6 +633,11 @@ marked *(new)* do not exist yet.
     - After `MAX_TASK_ATTEMPTS` failures the task is parked.
 - **Acceptance:** tests for the pass path, fail → teach-back → return with a new variant, a check
   that no directive ever contains answer-key values, unlock after all tasks pass, and parking.
+- **Owner decision, 2026-10-02 (`HUMAN-DECISIONS.md` 7.5):** drills come first. One or two drills of
+  the node's micro skill follow right after a node is VERIFIED, with instant feedback from the
+  drill's `mistakes` and `explanation`; a separate practice mode runs drills on their own. A
+  capstone task opens only when the micro skills it `requires` are passed. Drills are marked by
+  code (formula or choice), so they need no LLM call.
 
 #### T54 — Skill projection and API
 - **Requirements:** FR-12 ("show skill state and remaining tasks"), FR-13, NFR traceability, AC6.
@@ -643,6 +649,22 @@ marked *(new)* do not exist yet.
   - `GET /students/{id}/tasks/{task_id}/attempts`: template version, template review hash, rubric,
     `answer_key_sha256`, seed, grader call ID and evidence turn. Return the hash, not the key.
 - **Acceptance:** projection tests for all three states; API tests.
+
+#### T55 — Micro skills and drills (batch 1 of about 4)
+- **Requirements:** FR-12, FR-13. Owner's request, 2026-10-02 (`HUMAN-DECISIONS.md` 7.5). Coder: Claude.
+- **Summary:** small skills of one idea each, practised with short ICAI-illustration-style drills
+  (a number or a choice, instant feedback per predictable mistake, a teaching line with the
+  paragraph). Jobs list the skills they need (`JobProfile.skills`), so different sets of skills
+  make different jobs. The four T50 tasks become the capstone, which `requires` the micro skills.
+- **Batch 1 (done in this task):** five micro skills behind the cost-to-cost capstone: over time or
+  point in time, cost-to-cost progress, costs that do not show progress (B19), contract asset,
+  liability or receivable, and revenue for the year; four drills each. Contracts: `ChoiceCheck`,
+  `Mistake`, drill fields on `TaskTemplate`, `level`/`node_ids`/`requires` on `SkillDef`. Calculators
+  `formula` and `choice`; the validator checks every drill's example, answer and mistakes.
+- **Later batches:** modification, variable consideration, cut-off and allocation skills, about
+  five micro skills each, written after the owner reviews the batch before.
+- **Human gate:** owner review of the drill brief; T23b reviews against the sources; ICAI
+  illustrations are never copied without the licence (H1), only imitated in style.
 
 ### M6 — Kiosk UI
 

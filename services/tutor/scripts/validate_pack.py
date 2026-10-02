@@ -14,7 +14,8 @@ if __name__ == "__main__":
 from tutor.content import ContentPackError, load_pack
 from tutor.retrieval.corpus import load_corpus
 from tutor.retrieval.refs import UnresolvedRef, resolve_ref
-from tutor.skills.checks import check_skills
+from tutor.jobs import load_job_profiles
+from tutor.skills.checks import check_jobs, check_skills
 from tutor.skills.loader import load_skills, load_tasks
 
 
@@ -48,6 +49,10 @@ def main(argv: list[str] | None = None) -> int:
         failures.append(str(exc))
         skills, tasks = {}, {}
     report = check_skills(pack, skills, tasks, corpus)
+    try:
+        failures += check_jobs(load_job_profiles(pack), skills)
+    except ContentPackError as exc:
+        failures.append(str(exc))
     failures += report.failures
     warnings += report.warnings
 

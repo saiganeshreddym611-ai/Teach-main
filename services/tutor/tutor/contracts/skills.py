@@ -33,10 +33,29 @@ class JudgementCheck(BaseModel):
     type: Literal["judgement"]
 
 
+class ChoiceCheck(BaseModel):
+    """A drill answered by picking one of the task's `options`."""
+    type: Literal["choice"]
+    field: str
+    correct: str
+
+
 RubricCheck = Annotated[
-    NumericCheck | DiscrepancyCheck | JudgementCheck,
+    NumericCheck | DiscrepancyCheck | JudgementCheck | ChoiceCheck,
     Field(discriminator="type"),
 ]
+
+
+class Mistake(BaseModel):
+    """A predictable wrong answer and the feedback that teaches the point it misses.
+
+    Numeric drills give `expr`, the wrong answer as an expression of the params (`tutor.skills.expr`);
+    choice drills give the wrong `choice`.
+    """
+    field: str
+    expr: str = ""
+    choice: str = ""
+    feedback: str
 
 
 class RubricItem(BaseModel):
@@ -68,7 +87,7 @@ class TaskTemplate(BaseModel):
     task_id: str
     skill_id: str
     title: str
-    kind: Literal["calculation", "discrepancy_hunt"]
+    kind: Literal["calculation", "discrepancy_hunt", "drill"]
     node_ids: list[str]
     company: dict[str, str] = {}
     narrative_template: str
@@ -82,6 +101,12 @@ class TaskTemplate(BaseModel):
     model_answer_template: str = ""
     pass_threshold: float = Field(ge=0.0, le=1.0)
     template_version: str
+    # Drills (T55): short, one-answer tasks with instant feedback.
+    options: list[str] = []            # choice drills, shown in this order
+    answer_exprs: dict[str, str] = {}  # calculator "formula": each answer field as an expression of the params
+    explanation: str = ""              # teaching shown after any answer, with the paragraph
+    mistakes: list[Mistake] = []
+    example_params: dict[str, str] = {}  # one valid parameter set, for briefs and tests
 
 
 class TaskVariant(BaseModel):
@@ -100,3 +125,7 @@ class SkillDef(BaseModel):
     description: str = ""
     task_ids: list[str]
     unlock_rule: Literal["all_tasks_passed"] = "all_tasks_passed"
+    # "micro": one idea, practised with drills; "capstone": a whole case, opened after its `requires`.
+    level: Literal["micro", "capstone"] = "capstone"
+    node_ids: list[str] = []
+    requires: list[str] = []

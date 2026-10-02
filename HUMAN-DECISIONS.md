@@ -275,6 +275,18 @@ Status: **Confirmed** by the owner, 2026-09-27.
 
 Status: **Confirmed** by the owner, 2026-09-27.
 
+**7.5 Micro skills and drills.** Decided: build small skills of one idea each, practised with short
+drills in the style of ICAI illustrations, with instant feedback, like a language-learning app. A set
+of skills makes a job, and different sets make different jobs. Not every point gets a skill, only
+the ideas that involve a calculation or a decision.
+- The four tasks of 7.1 stay as the capstone, opened after their micro skills.
+- One or two drills follow right after a concept is verified; a separate practice mode runs drills
+  on their own.
+- ICAI illustrations are not copied into the product without the licence (H1); drills are original
+  and only follow their style. Official illustrations may test the calculators once licensed.
+
+Status: **Confirmed** by the owner, 2026-10-02 ("finish them" on the three proposals).
+
 ---
 
 ## 8. Evaluations and practice (H4)

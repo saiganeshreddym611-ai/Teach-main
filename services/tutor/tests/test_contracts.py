@@ -192,8 +192,8 @@ def test_contracts_exports():
 
     expected = {
         "Claim", "ClaimJudgment", "ClaimVerdict", "ContentInfo", "CorpusManifest",
-        "Citation", "DiscrepancyCheck", "DocType", "GraderOutput", "JudgementCheck",
-        "LedgerEvent", "LedgerSource", "NodeVerdictV2", "NumericCheck", "Omission",
+        "ChoiceCheck", "Citation", "DiscrepancyCheck", "DocType", "GraderOutput", "JudgementCheck",
+        "LedgerEvent", "LedgerSource", "Mistake", "NodeVerdictV2", "NumericCheck", "Omission",
         "PackManifest", "ParamSpec", "ParamType", "Passage", "PassageResponse",
         "PlantedDiscrepancy", "ReleaseSignoff", "ReviewClaim", "ReviewMeta",
         "ReviewStatus", "ReviewerInfo", "RubricCheck", "RubricItem", "RubricItemResult",

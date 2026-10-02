@@ -1,0 +1,100 @@
+{
+  "task_id": "dr_ctc_revenue",
+  "skill_id": "ms_cost_to_cost_progress",
+  "title": "Revenue to date from progress",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.step_5.measuring_progress"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "Kalmira has a fixed-price contract with {customer} for ₹{price}. Total expected cost is ₹{total_cost}, and costs incurred to date are ₹{costs_to_date}. Using the cost-to-cost method, how much revenue has Kalmira recognised on the contract to date?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    },
+    "price": {
+      "type": "money",
+      "min": "1000000",
+      "max": "100000000",
+      "step": "100000"
+    },
+    "total_cost": {
+      "type": "money",
+      "min": "600000",
+      "max": "90000000",
+      "step": "10000"
+    },
+    "costs_to_date": {
+      "type": "money",
+      "min": "100000",
+      "max": "80000000",
+      "step": "10000"
+    }
+  },
+  "constraints": [
+    "total_cost <= price * 0.9",
+    "total_cost >= price * 0.6",
+    "costs_to_date >= total_cost * 0.1",
+    "costs_to_date <= total_cost * 0.9"
+  ],
+  "documents": [],
+  "calculator": "formula",
+  "answer_fields": [
+    "revenue_to_date"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Revenue to date = price x progress.",
+      "weight": 1.0,
+      "node_id": "ind_as_115.step_5.measuring_progress",
+      "passage_ids": [
+        "IndAS115.para.39",
+        "IndAS115.para.B18"
+      ],
+      "required": true,
+      "check": {
+        "type": "numeric",
+        "field": "revenue_to_date",
+        "tolerance": "0.5%|1000"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "₹{revenue_to_date}",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [],
+  "answer_exprs": {
+    "revenue_to_date": "price * costs_to_date / total_cost"
+  },
+  "explanation": "Revenue to date = price x (costs to date / total expected cost) = ₹{revenue_to_date}.",
+  "mistakes": [
+    {
+      "expr": "costs_to_date",
+      "feedback": "That is the cost incurred. Revenue is the price times the measure of progress.",
+      "field": "revenue_to_date"
+    },
+    {
+      "expr": "price * costs_to_date / total_cost - costs_to_date",
+      "feedback": "That is the profit to date. Revenue is the price times the measure of progress, before costs.",
+      "field": "revenue_to_date"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd",
+    "price": "10000000",
+    "total_cost": "8000000",
+    "costs_to_date": "3000000"
+  }
+}

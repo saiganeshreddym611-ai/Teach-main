@@ -1,0 +1,75 @@
+{
+  "task_id": "dr_cal_paid_in_advance",
+  "skill_id": "ms_contract_asset_liability",
+  "title": "Billed and paid ahead of the work",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.cross_cutting.presentation"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "At 31 March 2026 {customer} has been billed and has paid ₹30,00,000 on its contract, but Kalmira has recognised only ₹22,00,000 of revenue so far. What does Kalmira show for the ₹8,00,000 difference?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    }
+  },
+  "constraints": [],
+  "documents": [],
+  "calculator": "choice",
+  "answer_fields": [
+    "choice"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Paid ahead of performance: contract liability.",
+      "weight": 1.0,
+      "node_id": "ind_as_115.cross_cutting.presentation",
+      "passage_ids": [
+        "IndAS115.para.106"
+      ],
+      "required": true,
+      "check": {
+        "type": "choice",
+        "field": "choice",
+        "correct": "Contract liability"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "A contract liability of ₹8,00,000.",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [
+    "Contract asset",
+    "Contract liability",
+    "Trade receivable"
+  ],
+  "answer_exprs": {},
+  "explanation": "When the customer pays before the entity performs, the entity shows a contract liability for its obligation to transfer the services (para 106).",
+  "mistakes": [
+    {
+      "choice": "Contract asset",
+      "feedback": "A contract asset arises when performance runs ahead of billing. Here the cash is ahead of performance, so Kalmira owes the customer work: a contract liability (para 106).",
+      "field": "choice"
+    },
+    {
+      "choice": "Trade receivable",
+      "feedback": "The customer has already paid, so nothing is still due from it. Kalmira owes the work: a contract liability (para 106).",
+      "field": "choice"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd"
+  }
+}

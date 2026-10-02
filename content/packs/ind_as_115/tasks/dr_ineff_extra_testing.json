@@ -1,0 +1,70 @@
+{
+  "task_id": "dr_ineff_extra_testing",
+  "skill_id": "ms_inefficiency_costs",
+  "title": "Testing the price already covers",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.step_5.uninstalled_materials"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "{customer} asked for a second round of user-acceptance testing on its fixed-price project. The contract price covers up to three rounds. The testing took ₹4,00,000 of Kalmira's staff time. How does this cost affect the cost-to-cost measure of progress?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    }
+  },
+  "constraints": [],
+  "documents": [],
+  "calculator": "choice",
+  "answer_fields": [
+    "choice"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Testing within the contract counts in costs to date.",
+      "weight": 1.0,
+      "node_id": "ind_as_115.step_5.uninstalled_materials",
+      "passage_ids": [
+        "IndAS115.para.B18",
+        "IndAS115.para.B19"
+      ],
+      "required": true,
+      "check": {
+        "type": "choice",
+        "field": "choice",
+        "correct": "Include it in costs to date"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "Include it.",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [
+    "Include it in costs to date",
+    "Leave it out of the measure of progress"
+  ],
+  "answer_exprs": {},
+  "explanation": "Costs of work the contract pays for depict progress and stay in the measure. B19 excludes only costs that do not reflect performance.",
+  "mistakes": [
+    {
+      "choice": "Leave it out of the measure of progress",
+      "feedback": "This testing is part of the work the price pays for, and it moves the project towards completion, so it counts in costs to date. Only costs that do not depict progress, such as wasted effort, are left out (B19(a)).",
+      "field": "choice"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd"
+  }
+}

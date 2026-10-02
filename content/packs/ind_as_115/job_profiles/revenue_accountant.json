@@ -3,16 +3,43 @@
   "title": "Revenue accountant (seed profile, fictional)",
   "sector": "IT services",
   "required": [
-    {"node_id": "ind_as_115.step_1"},
-    {"node_id": "ind_as_115.step_2"},
-    {"node_id": "ind_as_115.step_3"},
-    {"node_id": "ind_as_115.step_4"},
-    {"node_id": "ind_as_115.step_5"},
-    {"node_id": "ind_as_115.step_4.ssp", "min_status": "PARTIAL"}
+    {
+      "node_id": "ind_as_115.step_1"
+    },
+    {
+      "node_id": "ind_as_115.step_2"
+    },
+    {
+      "node_id": "ind_as_115.step_3"
+    },
+    {
+      "node_id": "ind_as_115.step_4"
+    },
+    {
+      "node_id": "ind_as_115.step_5"
+    },
+    {
+      "node_id": "ind_as_115.step_4.ssp",
+      "min_status": "PARTIAL"
+    }
   ],
   "adjacent": [
-    {"node_id": "ind_as_115.step_4.ssp_estimation", "min_status": "PARTIAL"},
-    {"node_id": "ind_as_115.step_5.measuring_progress", "min_status": "PARTIAL"}
+    {
+      "node_id": "ind_as_115.step_4.ssp_estimation",
+      "min_status": "PARTIAL"
+    },
+    {
+      "node_id": "ind_as_115.step_5.measuring_progress",
+      "min_status": "PARTIAL"
+    }
   ],
-  "pay_band": ""
+  "pay_band": "",
+  "skills": [
+    "ms_over_time_or_point",
+    "ms_cost_to_cost_progress",
+    "ms_inefficiency_costs",
+    "ms_contract_asset_liability",
+    "ms_revenue_for_period",
+    "revenue_recognition_services"
+  ]
 }

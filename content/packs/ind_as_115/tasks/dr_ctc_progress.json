@@ -1,0 +1,95 @@
+{
+  "task_id": "dr_ctc_progress",
+  "skill_id": "ms_cost_to_cost_progress",
+  "title": "Cost-to-cost progress",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.step_5.measuring_progress"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "Kalmira has a fixed-price contract with {customer} for ₹{price}. Total expected cost is ₹{total_cost}, and costs incurred to date are ₹{costs_to_date}. Using the cost-to-cost method, what is the measure of progress?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    },
+    "price": {
+      "type": "money",
+      "min": "1000000",
+      "max": "100000000",
+      "step": "100000"
+    },
+    "total_cost": {
+      "type": "money",
+      "min": "600000",
+      "max": "90000000",
+      "step": "10000"
+    },
+    "costs_to_date": {
+      "type": "money",
+      "min": "100000",
+      "max": "80000000",
+      "step": "10000"
+    }
+  },
+  "constraints": [
+    "total_cost <= price * 0.9",
+    "total_cost >= price * 0.6",
+    "costs_to_date >= total_cost * 0.1",
+    "costs_to_date <= total_cost * 0.9"
+  ],
+  "documents": [],
+  "calculator": "formula",
+  "answer_fields": [
+    "progress_percent"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Progress = costs to date / total expected cost.",
+      "weight": 1.0,
+      "node_id": "ind_as_115.step_5.measuring_progress",
+      "passage_ids": [
+        "IndAS115.para.39",
+        "IndAS115.para.B18"
+      ],
+      "required": true,
+      "check": {
+        "type": "numeric",
+        "field": "progress_percent",
+        "tolerance": "0.1"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "{progress_percent}%",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [],
+  "answer_exprs": {
+    "progress_percent": "costs_to_date / total_cost * 100"
+  },
+  "explanation": "Measure of progress = costs incurred to date / total expected costs = {progress_percent}% (input method, paras 39 and B18).",
+  "mistakes": [
+    {
+      "expr": "costs_to_date / price * 100",
+      "feedback": "You divided by the price. Cost-to-cost compares costs incurred with total expected costs, not with the price.",
+      "field": "progress_percent"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd",
+    "price": "10000000",
+    "total_cost": "8000000",
+    "costs_to_date": "3000000"
+  }
+}

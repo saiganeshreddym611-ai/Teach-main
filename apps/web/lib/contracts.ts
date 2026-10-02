@@ -266,7 +266,20 @@ export type JudgementCheck = {
   type: "judgement";
 };
 
-export type RubricCheck = NumericCheck | DiscrepancyCheck | JudgementCheck;
+export type ChoiceCheck = {
+  type: "choice";
+  field: string;
+  correct: string;
+};
+
+export type RubricCheck = NumericCheck | DiscrepancyCheck | JudgementCheck | ChoiceCheck;
+
+export type Mistake = {
+  field: string;
+  expr?: string;
+  choice?: string;
+  feedback: string;
+};
 
 export type RubricItem = {
   id: string;
@@ -297,7 +310,7 @@ export type TaskTemplate = {
   task_id: string;
   skill_id: string;
   title: string;
-  kind: "calculation" | "discrepancy_hunt";
+  kind: "calculation" | "discrepancy_hunt" | "drill";
   node_ids: string[];
   company?: Record<string, string>;
   narrative_template: string;
@@ -311,6 +324,11 @@ export type TaskTemplate = {
   model_answer_template?: string;
   pass_threshold: number;
   template_version: string;
+  options?: string[];
+  answer_exprs?: Record<string, string>;
+  explanation?: string;
+  mistakes?: Mistake[];
+  example_params?: Record<string, string>;
 };
 
 export type TaskVariant = {
@@ -329,6 +347,9 @@ export type SkillDef = {
   description?: string;
   task_ids: string[];
   unlock_rule?: "all_tasks_passed";
+  level?: "micro" | "capstone";
+  node_ids?: string[];
+  requires?: string[];
 };
 
 export type ContentInfo = {

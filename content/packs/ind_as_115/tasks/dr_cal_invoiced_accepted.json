@@ -1,0 +1,75 @@
+{
+  "task_id": "dr_cal_invoiced_accepted",
+  "skill_id": "ms_contract_asset_liability",
+  "title": "Milestone accepted and invoiced",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.cross_cutting.presentation"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "Milestone 2 of {customer}'s project was accepted on 20 March 2026, and Kalmira invoiced ₹15,00,000 the same day, payable in 30 days. Nothing has been paid by 31 March 2026. What does Kalmira show for the ₹15,00,000?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    }
+  },
+  "constraints": [],
+  "documents": [],
+  "calculator": "choice",
+  "answer_fields": [
+    "choice"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Unconditional right: trade receivable.",
+      "weight": 1.0,
+      "node_id": "ind_as_115.cross_cutting.presentation",
+      "passage_ids": [
+        "IndAS115.para.108"
+      ],
+      "required": true,
+      "check": {
+        "type": "choice",
+        "field": "choice",
+        "correct": "Trade receivable"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "A trade receivable of ₹15,00,000.",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [
+    "Contract asset",
+    "Contract liability",
+    "Trade receivable"
+  ],
+  "answer_exprs": {},
+  "explanation": "A right to consideration that is unconditional, with only the passage of time before payment is due, is a receivable (para 108).",
+  "mistakes": [
+    {
+      "choice": "Contract asset",
+      "feedback": "Once the milestone is accepted, only time is left until the due date, so the right is unconditional: a receivable (para 108), not a contract asset.",
+      "field": "choice"
+    },
+    {
+      "choice": "Contract liability",
+      "feedback": "Kalmira has done the work and is owed the money; it does not owe the customer anything.",
+      "field": "choice"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd"
+  }
+}

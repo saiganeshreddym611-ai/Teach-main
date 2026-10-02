@@ -1,0 +1,83 @@
+{
+  "task_id": "dr_ot_custom_platform_unpaid",
+  "skill_id": "ms_over_time_or_point",
+  "title": "Custom platform paid only on acceptance",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.step_5.over_time_criteria"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "Kalmira is building a custom claims platform for {customer} on Kalmira's own development servers. The design is so specific to the customer that it could not be sold to anyone else without major rework. The customer pays only when it accepts the finished platform; if it cancels before then, it owes nothing for the work done.\n\nIs revenue recognised over time or at a point in time? If over time, which paragraph 35 criterion is met?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    }
+  },
+  "constraints": [],
+  "documents": [],
+  "calculator": "choice",
+  "answer_fields": [
+    "choice"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "At a point in time: 35(c) fails without a right to payment for work to date.",
+      "weight": 1.0,
+      "node_id": "ind_as_115.step_5.over_time_criteria",
+      "passage_ids": [
+        "IndAS115.para.35",
+        "IndAS115.para.37",
+        "IndAS115.para.38"
+      ],
+      "required": true,
+      "check": {
+        "type": "choice",
+        "field": "choice",
+        "correct": "At a point in time"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "At a point in time, on acceptance.",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [
+    "Over time, 35(a)",
+    "Over time, 35(b)",
+    "Over time, 35(c)",
+    "At a point in time"
+  ],
+  "answer_exprs": {},
+  "explanation": "If no paragraph 35 criterion is met, the obligation is satisfied at a point in time, when the customer obtains control (para 38). Without a right to payment for work to date, 35(c) fails.",
+  "mistakes": [
+    {
+      "choice": "Over time, 35(c)",
+      "feedback": "No alternative use is met, but 35(c) also needs an enforceable right to payment for work completed to date (para 37). Payment only on acceptance fails that, so revenue is recognised when control passes at acceptance (para 38).",
+      "field": "choice"
+    },
+    {
+      "choice": "Over time, 35(b)",
+      "feedback": "The customer does not control the platform while it is built on Kalmira's servers, so 35(b) fails.",
+      "field": "choice"
+    },
+    {
+      "choice": "Over time, 35(a)",
+      "feedback": "The customer gets nothing until acceptance, so 35(a) fails.",
+      "field": "choice"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd"
+  }
+}

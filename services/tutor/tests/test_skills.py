@@ -26,9 +26,9 @@ def pack115():
 
 def test_templates_load(pack115):
     skills = load_skills(pack115)
-    tasks = load_tasks(pack115)
-    assert set(skills) == {"revenue_recognition_services"}
+    tasks = {k: t for k, t in load_tasks(pack115).items() if t.kind != "drill"}  # drills: tests/test_micro_skills.py
     skill = skills["revenue_recognition_services"]
+    assert skill.level == "capstone"
     assert set(skill.task_ids) == TASK_IDS == set(tasks)
     for task in tasks.values():
         assert task.skill_id == skill.skill_id
@@ -104,7 +104,7 @@ def test_validator_passes_on_drafts(capsys):
     assert validate_pack.main(["--pack", "ind_as_115"]) == 0
     out = capsys.readouterr().out
     assert "passage IDs in tasks were not checked" in out  # no corpus until H1
-    assert "1 skills and 4 tasks are consistent" in out
+    assert "6 skills and 24 tasks are consistent" in out
 
 
 def _edit_task(task: dict, case: str) -> None:

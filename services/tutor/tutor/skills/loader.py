@@ -21,6 +21,22 @@ def load_tasks(pack: ContentPack) -> dict[str, TaskTemplate]:
     return _load_dir(pack.root / "tasks", TaskTemplate, "task_id")
 
 
+def learning_order(skills: dict[str, SkillDef]) -> list[SkillDef]:
+    """Skills in an order a student can take them: each after everything it requires, micro skills
+    before capstones, then by ID. Skills caught in a requires loop come last (the validator reports them)."""
+    placed: list[SkillDef] = []
+    done: set[str] = set()
+    waiting = sorted(skills.values(), key=lambda s: (s.level != "micro", s.skill_id))
+    while waiting:
+        ready = next((s for s in waiting if all(r in done or r not in skills for r in s.requires)), None)
+        if ready is None:
+            return placed + waiting
+        placed.append(ready)
+        done.add(ready.skill_id)
+        waiting.remove(ready)
+    return placed
+
+
 def _load_dir(directory: Path, model: type[M], id_field: str) -> dict[str, M]:
     """Each file holds one item and is named after its ID, so a review diff names the item."""
     if not directory.is_dir():

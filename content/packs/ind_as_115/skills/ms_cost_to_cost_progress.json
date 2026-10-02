@@ -1,0 +1,19 @@
+{
+  "skill_id": "ms_cost_to_cost_progress",
+  "title": "Measure progress by costs",
+  "description": "Work out cost-to-cost progress and the revenue it gives.",
+  "task_ids": [
+    "dr_ctc_progress",
+    "dr_ctc_revenue",
+    "dr_ctc_cost_to_complete",
+    "dr_ctc_revised_estimate"
+  ],
+  "unlock_rule": "all_tasks_passed",
+  "level": "micro",
+  "node_ids": [
+    "ind_as_115.step_5.measuring_progress"
+  ],
+  "requires": [
+    "ms_over_time_or_point"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "skill_id": "ms_contract_asset_liability",
+  "title": "Contract asset, contract liability or receivable",
+  "description": "Present the gap between revenue, billing and cash.",
+  "task_ids": [
+    "dr_cal_balance",
+    "dr_cal_paid_in_advance",
+    "dr_cal_unbilled_milestone",
+    "dr_cal_invoiced_accepted"
+  ],
+  "unlock_rule": "all_tasks_passed",
+  "level": "micro",
+  "node_ids": [
+    "ind_as_115.cross_cutting.presentation"
+  ],
+  "requires": []
+}

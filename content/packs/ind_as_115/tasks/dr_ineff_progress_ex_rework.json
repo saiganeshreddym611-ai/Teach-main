@@ -1,0 +1,103 @@
+{
+  "task_id": "dr_ineff_progress_ex_rework",
+  "skill_id": "ms_inefficiency_costs",
+  "title": "Progress without the rework",
+  "kind": "drill",
+  "node_ids": [
+    "ind_as_115.step_5.uninstalled_materials"
+  ],
+  "company": {
+    "company_name": "Kalmira Techworks Private Limited",
+    "company_short": "Kalmira",
+    "company_city": "Pune",
+    "company_business": "IT implementation and managed services for mid-size Indian businesses"
+  },
+  "narrative_template": "Kalmira's fixed-price contract with {customer} is for ₹{price}. Total expected cost, excluding any rework, is ₹{total_cost}. Costs incurred to date are ₹{costs_to_date}, which include ₹{rework} of rework on a module Kalmira's developers built wrongly (not reflected in the price). What is the measure of progress?\n\nRound amounts to the nearest rupee and percentages to one decimal place. All names are fictional.",
+  "params": {
+    "customer": {
+      "type": "name",
+      "choices": [
+        "Veloria Retail Ltd",
+        "Zenara Finance Ltd",
+        "Korvani Freight Ltd"
+      ]
+    },
+    "price": {
+      "type": "money",
+      "min": "1000000",
+      "max": "100000000",
+      "step": "100000"
+    },
+    "total_cost": {
+      "type": "money",
+      "min": "600000",
+      "max": "90000000",
+      "step": "10000"
+    },
+    "costs_to_date": {
+      "type": "money",
+      "min": "100000",
+      "max": "80000000",
+      "step": "10000"
+    },
+    "rework": {
+      "type": "money",
+      "min": "10000",
+      "max": "5000000",
+      "step": "10000"
+    }
+  },
+  "constraints": [
+    "total_cost <= price * 0.9",
+    "total_cost >= price * 0.6",
+    "rework <= costs_to_date * 0.15",
+    "rework >= costs_to_date * 0.03",
+    "costs_to_date - rework >= total_cost * 0.1",
+    "costs_to_date - rework <= total_cost * 0.9"
+  ],
+  "documents": [],
+  "calculator": "formula",
+  "answer_fields": [
+    "progress_percent"
+  ],
+  "rubric": [
+    {
+      "id": "a1",
+      "text": "Progress excludes the rework from costs to date.",
+      "weight": 1.0,
+      "node_id": "ind_as_115.step_5.uninstalled_materials",
+      "passage_ids": [
+        "IndAS115.para.B19"
+      ],
+      "required": true,
+      "check": {
+        "type": "numeric",
+        "field": "progress_percent",
+        "tolerance": "0.1"
+      }
+    }
+  ],
+  "planted_discrepancies": [],
+  "model_answer_template": "{progress_percent}%",
+  "pass_threshold": 1.0,
+  "template_version": "0.1.0",
+  "options": [],
+  "answer_exprs": {
+    "progress_percent": "(costs_to_date - rework) / total_cost * 100"
+  },
+  "explanation": "Progress = (costs to date - rework) / total expected cost = {progress_percent}%. The rework is expensed as incurred.",
+  "mistakes": [
+    {
+      "expr": "costs_to_date / total_cost * 100",
+      "feedback": "You kept the rework in costs to date. Wasted effort not reflected in the price is left out of the measure (B19(a)).",
+      "field": "progress_percent"
+    }
+  ],
+  "example_params": {
+    "customer": "Veloria Retail Ltd",
+    "price": "20000000",
+    "total_cost": "15000000",
+    "costs_to_date": "6600000",
+    "rework": "600000"
+  }
+}

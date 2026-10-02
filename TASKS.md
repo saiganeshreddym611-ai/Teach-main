@@ -306,7 +306,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T52 | Task grader | D | T51, T30, T32 | todo |
 | T53 | TASK phase in the state machine | D | T52, T42, T31 | todo |
 | T54 | Skill projection and API | D | T53 | todo |
-| T55 | Micro skills and drills, batch 1 of about 4 | D | T50 | todo |
+| T55 | Micro skills and drills, batch 1 of about 4 | D | T50 | review (Claude, 2026-10-02, log .task-runs/T55/20261002-200927) |
 | T60 | Web client types and SSE handling | E | T02 | done (95570df, reviewed by Claude) |
 | T61 | Mastery dashboard v2 | E | T60, T31 | done (380d94e, reviewed by Claude + owner) |
 | T62 | Citation chips on tutor turns | E | T60, T41 | todo |

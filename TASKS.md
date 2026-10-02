@@ -301,7 +301,7 @@ Status values: `todo`, `in progress (<agent>, <date>)`, `review`, `blocked (<rea
 | T42 | Syllabus boundary and confidence guard | C | T41, T22 | todo |
 | T43 | Tutor bench update | C | T42 | todo |
 | T44 | Study modes: learning (depth) and revision (headings) | C | T30 | done (d59299e, reviewed by Claude + owner) |
-| T50 | Skill and task schema, validator, draft templates | D | T10, T21 | review (Claude, 2026-09-29, log .task-runs/T50/20260929-043412) |
+| T50 | Skill and task schema, validator, draft templates | D | T10, T21 | done (f446a52, reviewed by Claude + owner) |
 | T51 | Deterministic calculators and variant generator | D | T50 | todo |
 | T52 | Task grader | D | T51, T30, T32 | todo |
 | T53 | TASK phase in the state machine | D | T52, T42, T31 | todo |
